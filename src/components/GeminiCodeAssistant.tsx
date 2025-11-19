@@ -370,7 +370,7 @@ How can I help you today?`,
 
   return (
     <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${
-      isExpanded ? 'fixed inset-4 z-50' : 'relative h-96'
+      isExpanded ? 'fixed inset-4 z-50' : 'relative'
     }`}>
       {/* Header */}
       <div className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex items-center justify-between">
@@ -407,7 +407,7 @@ How can I help you today?`,
 
       {/* Messages */}
       <div className={`overflow-y-auto p-4 space-y-4 ${
-        isExpanded ? 'h-[calc(100vh-200px)]' : 'h-64'
+        isExpanded ? 'h-[calc(100vh-200px)]' : 'flex-1 min-h-64'
       }`}>
         {messages.map((message) => (
           <div

@@ -26,7 +26,7 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+    <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden w-full">
       <div
         className="bg-gray-900 px-4 py-3 border-b border-gray-700 flex items-center justify-between cursor-pointer hover:bg-gray-800 transition-colors"
         onClick={() => setIsCollapsed(!isCollapsed)}

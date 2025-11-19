@@ -33,7 +33,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   };
 
   return (
-    <div className="h-full border border-gray-700 rounded-lg overflow-hidden">
+    <div className="w-full h-full border border-gray-700 rounded-lg overflow-hidden">
       <Editor
         height={height}
         language={getLanguageForMonaco(language)}

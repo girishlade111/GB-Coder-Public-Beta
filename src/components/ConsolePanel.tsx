@@ -35,7 +35,7 @@ const ConsolePanel: React.FC<ConsolePanelProps> = ({ logs, onClear }) => {
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
+    <div className="w-full bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
       <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Terminal className="w-4 h-4 text-gray-400" />

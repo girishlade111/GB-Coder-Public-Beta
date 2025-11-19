@@ -139,7 +139,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
   };
 
   return (
-    <div className="h-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+    <div className="w-full h-96 bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
       <div className="bg-gray-900 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-300">Live Preview</h3>
         <div className="flex items-center gap-2">
@@ -170,7 +170,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
           className="w-full h-full bg-white"
           title="Code Preview"
           sandbox="allow-scripts allow-same-origin"
-          srcdoc={generatePreviewContent()}
+          srcDoc={generatePreviewContent()}
         />
       </div>
     </div>
