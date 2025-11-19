@@ -179,6 +179,18 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
     }
   };
 
+  // Handle escape key for menu close
+  React.useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isDropdownOpen) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => document.removeEventListener('keydown', handleEscapeKey);
+  }, [isDropdownOpen]);
+
   return (
     <>
       {/* Main Navigation Bar */}
@@ -198,315 +210,328 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="w-full mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Left side - Logo */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-4">
                 <img 
                   src="/tghjkl.jpeg" 
                   alt="GB Coder Logo" 
-                  className="w-8 h-8 rounded-lg object-contain"
+                  className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl object-contain"
                 />
-                <span className={`text-lg font-semibold ${
+                <span className={`text-sm sm:text-lg lg:text-xl xl:text-2xl font-bold truncate ${
                   isDark ? 'text-gray-100' : 'text-gray-900'
                 }`}>
-                  GB Coder
+                  <span className="block sm:inline">GB Coder</span>
                 </span>
               </div>
             </div>
 
-            {/* Center - Empty now that all items are in menu */}
-            <div className="flex items-center gap-2">
-              {/* All buttons moved to dropdown menu */}
-            </div>
-
             {/* Right side - Menu Button & Custom Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 lg:gap-4 min-w-0 flex-shrink-0">
               {/* Custom Actions (Login, Save Status, etc.) */}
               {customActions}
 
-              {/* Dropdown Menu */}
+              {/* Hamburger Menu */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${
-                    isDark
-                      ? 'text-gray-300 hover:bg-gray-800'
-                      : 'text-gray-600 hover:bg-gray-100'
+                  className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${
+                    isDropdownOpen 
+                      ? (isDark ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black')
+                      : (isDark
+                        ? 'text-gray-300 hover:bg-gray-800'
+                        : 'text-gray-600 hover:bg-gray-100')
                   }`}
                   title="Menu"
+                  aria-label="Toggle navigation menu"
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="true"
                 >
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
                 </button>
 
                 {/* Dropdown Content */}
                 {isDropdownOpen && (
-                  <div className={`absolute right-0 mt-2 w-64 rounded-xl shadow-lg border py-2 z-50 animate-in slide-in-from-top-2 duration-200 ${
+                  <div className={`absolute right-0 mt-2 w-80 sm:w-96 rounded-xl shadow-lg border py-2 z-50 animate-in slide-in-from-top-2 duration-200 ${
                     isDark
                       ? 'bg-gray-800 border-gray-700'
                       : 'bg-white border-gray-200'
                   }`}>
-                    {/* AI Assistant */}
-                    <button
-                      onClick={() => {
-                        onAIAssistantToggle();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        aiAssistantOpen
-                          ? 'bg-blue-600 text-blue-100'
-                          : isDark
-                            ? 'text-gray-300 hover:bg-gray-700'
-                            : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Bot className="w-4 h-4" />
-                      AI Assistant
-                      {aiAssistantOpen && (
-                        <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white text-blue-600">
-                          Open
-                        </span>
-                      )}
-                    </button>
+                    {/* Menu Content - All Features Consolidated */}
+                    <div className="py-2">
+                      {/* AI Features */}
+                      <div className="px-4 pb-3">
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          AI Features
+                        </h4>
+                        <div className="space-y-1">
+                          <button
+                            onClick={() => {
+                              onAIAssistantToggle();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
+                              aiAssistantOpen
+                                ? 'bg-blue-600 text-blue-100'
+                                : isDark
+                                  ? 'text-gray-300 hover:bg-gray-700'
+                                  : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Bot className="w-4 h-4" />
+                            AI Assistant
+                            {aiAssistantOpen && (
+                              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white text-blue-600">
+                                Active
+                              </span>
+                            )}
+                          </button>
 
-                    {/* AI Suggestions */}
-                    <button
-                      onClick={() => {
-                        onAISuggestionsToggle();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        aiSuggestionsOpen
-                          ? 'bg-purple-600 text-purple-100'
-                          : isDark
-                            ? 'text-gray-300 hover:bg-gray-700'
-                            : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Lightbulb className="w-4 h-4" />
-                      AI Suggestions
-                      {aiSuggestionsOpen && (
-                        <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white text-purple-600">
-                          Open
-                        </span>
-                      )}
-                    </button>
+                          <button
+                            onClick={() => {
+                              onAISuggestionsToggle();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
+                              aiSuggestionsOpen
+                                ? 'bg-purple-600 text-purple-100'
+                                : isDark
+                                  ? 'text-gray-300 hover:bg-gray-700'
+                                  : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Lightbulb className="w-4 h-4" />
+                            AI Suggestions
+                            {aiSuggestionsOpen && (
+                              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white text-purple-600">
+                                Active
+                              </span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
 
-                    <div className={`border-t my-1 ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
+                      <div className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
 
-                    {/* Load Files */}
-                    <button
-                      onClick={() => {
-                        fileInputRef.current?.click();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <FolderOpen className="w-4 h-4" />
-                      Load Files
-                    </button>
+                      {/* Code Operations */}
+                      <div className="px-4 py-3">
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          Code Operations
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => {
+                              onRun();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${
+                              isDark
+                                ? 'text-gray-300 hover:bg-gray-700'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Play className="w-4 h-4" />
+                            Run
+                          </button>
 
-                    {/* Theme Toggle */}
-                    <button
-                      onClick={() => {
-                        // Toggle theme
-                        const newTheme = isDark ? 'light' : 'dark';
-                        localStorage.setItem('gb-coder-theme', newTheme);
-                        window.dispatchEvent(new CustomEvent('theme-change', { detail: newTheme }));
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                      {isDark ? 'Light Mode' : 'Dark Mode'}
-                    </button>
+                          <button
+                            onClick={() => {
+                              onAutoSaveToggle();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${
+                              autoSaveEnabled 
+                                ? 'bg-green-600 text-green-100'
+                                : isDark
+                                  ? 'text-gray-300 hover:bg-gray-700'
+                                  : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Save className="w-4 h-4" />
+                            Save
+                            <span className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${
+                              autoSaveEnabled 
+                                ? 'bg-white text-green-600' 
+                                : isDark
+                                  ? 'bg-gray-600 text-gray-300'
+                                  : 'bg-gray-200 text-gray-600'
+                            }`}>
+                              {autoSaveEnabled ? 'ON' : 'OFF'}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
 
-                    <div className={`border-t my-1 ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
+                      <div className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
 
-                    {/* Undo */}
-                    <button
-                      onClick={() => {
-                        onUndo();
-                        setIsDropdownOpen(false);
-                      }}
-                      disabled={!canUndo}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        canUndo
-                          ? isDark
-                            ? 'text-gray-300 hover:bg-gray-700'
-                            : 'text-gray-700 hover:bg-gray-50'
-                          : 'text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      <Undo2 className="w-4 h-4" />
-                      Undo
-                      {!canUndo && (
-                        <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
-                          Disabled
-                        </span>
-                      )}
-                    </button>
+                      {/* Edit Operations */}
+                      <div className="px-4 py-3">
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          Edit
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => {
+                              onUndo();
+                              setIsDropdownOpen(false);
+                            }}
+                            disabled={!canUndo}
+                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${
+                              canUndo
+                                ? isDark
+                                  ? 'text-gray-300 hover:bg-gray-700'
+                                  : 'text-gray-700 hover:bg-gray-50'
+                                : 'text-gray-500 cursor-not-allowed'
+                            }`}
+                          >
+                            <Undo2 className="w-4 h-4" />
+                            Undo
+                          </button>
 
-                    {/* Redo */}
-                    <button
-                      onClick={() => {
-                        onRedo();
-                        setIsDropdownOpen(false);
-                      }}
-                      disabled={!canRedo}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        canRedo
-                          ? isDark
-                            ? 'text-gray-300 hover:bg-gray-700'
-                            : 'text-gray-700 hover:bg-gray-50'
-                          : 'text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      <Redo2 className="w-4 h-4" />
-                      Redo
-                      {!canRedo && (
-                        <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
-                          Disabled
-                        </span>
-                      )}
-                    </button>
+                          <button
+                            onClick={() => {
+                              onRedo();
+                              setIsDropdownOpen(false);
+                            }}
+                            disabled={!canRedo}
+                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${
+                              canRedo
+                                ? isDark
+                                  ? 'text-gray-300 hover:bg-gray-700'
+                                  : 'text-gray-700 hover:bg-gray-50'
+                                : 'text-gray-500 cursor-not-allowed'
+                            }`}
+                          >
+                            <Redo2 className="w-4 h-4" />
+                            Redo
+                          </button>
+                        </div>
+                      </div>
 
-                    <div className={`border-t my-1 ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
+                      <div className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
 
-                    {/* Auto Save */}
-                    <button
-                      onClick={() => {
-                        onAutoSaveToggle();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Save className="w-4 h-4" />
-                      Auto Save
-                      <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${
-                        autoSaveEnabled 
-                          ? 'bg-green-600 text-green-100' 
-                          : isDark
-                            ? 'bg-gray-600 text-gray-300'
-                            : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        {autoSaveEnabled ? 'ON' : 'OFF'}
-                      </span>
-                    </button>
+                      {/* File Management */}
+                      <div className="px-4 py-3">
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          Files
+                        </h4>
+                        <div className="space-y-1">
+                          <button
+                            onClick={() => {
+                              fileInputRef.current?.click();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
+                              isDark
+                                ? 'text-gray-300 hover:bg-gray-700'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Upload className="w-4 h-4" />
+                            Import Files
+                          </button>
 
-                    {/* Snippets */}
-                    <button
-                      onClick={() => {
-                        onSnippetsToggle();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <FolderOpen className="w-4 h-4" />
-                      Snippets
-                    </button>
+                          <button
+                            onClick={() => {
+                              onExport();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
+                              isDark
+                                ? 'text-gray-300 hover:bg-gray-700'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Download className="w-4 h-4" />
+                            Export Project
+                          </button>
+                        </div>
+                      </div>
 
-                    {/* About Us */}
-                    <button
-                      onClick={() => {
-                        // Add about page navigation
-                        window.dispatchEvent(new CustomEvent('navigate-to-about'));
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <FileText className="w-4 h-4" />
-                      About Us
-                    </button>
+                      <div className={`border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
 
-                    <div className={`border-t my-1 ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
+                      {/* Settings & Tools */}
+                      <div className="px-4 py-3">
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          Settings & Tools
+                        </h4>
+                        <div className="space-y-1">
+                          <button
+                            onClick={() => {
+                              onSnippetsToggle();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
+                              isDark
+                                ? 'text-gray-300 hover:bg-gray-700'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <FolderOpen className="w-4 h-4" />
+                            Snippets
+                          </button>
 
-                    {/* Run */}
-                    <button
-                      onClick={() => {
-                        onRun();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Play className="w-4 h-4" />
-                      Run
-                    </button>
+                          <button
+                            onClick={() => {
+                              const newTheme = isDark ? 'light' : 'dark';
+                              localStorage.setItem('gb-coder-theme', newTheme);
+                              window.dispatchEvent(new CustomEvent('theme-change', { detail: newTheme }));
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
+                              isDark
+                                ? 'text-gray-300 hover:bg-gray-700'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                            {isDark ? 'Light Mode' : 'Dark Mode'}
+                          </button>
 
-                    {/* Reset */}
-                    <button
-                      onClick={() => {
-                        onReset();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                      Reset
-                    </button>
+                          <button
+                            onClick={() => {
+                              window.dispatchEvent(new CustomEvent('navigate-to-about'));
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
+                              isDark
+                                ? 'text-gray-300 hover:bg-gray-700'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <FileText className="w-4 h-4" />
+                            About Us
+                          </button>
 
-                    <div className={`border-t my-1 ${isDark ? 'border-gray-700' : 'border-gray-200'}`} />
-
-                    {/* Import */}
-                    <button
-                      onClick={() => {
-                        fileInputRef.current?.click();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Upload className="w-4 h-4" />
-                      Import
-                    </button>
-
-                    {/* Export */}
-                    <button
-                      onClick={() => {
-                        onExport();
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 transition-colors ${
-                        isDark
-                          ? 'text-gray-300 hover:bg-gray-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Download className="w-4 h-4" />
-                      Export
-                    </button>
+                          <button
+                            onClick={() => {
+                              onReset();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
+                              isDark
+                                ? 'text-gray-300 hover:bg-gray-700'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset Project
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -592,7 +617,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
       />
 
       {/* Spacer for fixed navbar */}
-      <div className="h-16" />
+      <div className="h-14 sm:h-16" />
     </>
   );
 };
