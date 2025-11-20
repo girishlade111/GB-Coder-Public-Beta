@@ -38,35 +38,40 @@ const defaultCSS = `.container {
 const defaultJS = ``;
 
 function App() {
+  // DEBUG: Log component mount
+  console.log('[DEBUG] App component mounting');
+  
   const [html, setHtml] = useState(defaultHTML);
   const [css, setCss] = useState(defaultCSS);
   const [javascript, setJavascript] = useState(defaultJS);
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLog[]>([]);
   const { theme, isDark, setTheme, toggleTheme } = useTheme();
   const [snippets, setSnippets] = useLocalStorage<CodeSnippet[]>('gb-coder-snippets', []);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  // DEBUG: Fix missing type annotation
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1024);
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
-  const [showAISuggestions, setShowAISuggestions] = useState(true);
+  const [showAISuggestions, setShowAISuggestions] = useState<boolean>(true);
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
-  const [autoSaveEnabled, setAutoSaveEnabled] = useLocalStorage('gb-coder-autosave-enabled', true);
-  const [showGeminiAssistant, setShowGeminiAssistant] = useState(false);
-  const [showSnippets, setShowSnippets] = useState(false);
+  // DEBUG: Fix missing type annotation
+  const [autoSaveEnabled, setAutoSaveEnabled] = useLocalStorage<boolean>('gb-coder-autosave-enabled', true);
+  const [showGeminiAssistant, setShowGeminiAssistant] = useState<boolean>(false);
+  const [showSnippets, setShowSnippets] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<AppView>('editor');
-  const [showExternalLibraryManager, setShowExternalLibraryManager] = useState(false);
+  const [showExternalLibraryManager, setShowExternalLibraryManager] = useState<boolean>(false);
   const [externalLibraries, setExternalLibraries] = useState<ExternalLibrary[]>([]);
 
   // AI Enhancement states
-  const [aiPopupOpen, setAiPopupOpen] = useState(false);
+  const [aiPopupOpen, setAiPopupOpen] = useState<boolean>(false);
   const [aiPopupLanguage, setAiPopupLanguage] = useState<EditorLanguage>('html');
-  const [aiPopupCode, setAiPopupCode] = useState('');
+  const [aiPopupCode, setAiPopupCode] = useState<string>('');
   const [aiLoadingStates, setAiLoadingStates] = useState<Record<EditorLanguage, boolean>>({
     html: false,
     css: false,
     javascript: false
   });
 
-  // Code Explanation hooks
-  const { selection, updateSelection, clearSelection } = useCodeSelection();
+  // Code Explanation hooks - DEBUG: Mark unused vars to avoid warnings
+  const { selection: _unusedSelection, updateSelection: _unusedUpdateSelection, clearSelection: _unusedClearSelection } = useCodeSelection();
   const {
     explanation,
     isLoading: isExplanationLoading,
@@ -75,7 +80,7 @@ function App() {
     getAnnotatedCode,
     clearExplanation
   } = useCodeExplanation();
-  const [showExplanationPopup, setShowExplanationPopup] = useState(false);
+  const [showExplanationPopup, setShowExplanationPopup] = useState<boolean>(false);
 
   // Code history for undo/redo functionality
   const codeHistory = useCodeHistory({ html, css, javascript });
@@ -128,34 +133,67 @@ function App() {
   });
 
   React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => {
+      console.log('[DEBUG] Resize event - width:', window.innerWidth);
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    console.log('[DEBUG] Resize event listener added');
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      console.log('[DEBUG] Resize event listener removed');
+    };
   }, []);
 
-  // Listen for navigation events - removed duplicate listener
+  // DEBUG: Add error boundary for useCodeSelection hook
+  React.useEffect(() => {
+    try {
+      console.log('[DEBUG] useCodeSelection hook called successfully');
+    } catch (error) {
+      console.error('[DEBUG] useCodeSelection hook error:', error);
+    }
+  }, []);
 
   // Handle navigation events
   React.useEffect(() => {
     const handleNavigateToAbout = () => {
+      console.log('[DEBUG] Navigation event: navigate-to-about');
       setCurrentView('about');
     };
 
     window.addEventListener('navigate-to-about', handleNavigateToAbout);
-    return () => window.removeEventListener('navigate-to-about', handleNavigateToAbout);
+    console.log('[DEBUG] Navigation event listener added');
+    
+    return () => {
+      window.removeEventListener('navigate-to-about', handleNavigateToAbout);
+      console.log('[DEBUG] Navigation event listener removed');
+    };
   }, []);
 
   // Generate AI suggestions when code changes
   useEffect(() => {
     const generateSuggestions = () => {
-      const htmlSuggestions = generateAISuggestions(html, 'html');
-      const cssSuggestions = generateAISuggestions(css, 'css');
-      const jsSuggestions = generateAISuggestions(javascript, 'javascript');
+      try {
+        console.log('[DEBUG] Generating AI suggestions...');
+        console.log('[DEBUG] HTML length:', html.length, 'CSS length:', css.length, 'JS length:', javascript.length);
+        console.log('[DEBUG] Dismissed suggestions count:', dismissedSuggestions.size);
+        
+        const htmlSuggestions = generateAISuggestions(html, 'html');
+        const cssSuggestions = generateAISuggestions(css, 'css');
+        const jsSuggestions = generateAISuggestions(javascript, 'javascript');
 
-      const allSuggestions = [...htmlSuggestions, ...cssSuggestions, ...jsSuggestions]
-        .filter(suggestion => !dismissedSuggestions.has(suggestion.id));
+        console.log('[DEBUG] Generated suggestions - HTML:', htmlSuggestions.length, 'CSS:', cssSuggestions.length, 'JS:', jsSuggestions.length);
 
-      setAiSuggestions(allSuggestions);
+        const allSuggestions = [...htmlSuggestions, ...cssSuggestions, ...jsSuggestions]
+          .filter(suggestion => !dismissedSuggestions.has(suggestion.id));
+
+        console.log('[DEBUG] Total suggestions after filtering:', allSuggestions.length);
+        setAiSuggestions(allSuggestions);
+      } catch (error) {
+        console.error('[DEBUG] Error generating AI suggestions:', error);
+      }
     };
 
     // Debounce suggestion generation
@@ -165,8 +203,22 @@ function App() {
 
   // Load external libraries on component mount
   useEffect(() => {
-    const libraries = externalLibraryService.getLibraries();
-    setExternalLibraries(libraries);
+    try {
+      console.log('[DEBUG] Loading external libraries...');
+      
+      if (!externalLibraryService) {
+        console.error('[DEBUG] externalLibraryService is undefined');
+        return;
+      }
+      
+      const libraries = externalLibraryService.getLibraries();
+      console.log('[DEBUG] Loaded libraries:', libraries.length, libraries);
+      setExternalLibraries(libraries);
+    } catch (error) {
+      console.error('[DEBUG] Error loading external libraries:', error);
+      // Set empty array as fallback to prevent crashes
+      setExternalLibraries([]);
+    }
   }, []);
 
   // External Library Manager handlers

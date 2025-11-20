@@ -210,40 +210,96 @@ let currentUser = null;
 ];
 
 export const generateAISuggestions = (code: string, language: EditorLanguage): AISuggestion[] => {
-  const suggestions: AISuggestion[] = [];
-  let suggestionPatterns: any[] = [];
+  try {
+    console.log('[DEBUG] generateAISuggestions called with:', { 
+      codeLength: code?.length, 
+      language,
+      hasCode: !!code 
+    });
 
-  switch (language) {
-    case 'html':
-      suggestionPatterns = htmlSuggestions;
-      break;
-    case 'css':
-      suggestionPatterns = cssSuggestions;
-      break;
-    case 'javascript':
-      suggestionPatterns = jsSuggestions;
-      break;
-  }
+    if (!code || typeof code !== 'string') {
+      console.warn('[DEBUG] Invalid code parameter:', typeof code, code);
+      return [];
+    }
 
-  suggestionPatterns.forEach((pattern, index) => {
-    const matches = code.match(pattern.pattern);
-    if (matches) {
-      matches.forEach((match, matchIndex) => {
-        if (pattern.check(match, code)) {
-          suggestions.push({
-            id: `${language}-${index}-${matchIndex}`,
-            language,
-            ...pattern.suggestion,
+    const suggestions: AISuggestion[] = [];
+    let suggestionPatterns: any[] = [];
+
+    switch (language) {
+      case 'html':
+        suggestionPatterns = htmlSuggestions;
+        break;
+      case 'css':
+        suggestionPatterns = cssSuggestions;
+        break;
+      case 'javascript':
+        suggestionPatterns = jsSuggestions;
+        break;
+      default:
+        console.warn('[DEBUG] Unknown language:', language);
+        return [];
+    }
+
+    console.log('[DEBUG] Processing', suggestionPatterns.length, 'patterns for', language);
+
+    suggestionPatterns.forEach((pattern, index) => {
+      try {
+        console.log(`[DEBUG] Testing pattern ${index} for ${language}`);
+        
+        if (!pattern.pattern || !pattern.check || !pattern.suggestion) {
+          console.error('[DEBUG] Invalid pattern structure:', pattern);
+          return;
+        }
+
+        const matches = code.match(pattern.pattern);
+        console.log(`[DEBUG] Pattern ${index} found ${matches?.length || 0} matches`);
+        
+        if (matches && Array.isArray(matches)) {
+          matches.forEach((match, matchIndex) => {
+            try {
+              // Handle both 1 and 2 parameter check functions
+              let shouldAdd = false;
+              if (pattern.check.length === 1) {
+                shouldAdd = pattern.check(match);
+              } else if (pattern.check.length === 2) {
+                shouldAdd = pattern.check(match, code);
+              } else {
+                // Try with 2 parameters as default
+                shouldAdd = pattern.check(match, code);
+              }
+              
+              if (shouldAdd) {
+                const suggestion = {
+                  id: `${language}-${index}-${matchIndex}`,
+                  language,
+                  ...pattern.suggestion,
+                };
+                suggestions.push(suggestion);
+                console.log(`[DEBUG] Added suggestion: ${suggestion.title}`);
+              }
+            } catch (checkError) {
+              console.error(`[DEBUG] Error in check function for pattern ${index}:`, checkError);
+            }
           });
         }
-      });
-    }
-  });
+      } catch (patternError) {
+        console.error(`[DEBUG] Error processing pattern ${index}:`, patternError);
+      }
+    });
 
-  // Remove duplicates based on title
-  const uniqueSuggestions = suggestions.filter((suggestion, index, self) =>
-    index === self.findIndex(s => s.title === suggestion.title)
-  );
+    console.log('[DEBUG] Total suggestions before dedup:', suggestions.length);
 
-  return uniqueSuggestions.slice(0, 3); // Limit to 3 suggestions per language
+    // Remove duplicates based on title
+    const uniqueSuggestions = suggestions.filter((suggestion, index, self) =>
+      index === self.findIndex(s => s.title === suggestion.title)
+    );
+
+    console.log('[DEBUG] Unique suggestions:', uniqueSuggestions.length);
+    const result = uniqueSuggestions.slice(0, 3); // Limit to 3 suggestions per language
+    
+    return result;
+  } catch (error) {
+    console.error('[DEBUG] Critical error in generateAISuggestions:', error);
+    return [];
+  }
 };
