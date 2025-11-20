@@ -162,10 +162,10 @@ function App() {
 
   const handleExternalLibrariesChange = (libraries: ExternalLibrary[]) => {
     setExternalLibraries(libraries);
-    
+
     // Notify other components about the change
     window.dispatchEvent(new CustomEvent('external-libraries-updated'));
-    
+
     console.log(`External libraries updated: ${libraries.length} libraries loaded`);
   };
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import CodeEditor from './CodeEditor';
 import AISuggestButton from './AISuggestButton';
+import FormatButton from './FormatButton';
 import { EditorLanguage } from '../types';
 
 interface EditorPanelProps {
@@ -12,6 +13,8 @@ interface EditorPanelProps {
   icon: React.ReactNode;
   onAISuggest?: () => void;
   isAILoading?: boolean;
+  onFormat?: () => void;
+  isFormatLoading?: boolean;
 }
 
 const EditorPanel: React.FC<EditorPanelProps> = ({
@@ -22,6 +25,8 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
   icon,
   onAISuggest,
   isAILoading = false,
+  onFormat,
+  isFormatLoading = false,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -39,9 +44,8 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
           </span>
         </div>
         <ChevronDown
-          className={`w-4 h-4 text-gray-400 transition-transform ${
-            isCollapsed ? 'rotate-180' : ''
-          }`}
+          className={`w-4 h-4 text-gray-400 transition-transform ${isCollapsed ? 'rotate-180' : ''
+            }`}
         />
       </div>
       {!isCollapsed && (
@@ -59,6 +63,14 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
               language={language}
               onSuggest={onAISuggest}
               isLoading={isAILoading}
+              hasContent={value.trim().length > 0}
+            />
+          )}
+          {onFormat && (
+            <FormatButton
+              language={language}
+              onFormat={onFormat}
+              isLoading={isFormatLoading}
               hasContent={value.trim().length > 0}
             />
           )}
