@@ -3,8 +3,7 @@ import { Code2 } from 'lucide-react';
 import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
 import PreviewPanel from './components/PreviewPanel';
-import ConsolePanel from './components/ConsolePanel';
-import ComprehensiveTerminal from './components/ComprehensiveTerminal';
+import EnhancedConsole from './components/EnhancedConsole';
 import SnippetManager from './components/SnippetManager';
 import AISuggestionPanel from './components/AISuggestionPanel';
 import GeminiCodeAssistant from './components/GeminiCodeAssistant';
@@ -178,7 +177,7 @@ function App() {
     setConsoleLogs([]);
   };
 
-  const handleCommand = (command: string) => {
+  const handleCommand = async (command: string) => {
     const [cmd, ...args] = command.toLowerCase().split(' ');
 
     switch (cmd) {
@@ -652,9 +651,13 @@ function App() {
               onConsoleLog={handleConsoleLog}
             />
 
-            <ConsolePanel
+            <EnhancedConsole
               logs={consoleLogs}
               onClear={clearConsoleLogs}
+              html={html}
+              css={css}
+              javascript={javascript}
+              onCommand={handleCommand}
             />
 
             {/* Gemini Assistant */}
@@ -687,27 +690,6 @@ function App() {
               />
             )}
           </div>
-        </div>
-
-        {/* Comprehensive Terminal */}
-        <div className="mt-6">
-          <ComprehensiveTerminal
-            onCodeChange={(code, language) => {
-              switch (language) {
-                case 'html':
-                  handleCodeChange(code, css, javascript);
-                  break;
-                case 'css':
-                  handleCodeChange(html, code, javascript);
-                  break;
-                case 'javascript':
-                  handleCodeChange(html, css, code);
-                  break;
-              }
-            }}
-            onFileOpen={(filename) => console.log(`Opening file: ${filename}`)}
-            onThemeChange={(themeId) => setTheme(themeId as 'light' | 'dark')}
-          />
         </div>
       </div>
 

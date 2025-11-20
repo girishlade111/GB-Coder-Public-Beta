@@ -4,7 +4,6 @@ import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
 import PreviewPanel from './components/PreviewPanel';
 import ConsolePanel from './components/ConsolePanel';
-import EnhancedTerminal from './components/EnhancedTerminal';
 import SnippetManager from './components/SnippetManager';
 import AISuggestionPanel from './components/AISuggestionPanel';
 import GeminiCodeAssistant from './components/GeminiCodeAssistant';
@@ -487,6 +486,12 @@ function App() {
     setShowAISuggestions(prev => !prev);
   }, []);
 
+  const handleExternalLibraryManagerToggle = useCallback(() => {
+    // This function would typically toggle the external library manager state
+    // For now, we'll just log it since we're removing comprehensive terminal features
+    console.log('External library manager toggle');
+  }, []);
+
   // Memoized code state to prevent unnecessary re-renders
   const codeState = useMemo(() => ({ html, css, javascript }), [html, css, javascript]);
   const aiState = useMemo(() => ({
@@ -512,6 +517,7 @@ function App() {
           onRedo={handleRedo}
           onAIAssistantToggle={handleAIAssistantToggle}
           onAISuggestionsToggle={handleAISuggestionsToggle}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -558,6 +564,7 @@ function App() {
           onRedo={handleRedo}
           onAIAssistantToggle={handleAIAssistantToggle}
           onAISuggestionsToggle={handleAISuggestionsToggle}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -604,6 +611,7 @@ function App() {
         onRedo={handleRedo}
         onAIAssistantToggle={handleAIAssistantToggle}
         onAISuggestionsToggle={handleAISuggestionsToggle}
+        onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
         canUndo={codeHistory.canUndo}
         canRedo={codeHistory.canRedo}
         autoSaveEnabled={autoSaveEnabled}
@@ -709,18 +717,6 @@ function App() {
           </div>
         </div>
 
-        {/* Enhanced Terminal */}
-        <div className="mt-6">
-          <EnhancedTerminal
-            onCommand={handleCommand}
-            onCodeChange={handleCodeChange}
-            onThemeChange={setTheme}
-            onSnippetSave={saveSnippet}
-            onSnippetLoad={loadSnippetByName}
-            getCurrentCode={getCurrentCode}
-            getSnippets={getSnippets}
-          />
-        </div>
       </div>
 
       {/* Footer */}

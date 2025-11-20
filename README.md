@@ -504,7 +504,7 @@ root.render(<Welcome name="GB Coder" />);
 4. **Auto-save**: Configurable automatic saving every 30 seconds
 
 #### **Terminal Integration**
-1. **Open Terminal**: Use the Comprehensive Terminal at the bottom
+1. **Open Terminal**: Use the terminal at the bottom
 2. **Run Commands**: Execute JavaScript directly
 3. **View Logs**: See console output from your code
 4. **Debug**: Use terminal for troubleshooting
