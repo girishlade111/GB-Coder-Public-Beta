@@ -8,15 +8,8 @@ import SnippetManager from './components/SnippetManager';
 import AISuggestionPanel from './components/AISuggestionPanel';
 import GeminiCodeAssistant from './components/GeminiCodeAssistant';
 import AIEnhancementPopup from './components/AIEnhancementPopup';
-import GeminiCodeAssistant from './components/GeminiCodeAssistant';
-import AIEnhancementPopup from './components/AIEnhancementPopup';
 import CodeExplanationPopup from './components/CodeExplanationPopup';
 import ExternalLibraryManager from './components/ExternalLibraryManager';
-
-import CodeHistoryPage from './components/history/CodeHistoryPage';
-import AboutPage from './components/pages/AboutPage';
-import ExternalLibraryManager from './components/ExternalLibraryManager';
-
 import CodeHistoryPage from './components/history/CodeHistoryPage';
 import AboutPage from './components/pages/AboutPage';
 import SaveStatusIndicator from './components/ui/SaveStatusIndicator';
