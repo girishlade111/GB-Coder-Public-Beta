@@ -4,7 +4,7 @@ import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
 import PreviewPanel from './components/PreviewPanel';
 import ConsolePanel from './components/ConsolePanel';
-import EnhancedTerminal from './components/EnhancedTerminal';
+import ComprehensiveTerminal from './components/ComprehensiveTerminal';
 import SnippetManager from './components/SnippetManager';
 import AISuggestionPanel from './components/AISuggestionPanel';
 import GeminiCodeAssistant from './components/GeminiCodeAssistant';
@@ -644,16 +644,24 @@ function App() {
           </div>
         </div>
 
-        {/* Enhanced Terminal */}
+        {/* Comprehensive Terminal */}
         <div className="mt-6">
-          <EnhancedTerminal
-            onCommand={handleCommand}
-            onCodeChange={handleCodeChange}
-            onThemeChange={setTheme}
-            onSnippetSave={saveSnippet}
-            onSnippetLoad={loadSnippetByName}
-            getCurrentCode={getCurrentCode}
-            getSnippets={getSnippets}
+          <ComprehensiveTerminal
+            onCodeChange={(code, language) => {
+              switch (language) {
+                case 'html':
+                  handleCodeChange(code, css, javascript);
+                  break;
+                case 'css':
+                  handleCodeChange(html, code, javascript);
+                  break;
+                case 'javascript':
+                  handleCodeChange(html, css, code);
+                  break;
+              }
+            }}
+            onFileOpen={(filename) => console.log(`Opening file: ${filename}`)}
+            onThemeChange={(themeId) => setTheme(themeId as 'light' | 'dark')}
           />
         </div>
       </div>
