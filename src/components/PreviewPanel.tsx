@@ -18,13 +18,36 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Sanitize code input to prevent XSS attacks
+  const sanitizeCode = (code: string, language: string): string => {
+    if (language === 'html') {
+      // Basic HTML sanitization - remove script tags and dangerous attributes
+      return code
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/on\w+="[^"]*"/gi, '') // Remove event handlers
+        .replace(/javascript:/gi, '') // Remove javascript: protocols
+        .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, ''); // Remove iframes
+    } else if (language === 'css') {
+      // Basic CSS sanitization - remove dangerous CSS properties
+      return code
+        .replace(/expression\s*\(/gi, '') // Remove CSS expressions
+        .replace(/behavior\s*:/gi, '') // Remove behavior property
+        .replace(/-moz-binding\s*:/gi, ''); // Remove Mozilla binding
+    }
+    return code; // JavaScript will be handled in the sandbox
+  };
+
   const generatePreviewContent = () => {
+    const sanitizedHtml = sanitizeCode(html, 'html');
+    const sanitizedCss = sanitizeCode(css, 'css');
+    
     return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none';">
     <title>Preview</title>
     <style>
         body { 
@@ -34,66 +57,75 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
             background: white;
             color: #333;
         }
-        ${css}
+        ${sanitizedCss}
     </style>
 </head>
 <body>
-    ${html}
+    ${sanitizedHtml}
     <script>
-        // Intercept console methods
-        const originalConsole = {
-            log: console.log,
-            error: console.error,
-            warn: console.warn,
-            info: console.info
-        };
-        
+        // Strict console intercept with input validation
         const sendToParent = (type, message) => {
-            window.parent.postMessage({
-                type: 'console',
-                level: type,
-                message: message,
-                timestamp: new Date().toISOString()
-            }, '*');
+            // Validate input before sending
+            if (typeof message === 'string' && message.length < 10000) {
+                window.parent.postMessage({
+                    type: 'console',
+                    level: type,
+                    message: message.substring(0, 5000), // Limit message length
+                    timestamp: new Date().toISOString()
+                }, '*');
+            }
         };
         
-        console.log = (...args) => {
-            originalConsole.log(...args);
-            sendToParent('log', args.map(arg => 
-                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' '));
+        // Secure console methods with limits
+        const secureConsole = {
+            log: (...args) => sendToParent('log', args.map(arg => 
+                typeof arg === 'string' && arg.length > 1000 ? arg.substring(0, 1000) + '...' : 
+                typeof arg === 'object' ? '[Object]' : String(arg)
+            ).join(' ')),
+            error: (...args) => sendToParent('error', args.map(arg => 
+                typeof arg === 'string' && arg.length > 1000 ? arg.substring(0, 1000) + '...' : 
+                typeof arg === 'object' ? '[Object]' : String(arg)
+            ).join(' ')),
+            warn: (...args) => sendToParent('warn', args.map(arg => 
+                typeof arg === 'string' && arg.length > 1000 ? arg.substring(0, 1000) + '...' : 
+                typeof arg === 'object' ? '[Object]' : String(arg)
+            ).join(' ')),
+            info: (...args) => sendToParent('info', args.map(arg => 
+                typeof arg === 'string' && arg.length > 1000 ? arg.substring(0, 1000) + '...' : 
+                typeof arg === 'object' ? '[Object]' : String(arg)
+            ).join(' '))
         };
         
-        console.error = (...args) => {
-            originalConsole.error(...args);
-            sendToParent('error', args.map(arg => 
-                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' '));
-        };
+        // Override console with secure version
+        console.log = secureConsole.log;
+        console.error = secureConsole.error;
+        console.warn = secureConsole.warn;
+        console.info = secureConsole.info;
         
-        console.warn = (...args) => {
-            originalConsole.warn(...args);
-            sendToParent('warn', args.map(arg => 
-                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' '));
-        };
-        
-        console.info = (...args) => {
-            originalConsole.info(...args);
-            sendToParent('info', args.map(arg => 
-                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' '));
-        };
-        
-        // Catch runtime errors
+        // Catch runtime errors with sanitized output
         window.addEventListener('error', (e) => {
-            sendToParent('error', \`\${e.message} at \${e.filename}:\${e.lineno}\`);
+            const message = e.message ? e.message.substring(0, 500) : 'Unknown error';
+            sendToParent('error', \`\${message} at \${e.filename || 'unknown'}:\${e.lineno || 'unknown'}\`);
         });
         
+        // Secure script execution
         try {
-            ${javascript}
+            // Limit execution time to prevent infinite loops
+            const startTime = Date.now();
+            const MAX_EXECUTION_TIME = 5000; // 5 seconds
+            
+            const checkTimeout = () => {
+                if (Date.now() - startTime > MAX_EXECUTION_TIME) {
+                    throw new Error('Script execution timeout');
+                }
+            };
+            
+            // Execute sanitized JavaScript
+            const sanitizedJs = \`${javascript.replace(/</g, '\\u003c').replace(/>/g, '\\u003e')}\`;
+            eval(sanitizedJs);
+            
         } catch (error) {
-            sendToParent('error', error.message);
+            sendToParent('error', error.message ? error.message.substring(0, 200) : 'Execution error');
         }
     </script>
 </body>

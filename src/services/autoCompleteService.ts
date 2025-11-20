@@ -301,7 +301,7 @@ export class AutoCompleteService {
 
     // Starts with input
     if (lowerSuggestion.startsWith(lowerInput)) {
-      return 80 + (input.length / suggestion.length) * 20;
+      return 80 + (input.length / Math.max(suggestion.length, 1)) * 20;
     }
 
     // Contains input
@@ -311,7 +311,7 @@ export class AutoCompleteService {
 
     // Fuzzy match
     const fuzzyScore = this.fuzzyMatch(lowerSuggestion, lowerInput);
-    return fuzzyScore * 50;
+    return Math.round(fuzzyScore * 50);
   }
 
   /**

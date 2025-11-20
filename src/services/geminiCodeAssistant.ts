@@ -6,7 +6,7 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 export class GeminiCodeAssistant {
-  private model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  private model: any = null;
 
   /**
    * SYSTEM ROLE: Specialized code assistant integrated with Gemini API
@@ -17,7 +17,21 @@ export class GeminiCodeAssistant {
    * Check if API key is configured
    */
   isConfigured(): boolean {
-    return API_KEY !== '' && API_KEY.length > 0;
+    return API_KEY !== '' && API_KEY.length > 20;
+  }
+
+  /**
+   * Initialize the model with proper error handling
+   */
+  private initializeModel(): void {
+    if (this.isConfigured() && !this.model) {
+      try {
+        this.model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+      } catch (error) {
+        console.error('Failed to initialize Gemini model:', error);
+        this.model = null;
+      }
+    }
   }
 
   /**
@@ -31,6 +45,11 @@ export class GeminiCodeAssistant {
   async generateCode(request: string, detectedType?: EditorLanguage): Promise<GeminiChatMessage> {
     if (!this.isConfigured()) {
       throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your environment variables.');
+    }
+
+    this.initializeModel();
+    if (!this.model) {
+      throw new Error('Failed to initialize Gemini model');
     }
 
     try {
@@ -259,6 +278,11 @@ export class GeminiCodeAssistant {
   async sendMessage(request: GeminiChatRequest): Promise<GeminiChatMessage> {
     if (!this.isConfigured()) {
       throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your environment variables.');
+    }
+
+    this.initializeModel();
+    if (!this.model) {
+      throw new Error('Failed to initialize Gemini model');
     }
 
     try {

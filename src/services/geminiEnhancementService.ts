@@ -1,12 +1,75 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { EditorLanguage, AIEnhancement, CodeComparison, AICodeSuggestion } from '../types';
 
-// Initialize Gemini AI with the provided API key
+// Initialize Gemini AI with secure API key validation
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(API_KEY);
+
+class APIKeyValidator {
+  private static readonly MIN_KEY_LENGTH = 20;
+  private static readonly VALID_KEY_PATTERN = /^[A-Za-z0-9_-]{20,}$/;
+  
+  static validate(key: string): { isValid: boolean; error?: string } {
+    if (!key || key === 'your-gemini-api-key-here') {
+      return { 
+        isValid: false, 
+        error: 'Gemini API key is missing or using default placeholder value' 
+      };
+    }
+    
+    if (key.length < this.MIN_KEY_LENGTH) {
+      return { 
+        isValid: false, 
+        error: `Gemini API key appears to be invalid (too short: ${key.length} characters, minimum: ${this.MIN_KEY_LENGTH})` 
+      };
+    }
+    
+    if (!this.VALID_KEY_PATTERN.test(key)) {
+      return { 
+        isValid: false, 
+        error: 'Gemini API key format is invalid. Expected alphanumeric characters with underscores or hyphens.' 
+      };
+    }
+    
+    // Check for common invalid patterns
+    if (key.includes(' ') || key.includes('\n') || key.includes('\t')) {
+      return { 
+        isValid: false, 
+        error: 'Gemini API key contains invalid whitespace characters' 
+      };
+    }
+    
+    return { isValid: true };
+  }
+}
 
 export class GeminiEnhancementService {
-  private model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  private model: any;
+  private readonly apiKey: string;
+  
+  constructor() {
+    this.apiKey = API_KEY;
+    this.validateAndInitialize();
+  }
+  
+  private validateAndInitialize(): void {
+    const validation = APIKeyValidator.validate(this.apiKey);
+    
+    if (!validation.isValid) {
+      console.warn(`Gemini Enhancement Service initialization failed: ${validation.error}`);
+      // Don't throw error during construction to allow app to load
+      // Service methods will handle the missing configuration gracefully
+      this.model = null;
+      return;
+    }
+    
+    try {
+      const genAI = new GoogleGenerativeAI(this.apiKey);
+      this.model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    } catch (error) {
+      console.error('Failed to initialize Gemini model:', error);
+      this.model = null;
+    }
+  }
 
   /**
    * Enhance code using Gemini AI with comprehensive analysis
@@ -384,7 +447,7 @@ Focus on actionable, specific improvements that can be applied individually.`;
             lineNumber: i + 1,
             content: enhancedLine,
             description: 'Added line',
-            category: 'improvement'
+            category: 'improvement' as const
           });
           linesAdded++;
         } else if (originalLine && !enhancedLine) {
@@ -393,7 +456,7 @@ Focus on actionable, specific improvements that can be applied individually.`;
             lineNumber: i + 1,
             content: originalLine,
             description: 'Removed line',
-            category: 'optimization'
+            category: 'optimization' as const
           });
           linesRemoved++;
         } else {
@@ -402,7 +465,7 @@ Focus on actionable, specific improvements that can be applied individually.`;
             lineNumber: i + 1,
             content: enhancedLine,
             description: 'Modified line',
-            category: 'improvement'
+            category: 'improvement' as const
           });
           linesModified++;
         }
@@ -443,25 +506,67 @@ Focus on actionable, specific improvements that can be applied individually.`;
   }
 
   /**
-   * Check if API key is configured
+   * Check if API key is configured and valid
    */
   isConfigured(): boolean {
-    return API_KEY.length > 0 && API_KEY !== 'your-gemini-api-key-here';
+    const validation = APIKeyValidator.validate(this.apiKey);
+    return validation.isValid && this.model !== null;
   }
 
   /**
-   * Test API connection
+   * Test API connection with proper error handling
    */
   async testConnection(): Promise<boolean> {
     try {
+      if (!this.model) {
+        throw new Error('Gemini model not initialized');
+      }
+      
       const result = await this.model.generateContent('Hello, this is a test.');
       const response = await result.response;
-      return !!response.text();
+      const text = response.text();
+      
+      // Validate response
+      if (typeof text !== 'string' || text.length === 0) {
+        throw new Error('Invalid response from Gemini API');
+      }
+      
+      return true;
     } catch (error) {
       console.error('API connection test failed:', error);
       return false;
     }
   }
+
+  /**
+   * Get current API key status for debugging (masked for security)
+   */
+  getApiKeyStatus(): { isConfigured: boolean; keyLength: number; maskedKey: string } {
+    if (!this.apiKey) {
+      return { isConfigured: false, keyLength: 0, maskedKey: 'NOT_SET' };
+    }
+    
+    const maskedKey = this.apiKey.substring(0, 4) + '...' + this.apiKey.substring(this.apiKey.length - 4);
+    return {
+      isConfigured: true,
+      keyLength: this.apiKey.length,
+      maskedKey
+    };
+  }
+
+  /**
+   * Gracefully handle missing API configuration
+   */
+  private handleMissingConfiguration(operation: string): never {
+    throw new Error(
+      `Gemini API is not configured. ${operation} requires a valid API key. ` +
+      'Please set VITE_GEMINI_API_KEY in your environment variables.'
+    );
+  }
+
+
+
+
 
   /**
    * Get language-specific enhancement tips

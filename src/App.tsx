@@ -116,15 +116,7 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Listen for navigation events
-  React.useEffect(() => {
-    const handleNavigateToAbout = () => {
-      setCurrentView('about');
-    };
-
-    window.addEventListener('navigate-to-about', handleNavigateToAbout);
-    return () => window.removeEventListener('navigate-to-about', handleNavigateToAbout);
-  }, []);
+  // Listen for navigation events - removed duplicate listener
 
   // Handle navigation events
   React.useEffect(() => {
