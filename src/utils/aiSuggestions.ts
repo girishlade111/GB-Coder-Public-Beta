@@ -80,7 +80,7 @@ const cssSuggestions = [
   },
   {
     pattern: /color:\s*#[0-9a-f]{3,6}/gi,
-    check: (match: string, fullCode: string) => {
+    check: (_match: string, fullCode: string) => {
       const colorRegex = /#([0-9a-f]{3,6})/gi;
       const colors = fullCode.match(colorRegex) || [];
       return colors.length > 5; // Suggest CSS variables if many colors
