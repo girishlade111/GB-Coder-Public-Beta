@@ -143,6 +143,17 @@ export class KeyboardShortcutManager {
         enabled: true,
         preventDefault: true,
       },
+      {
+        id: 'explain-code',
+        name: 'Explain Code',
+        description: 'Explain selected code with AI',
+        category: 'editing',
+        key: 'e',
+        modifiers: ['ctrl'],
+        handler: () => this.triggerAction('explain-code'),
+        enabled: true,
+        preventDefault: true,
+      },
 
       // Window shortcuts
       {
@@ -371,7 +382,7 @@ export class KeyboardShortcutManager {
 
     // Find matching shortcuts
     const matchingShortcuts = this.findMatchingShortcuts(event);
-    
+
     if (matchingShortcuts.length > 0) {
       event.preventDefault();
       event.stopPropagation();
@@ -382,7 +393,7 @@ export class KeyboardShortcutManager {
       });
 
       const result = mostSpecific.handler(event);
-      
+
       // Allow handler to prevent default if it returns false
       if (result === false) {
         event.preventDefault();
@@ -458,7 +469,7 @@ export class KeyboardShortcutManager {
         'F11': 'F11',
         'F12': 'F12',
       };
-      
+
       return keyMap[key.toLowerCase()] || key.toLowerCase();
     };
 
@@ -515,8 +526,8 @@ export class KeyboardShortcutManager {
    */
   private handleScreenReaderShortcuts(event: KeyboardEvent): boolean {
     const shortcuts = this.getShortcutsByCategory('accessibility');
-    const matching = shortcuts.find(shortcut => 
-      this.keysMatch(event.key, shortcut.key) && 
+    const matching = shortcuts.find(shortcut =>
+      this.keysMatch(event.key, shortcut.key) &&
       this.modifiersMatch(event, shortcut.modifiers)
     );
 
@@ -653,9 +664,9 @@ export class KeyboardShortcutManager {
     this.accessibilitySettings.highContrast = !this.accessibilitySettings.highContrast;
     this.saveAccessibilitySettings();
     this.applyAccessibilitySettings();
-    
-    const message = this.accessibilitySettings.highContrast 
-      ? 'High contrast mode enabled' 
+
+    const message = this.accessibilitySettings.highContrast
+      ? 'High contrast mode enabled'
       : 'High contrast mode disabled';
     this.makeScreenReaderAnnouncement(message);
   }
@@ -667,7 +678,7 @@ export class KeyboardShortcutManager {
     const currentSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
     const newSize = Math.max(12, Math.min(24, currentSize + delta));
     document.documentElement.style.fontSize = `${newSize}px`;
-    
+
     const message = `Text size ${delta > 0 ? 'increased' : 'decreased'} to ${newSize}px`;
     this.makeScreenReaderAnnouncement(message);
   }
@@ -723,13 +734,13 @@ export class KeyboardShortcutManager {
 
     // Add focus indicators for keyboard navigation
     document.body.classList.add('keyboard-navigation');
-    
+
     // Remove when mouse is used
     const handleMouseDown = () => {
       document.body.classList.remove('keyboard-navigation');
       document.removeEventListener('mousedown', handleMouseDown);
     };
-    
+
     document.addEventListener('mousedown', handleMouseDown);
   }
 
@@ -755,7 +766,7 @@ export class KeyboardShortcutManager {
     } catch (error) {
       console.error('Failed to load accessibility settings:', error);
     }
-    
+
     return this.getDefaultAccessibilitySettings();
   }
 

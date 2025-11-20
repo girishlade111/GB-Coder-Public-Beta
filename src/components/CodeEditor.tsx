@@ -7,13 +7,15 @@ interface CodeEditorProps {
   value: string;
   onChange: (value: string) => void;
   height?: string;
+  onMount?: (editor: any, monaco: any) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ 
-  language, 
-  value, 
-  onChange, 
-  height = '300px' 
+const CodeEditor: React.FC<CodeEditorProps> = ({
+  language,
+  value,
+  onChange,
+  height = '300px',
+  onMount
 }) => {
   const handleEditorChange = (value: string | undefined) => {
     onChange(value || '');
@@ -39,6 +41,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         language={getLanguageForMonaco(language)}
         value={value}
         onChange={handleEditorChange}
+        onMount={onMount}
         theme="vs-dark"
         options={{
           minimap: { enabled: false },

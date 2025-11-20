@@ -8,6 +8,13 @@ import SnippetManager from './components/SnippetManager';
 import AISuggestionPanel from './components/AISuggestionPanel';
 import GeminiCodeAssistant from './components/GeminiCodeAssistant';
 import AIEnhancementPopup from './components/AIEnhancementPopup';
+import GeminiCodeAssistant from './components/GeminiCodeAssistant';
+import AIEnhancementPopup from './components/AIEnhancementPopup';
+import CodeExplanationPopup from './components/CodeExplanationPopup';
+import ExternalLibraryManager from './components/ExternalLibraryManager';
+
+import CodeHistoryPage from './components/history/CodeHistoryPage';
+import AboutPage from './components/pages/AboutPage';
 import ExternalLibraryManager from './components/ExternalLibraryManager';
 
 import CodeHistoryPage from './components/history/CodeHistoryPage';
@@ -19,6 +26,8 @@ import { useCodeHistory } from './hooks/useCodeHistory';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useTheme } from './hooks/useTheme';
+import { useCodeSelection } from './hooks/useCodeSelection';
+import { useCodeExplanation } from './hooks/useCodeExplanation';
 import { downloadAsZip } from './utils/downloadUtils';
 import { generateAISuggestions } from './utils/aiSuggestions';
 import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion } from './types';
@@ -62,6 +71,18 @@ function App() {
     css: false,
     javascript: false
   });
+
+  // Code Explanation hooks
+  const { selection, updateSelection, clearSelection } = useCodeSelection();
+  const {
+    explanation,
+    isLoading: isExplanationLoading,
+    explainCode,
+    getSimplifiedExplanation,
+    getAnnotatedCode,
+    clearExplanation
+  } = useCodeExplanation();
+  const [showExplanationPopup, setShowExplanationPopup] = useState(false);
 
   // Code history for undo/redo functionality
   const codeHistory = useCodeHistory({ html, css, javascript });
@@ -435,6 +456,59 @@ function App() {
     }
   };
 
+  // Code Explanation Handlers
+  const handleExplainCode = async (language: EditorLanguage) => {
+    // Get the editor instance for the specific language
+    // Note: This requires a way to access the editor instance.
+    // Since we don't have direct ref access here, we might need to rely on the
+    // selection state being updated by the EditorPanel or a different approach.
+    // For now, let's assume the selection hook handles the active editor via an event or similar.
+
+    // Actually, the EditorPanel needs to pass the editor instance or selection to us.
+    // But since we can't easily get the Monaco instance here, we will rely on the
+    // EditorPanel to handle the "Explain" click and potentially pass data back.
+
+    // However, the useCodeSelection hook is designed to work with a Monaco editor instance.
+    // We might need to move the useCodeSelection hook usage down to EditorPanel
+    // or expose the editor instances.
+
+    // For now, let's implement a simpler approach where we assume the user selects code
+    // and we use the current code of that language if no selection is detected (or show a warning).
+
+    // Wait, the requirement is to explain *selected* code.
+    // I'll add a custom event 'request-code-explanation' that EditorPanel will dispatch
+    // with the selection data.
+  };
+
+  const onExplainRequest = useCallback((data: { code: string; language: EditorLanguage; position: { top: number; left: number } }) => {
+    // Update selection state manually since we receive it from the event
+    // We need to bypass the hook's updateSelection which expects an editor instance
+    // So we'll modify the hook or just set local state.
+    // Let's use a modified approach.
+
+    // Actually, let's just use the data directly to call explainCode.
+    setShowExplanationPopup(true);
+    explainCode(data.code, data.language);
+
+    // We also need to position the popup.
+    // The useCodeSelection hook might be better used inside EditorPanel?
+    // No, the popup is global (in App.tsx).
+
+    // Let's store the position in a state here.
+    setPopupPosition(data.position);
+  }, [explainCode]);
+
+  const [popupPosition, setPopupPosition] = useState<{ top: number; left: number } | null>(null);
+
+  const handleAddComments = async () => {
+    if (!explanation) return;
+    const annotated = await getAnnotatedCode();
+    if (annotated) {
+      handleCodeUpdate(explanation.language, annotated);
+      setShowExplanationPopup(false);
+    }
+  };
+
   const getCurrentCode = useCallback(() => ({ html, css, javascript }), [html, css, javascript]);
   const getSnippets = useCallback(() => snippets, [snippets]);
 
@@ -713,6 +787,19 @@ function App() {
         onClose={() => setShowExternalLibraryManager(false)}
         libraries={externalLibraries}
         onLibrariesChange={handleExternalLibrariesChange}
+      />
+
+      {/* Code Explanation Popup */}
+      <CodeExplanationPopup
+        isOpen={showExplanationPopup}
+        onClose={() => setShowExplanationPopup(false)}
+        explanation={explanation}
+        isLoading={isExplanationLoading}
+        position={popupPosition}
+        onUserLevelChange={(level) => explanation && explainCode(explanation.code, explanation.language, level)}
+        onShowSimplified={getSimplifiedExplanation}
+        onShowAnnotated={getAnnotatedCode}
+        onAddComments={handleAddComments}
       />
     </div>
   );

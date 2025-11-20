@@ -163,3 +163,37 @@ export interface TerminalState {
 export type Theme = 'dark' | 'light';
 
 export type EditorLanguage = 'html' | 'css' | 'javascript';
+
+// Code Explanation Types
+export type UserLevel = 'beginner' | 'intermediate' | 'advanced';
+
+export interface CodeExplanation {
+  id: string;
+  code: string;
+  language: EditorLanguage;
+  userLevel: UserLevel;
+  summary: string;
+  breakdown: ExplanationBlock[];
+  notes: ExplanationNote[];
+  suggestions: string[];
+  exampleInputOutput?: { input: string; output: string };
+  annotatedCode?: string;
+  simplifiedExplanation?: string;
+  timestamp: string;
+}
+
+export interface ExplanationBlock {
+  id: string;
+  lineStart: number;
+  lineEnd: number;
+  codeSnippet: string;
+  explanation: string;
+}
+
+export interface ExplanationNote {
+  id: string;
+  type: 'pitfall' | 'security' | 'performance' | 'best-practice';
+  severity: 'low' | 'medium' | 'high';
+  title: string;
+  description: string;
+}

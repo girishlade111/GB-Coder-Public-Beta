@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import CodeEditor from './CodeEditor';
 import AISuggestButton from './AISuggestButton';
 import FormatButton from './FormatButton';
+import ExplainCodeButton from './ExplainCodeButton';
 import { EditorLanguage } from '../types';
 
 interface EditorPanelProps {
@@ -15,6 +16,8 @@ interface EditorPanelProps {
   isAILoading?: boolean;
   onFormat?: () => void;
   isFormatLoading?: boolean;
+  onExplain?: () => void;
+  isExplainLoading?: boolean;
 }
 
 const EditorPanel: React.FC<EditorPanelProps> = ({
@@ -27,6 +30,8 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
   isAILoading = false,
   onFormat,
   isFormatLoading = false,
+  onExplain,
+  isExplainLoading = false,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -71,6 +76,14 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
               language={language}
               onFormat={onFormat}
               isLoading={isFormatLoading}
+              hasContent={value.trim().length > 0}
+            />
+          )}
+          {onExplain && (
+            <ExplainCodeButton
+              language={language}
+              onExplain={onExplain}
+              isLoading={isExplainLoading}
               hasContent={value.trim().length > 0}
             />
           )}
