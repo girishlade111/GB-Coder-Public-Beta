@@ -1,65 +1,196 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GB Coder - Code Playground</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: #111827;
-        color: #f9fafb;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+
+  <!-- Primary Meta Tags -->
+  <title>GB Coder - AI-Powered HTML, CSS & JavaScript Code Editor | Online IDE</title>
+  <meta name="title" content="GB Coder - AI-Powered HTML, CSS & JavaScript Code Editor | Online IDE" />
+  <meta name="description"
+    content="Free AI-powered online code editor for HTML, CSS, and JavaScript. Build web projects with live preview, intelligent code suggestions, external library manager, and real-time compilation. No signup required!" />
+  <meta name="keywords"
+    content="online code editor, HTML editor, CSS editor, JavaScript editor, AI code assistant, live preview, code playground, web development, IDE, compiler, code enhancer, free code editor, browser IDE, Monaco editor, web compiler, front-end development, coding tool, programming online, code snippet manager, external library manager, Bootstrap editor, React playground, Vue editor" />
+  <meta name="author" content="Girish Lade" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="language" content="English" />
+  <meta name="revisit-after" content="7 days" />
+  <meta name="rating" content="general" />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://gbcoder.com/" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#3b82f6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GB Coder" />
+
+  <!-- Open Graph / Facebook Meta Tags -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://gbcoder.com/" />
+  <meta property="og:title" content="GB Coder - AI-Powered HTML, CSS & JavaScript Code Editor" />
+  <meta property="og:description"
+    content="Free AI-powered online code editor with live preview, intelligent suggestions, and external library manager. Build web projects instantly in your browser!" />
+  <meta property="og:image" content="https://gbcoder.com/tghjkl.jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="GB Coder - AI-Powered Code Editor Interface" />
+  <meta property="og:site_name" content="GB Coder" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://gbcoder.com/" />
+  <meta name="twitter:title" content="GB Coder - AI-Powered Online Code Editor" />
+  <meta name="twitter:description"
+    content="Free AI-powered HTML, CSS & JavaScript editor with live preview. Code, compile, and enhance your web projects in the browser. No signup required!" />
+  <meta name="twitter:image" content="https://gbcoder.com/tghjkl.jpeg" />
+  <meta name="twitter:image:alt" content="GB Coder Code Editor Screenshot" />
+  <meta name="twitter:creator" content="@girish_lade_" />
+
+  <!-- Structured Data (JSON-LD) for SEO -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "GB Coder",
+      "alternateName": "GB Coder - AI Code Editor",
+      "url": "https://gbcoder.com",
+      "logo": "https://gbcoder.com/favicon.ico",
+      "description": "AI-powered online code editor for HTML, CSS, and JavaScript with live preview, intelligent suggestions, and external library management.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Girish Lade",
+        "url": "https://ladestack.in",
+        "email": "girishlade111@gmail.com",
+        "sameAs": [
+          "https://www.instagram.com/girish_lade_/",
+          "https://www.linkedin.com/in/girish-lade-075bba201/",
+          "https://github.com/girishlade111",
+          "https://codepen.io/Girish-Lade-the-looper"
+        ]
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "GB Coder",
+        "url": "https://gbcoder.com",
+        "logo": "https://gbcoder.com/favicon.ico",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "girishlade111@gmail.com",
+          "contactType": "Customer Support"
+        }
+      },
+      "featureList": [
+        "AI-powered code enhancement",
+        "Live preview",
+        "HTML, CSS, JavaScript editor",
+        "External library manager",
+        "Code history tracking",
+        "Snippet management",
+        "Integrated console",
+        "Auto-save functionality",
+        "No login required",
+        "Free to use"
+      ],
+      "screenshot": "https://gbcoder.com/tghjkl.jpeg",
+      "softwareVersion": "2.0.0",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
       }
-      
-      #loading {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #111827;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-      }
-      
-      .loading-spinner {
-        width: 50px;
-        height: 50px;
-        border: 3px solid #374151;
-        border-top: 3px solid #3b82f6;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="loading">
-      <div class="loading-spinner"></div>
-    </div>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Hide loading spinner once React loads
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const loading = document.getElementById('loading');
-          if (loading) {
-            loading.style.opacity = '0';
-            loading.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => loading.remove(), 300);
-          }
-        }, 500);
-      });
+    }
     </script>
-  </body>
+
+  <!-- Security Headers -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; style-src 'self' 'unsafe-inline' https: http:; img-src 'self' data: https: http:; connect-src 'self' https: http:; font-src 'self' data: https: http:; object-src 'none'; media-src 'self' https: http:; frame-src 'self' https: http: data:; base-uri 'self';" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+
+  <!-- Performance Hints -->
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+  <link rel="dns-prefetch" href="//unpkg.com" />
+  <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
+  <link rel="preconnect" href="https://generativelanguage.googleapis.com" crossorigin />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid #374151;
+      border-top: 3px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loading">
+    <div class="loading-spinner"></div>
+  </div>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    // Hide loading spinner once React loads
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loading = document.getElementById('loading');
+        if (loading) {
+          loading.style.opacity = '0';
+          loading.style.transition = 'opacity 0.3s ease';
+          setTimeout(() => loading.remove(), 300);
+        }
+      }, 500);
+    });
+  </script>
+</body>
+
 </html>

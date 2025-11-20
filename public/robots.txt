@@ -1,0 +1,11 @@
+# robots.txt for GB Coder
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+Allow: /
+
+# Crawl-delay to be respectful to servers
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://gbcoder.com/sitemap.xml
