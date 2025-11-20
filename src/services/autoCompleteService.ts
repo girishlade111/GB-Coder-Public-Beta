@@ -97,7 +97,7 @@ export class AutoCompleteService {
     const suggestions: AutoCompleteItem[] = [];
 
     // Command suggestions
-    suggestions.push(...this.getCommandSuggestions(currentWord, context));
+    suggestions.push(...this.getCommandSuggestions(currentWord));
 
     // Keyword suggestions
     suggestions.push(...this.getKeywordSuggestions(currentWord));
@@ -115,13 +115,13 @@ export class AutoCompleteService {
     suggestions.push(...this.getCustomCommandSuggestions(currentWord));
 
     // Sort by score and relevance
-    return this.rankSuggestions(suggestions, currentWord).slice(0, 10);
+    return this.rankSuggestions(suggestions).slice(0, 10);
   }
 
   /**
    * Get command suggestions
    */
-  private getCommandSuggestions(input: string, context: AutoCompleteContext): AutoCompleteItem[] {
+  private getCommandSuggestions(input: string): AutoCompleteItem[] {
     const suggestions: AutoCompleteItem[] = [];
     const lowerInput = input.toLowerCase();
 
@@ -336,7 +336,7 @@ export class AutoCompleteService {
   /**
    * Rank and sort suggestions
    */
-  private rankSuggestions(suggestions: AutoCompleteItem[], input: string): AutoCompleteItem[] {
+  private rankSuggestions(suggestions: AutoCompleteItem[]): AutoCompleteItem[] {
     // Remove duplicates
     const seen = new Set<string>();
     const unique = suggestions.filter(item => {

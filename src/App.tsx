@@ -260,12 +260,22 @@ function App() {
 
 
 
-  const loadSnippetByName = (name: string) => {
+  const loadSnippetByName = useCallback((name: string) => {
+    console.log(`Attempting to load snippet: ${name}`);
     const snippet = snippets.find(s => s.name === name);
     if (snippet) {
       loadSnippet(snippet);
+      console.log(`Successfully loaded snippet: ${name}`);
+    } else {
+      console.warn(`Snippet not found: ${name}`);
+      setConsoleLogs(prev => [...prev, {
+        id: Date.now().toString(),
+        type: 'error',
+        message: `Snippet "${name}" not found`,
+        timestamp: new Date().toISOString(),
+      }]);
     }
-  };
+  }, [snippets, loadSnippet]);
 
   const deleteSnippet = (id: string) => {
     setSnippets(prev => prev.filter(s => s.id !== id));
@@ -402,8 +412,8 @@ function App() {
     }
   };
 
-  const getCurrentCode = () => ({ html, css, javascript });
-  const getSnippets = () => snippets;
+  const getCurrentCode = useCallback(() => ({ html, css, javascript }), [html, css, javascript]);
+  const getSnippets = useCallback(() => snippets, [snippets]);
 
   const getCurrentCodeForLanguage = (language: EditorLanguage): string => {
     switch (language) {
