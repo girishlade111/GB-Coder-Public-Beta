@@ -16,7 +16,8 @@ import {
   Code,
   Palette,
   Sun,
-  Moon
+  Moon,
+  Settings
 } from 'lucide-react';
 import { EditorLanguage } from '../types';
 import ThemeToggle from './ui/ThemeToggle';  
@@ -33,6 +34,7 @@ interface NavigationBarProps {
   onRedo: () => void;
   onAIAssistantToggle: () => void;
   onAISuggestionsToggle: () => void;
+  onExternalLibraryManagerToggle: () => void;
   canUndo: boolean;
   canRedo: boolean;
   autoSaveEnabled: boolean;
@@ -59,6 +61,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   onRedo,
   onAIAssistantToggle,
   onAISuggestionsToggle,
+  onExternalLibraryManagerToggle,
   canUndo,
   canRedo,
   autoSaveEnabled,
@@ -232,6 +235,20 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
             <div className="flex items-center gap-1 sm:gap-2 lg:gap-4 min-w-0 flex-shrink-0">
               {/* Custom Actions (Login, Save Status, etc.) */}
               {customActions}
+
+              {/* Settings Button */}
+              <button
+                onClick={onExternalLibraryManagerToggle}
+                className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${
+                  isDark
+                    ? 'text-gray-300 hover:bg-gray-800'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title="External Library Manager"
+                aria-label="External Library Manager"
+              >
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+              </button>
 
               {/* Hamburger Menu */}
               <div className="relative" ref={dropdownRef}>

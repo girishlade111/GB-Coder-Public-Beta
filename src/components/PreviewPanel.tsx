@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RefreshCw, ExternalLink } from 'lucide-react';
 import { ConsoleLog } from '../types';
+import { externalLibraryService } from '../services/externalLibraryService';
 
 interface PreviewPanelProps {
   html: string;
@@ -41,14 +42,19 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
     const sanitizedHtml = sanitizeCode(html, 'html');
     const sanitizedCss = sanitizeCode(css, 'css');
     
+    // Get external libraries
+    const externalLibraries = externalLibraryService.getLibraries();
+    const externalLibsHTML = externalLibraryService.generateInjectionHTML();
+    
     return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none';">
     <title>Preview</title>
+    ${externalLibsHTML}
     <style>
         body { 
             margin: 0; 
@@ -63,6 +69,11 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
 <body>
     ${sanitizedHtml}
     <script>
+        // External Libraries Loading Indicator
+        if (${externalLibraries.length} > 0) {
+            console.log('Loading ${externalLibraries.length} external libraries...');
+        }
+        
         // Strict console intercept with input validation
         const sendToParent = (type, message) => {
             // Validate input before sending
@@ -108,24 +119,51 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
             sendToParent('error', \`\${message} at \${e.filename || 'unknown'}:\${e.lineno || 'unknown'}\`);
         });
         
-        // Secure script execution
-        try {
-            // Limit execution time to prevent infinite loops
-            const startTime = Date.now();
-            const MAX_EXECUTION_TIME = 5000; // 5 seconds
-            
-            const checkTimeout = () => {
-                if (Date.now() - startTime > MAX_EXECUTION_TIME) {
-                    throw new Error('Script execution timeout');
+        // Wait for external libraries to load before executing user code
+        const waitForLibraries = () => {
+            return new Promise((resolve) => {
+                if (window.document.readyState === 'complete') {
+                    resolve();
+                } else {
+                    window.addEventListener('load', resolve);
                 }
-            };
-            
-            // Execute sanitized JavaScript
-            const sanitizedJs = \`${javascript.replace(/</g, '\\u003c').replace(/>/g, '\\u003e')}\`;
-            eval(sanitizedJs);
-            
-        } catch (error) {
-            sendToParent('error', error.message ? error.message.substring(0, 200) : 'Execution error');
+            });
+        };
+        
+        // Execute user code after libraries are loaded
+        const executeUserCode = async () => {
+            try {
+                // Wait for external libraries to load
+                await waitForLibraries();
+                
+                // Limit execution time to prevent infinite loops
+                const startTime = Date.now();
+                const MAX_EXECUTION_TIME = 5000; // 5 seconds
+                
+                const checkTimeout = () => {
+                    if (Date.now() - startTime > MAX_EXECUTION_TIME) {
+                        throw new Error('Script execution timeout');
+                    }
+                };
+                
+                // Execute sanitized JavaScript
+                const sanitizedJs = \`${javascript.replace(/</g, '\\u003c').replace(/>/g, '\\u003e')}\`;
+                eval(sanitizedJs);
+                
+                if (${externalLibraries.length} > 0) {
+                    console.log('External libraries loaded successfully');
+                }
+                
+            } catch (error) {
+                sendToParent('error', error.message ? error.message.substring(0, 200) : 'Execution error');
+            }
+        };
+        
+        // Start execution when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', executeUserCode);
+        } else {
+            executeUserCode();
         }
     </script>
 </body>
@@ -144,6 +182,24 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
   useEffect(() => {
     refreshPreview();
   }, [html, css, javascript]);
+
+  // Refresh preview when external libraries change
+  useEffect(() => {
+    const handleExternalLibrariesChange = () => {
+      refreshPreview();
+    };
+
+    // Listen for storage changes (when libraries are updated)
+    window.addEventListener('storage', handleExternalLibrariesChange);
+    
+    // Custom event for real-time updates
+    window.addEventListener('external-libraries-updated', handleExternalLibrariesChange);
+
+    return () => {
+      window.removeEventListener('storage', handleExternalLibrariesChange);
+      window.removeEventListener('external-libraries-updated', handleExternalLibrariesChange);
+    };
+  }, []);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {

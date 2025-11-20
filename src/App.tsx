@@ -9,6 +9,7 @@ import SnippetManager from './components/SnippetManager';
 import AISuggestionPanel from './components/AISuggestionPanel';
 import GeminiCodeAssistant from './components/GeminiCodeAssistant';
 import AIEnhancementPopup from './components/AIEnhancementPopup';
+import ExternalLibraryManager from './components/ExternalLibraryManager';
 
 import CodeHistoryPage from './components/history/CodeHistoryPage';
 import AboutPage from './components/pages/AboutPage';
@@ -23,6 +24,7 @@ import { downloadAsZip } from './utils/downloadUtils';
 import { generateAISuggestions } from './utils/aiSuggestions';
 import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion } from './types';
 import { geminiEnhancementService } from './services/geminiEnhancementService';
+import { externalLibraryService, ExternalLibrary } from './services/externalLibraryService';
 
 type AppView = 'editor' | 'history' | 'about';
 
@@ -49,6 +51,8 @@ function App() {
   const [showGeminiAssistant, setShowGeminiAssistant] = useState(false);
   const [showSnippets, setShowSnippets] = useState(false);
   const [currentView, setCurrentView] = useState<AppView>('editor');
+  const [showExternalLibraryManager, setShowExternalLibraryManager] = useState(false);
+  const [externalLibraries, setExternalLibraries] = useState<ExternalLibrary[]>([]);
 
   // AI Enhancement states
   const [aiPopupOpen, setAiPopupOpen] = useState(false);
@@ -145,6 +149,26 @@ function App() {
     const timeoutId = setTimeout(generateSuggestions, 1000);
     return () => clearTimeout(timeoutId);
   }, [html, css, javascript, dismissedSuggestions]);
+
+  // Load external libraries on component mount
+  useEffect(() => {
+    const libraries = externalLibraryService.getLibraries();
+    setExternalLibraries(libraries);
+  }, []);
+
+  // External Library Manager handlers
+  const handleExternalLibraryManagerToggle = () => {
+    setShowExternalLibraryManager(!showExternalLibraryManager);
+  };
+
+  const handleExternalLibrariesChange = (libraries: ExternalLibrary[]) => {
+    setExternalLibraries(libraries);
+    
+    // Notify other components about the change
+    window.dispatchEvent(new CustomEvent('external-libraries-updated'));
+    
+    console.log(`External libraries updated: ${libraries.length} libraries loaded`);
+  };
 
   const handleConsoleLog = useCallback((log: ConsoleLog) => {
     setConsoleLogs(prev => [...prev, log]);
@@ -449,6 +473,7 @@ function App() {
           onRedo={handleRedo}
           onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
           onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -475,6 +500,14 @@ function App() {
           <AboutPage />
         </div>
         <Footer />
+
+        {/* External Library Manager for About page */}
+        <ExternalLibraryManager
+          isOpen={showExternalLibraryManager}
+          onClose={() => setShowExternalLibraryManager(false)}
+          libraries={externalLibraries}
+          onLibrariesChange={handleExternalLibrariesChange}
+        />
       </div>
     );
   }
@@ -495,6 +528,7 @@ function App() {
           onRedo={handleRedo}
           onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
           onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -521,6 +555,14 @@ function App() {
           <CodeHistoryPage />
         </div>
         <Footer />
+
+        {/* External Library Manager for History page */}
+        <ExternalLibraryManager
+          isOpen={showExternalLibraryManager}
+          onClose={() => setShowExternalLibraryManager(false)}
+          libraries={externalLibraries}
+          onLibrariesChange={handleExternalLibrariesChange}
+        />
       </div>
     );
   }
@@ -541,6 +583,7 @@ function App() {
         onRedo={handleRedo}
         onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
         onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+        onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
         canUndo={codeHistory.canUndo}
         canRedo={codeHistory.canRedo}
         autoSaveEnabled={autoSaveEnabled}
@@ -680,6 +723,14 @@ function App() {
         onApplyChanges={handleAIEnhancementApply}
         onApplyPartial={handleAIPartialApply}
         onUndo={codeHistory.canUndo ? handleUndo : undefined}
+      />
+
+      {/* External Library Manager */}
+      <ExternalLibraryManager
+        isOpen={showExternalLibraryManager}
+        onClose={() => setShowExternalLibraryManager(false)}
+        libraries={externalLibraries}
+        onLibrariesChange={handleExternalLibrariesChange}
       />
     </div>
   );
