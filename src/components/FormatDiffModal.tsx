@@ -15,7 +15,6 @@ interface FormatDiffModalProps {
 
 const FormatDiffModal: React.FC<FormatDiffModalProps> = ({
     isOpen,
-    onClose,
     formatResult,
     onAccept,
     onReject,
@@ -52,7 +51,9 @@ const FormatDiffModal: React.FC<FormatDiffModalProps> = ({
             case 'javascript':
                 return 'JavaScript';
             default:
-                return language.toUpperCase();
+                // Type assertion needed because TypeScript correctly narrows to 'never'
+                // after exhaustive checking, but we want a fallback just in case
+                return (language as string).toUpperCase();
         }
     };
 

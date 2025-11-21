@@ -1,5 +1,4 @@
 // Keyboard Shortcuts and Accessibility Service
-import { KeyboardShortcut } from '../types/console.types';
 
 export interface ShortcutAction {
   id: string;
@@ -117,7 +116,7 @@ export class KeyboardShortcutManager {
         category: 'editing',
         key: 'ArrowUp',
         modifiers: [],
-        handler: (e) => this.triggerAction('history-up'),
+        handler: () => this.triggerAction('history-up'),
         enabled: true,
         preventDefault: false,
       },
@@ -128,7 +127,7 @@ export class KeyboardShortcutManager {
         category: 'editing',
         key: 'ArrowDown',
         modifiers: [],
-        handler: (e) => this.triggerAction('history-down'),
+        handler: () => this.triggerAction('history-down'),
         enabled: true,
         preventDefault: false,
       },
@@ -409,7 +408,7 @@ export class KeyboardShortcutManager {
   /**
    * Handle key up events
    */
-  private handleKeyUp(event: KeyboardEvent): void {
+  private handleKeyUp(_event: KeyboardEvent): void {
     // Handle any key-up specific logic here
   }
 

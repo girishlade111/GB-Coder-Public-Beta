@@ -84,7 +84,7 @@ class ErrorLoggingService {
     }
 
     // Map severity to logging level
-    private mapSeverityToLevel(severity: ErrorLog['severity']): string {
+    private _mapSeverityToLevel(severity: ErrorLog['severity']): string {
         const mapping = {
             low: 'info',
             medium: 'warning',
@@ -106,7 +106,7 @@ class ErrorLoggingService {
     }
 
     // Log unhandled promise rejection
-    logPromiseRejection(reason: any, promise: Promise<any>) {
+    logPromiseRejection(reason: any, _promise: Promise<any>) {
         const error = reason instanceof Error ? reason : new Error(String(reason));
         this.logError(error, { type: 'unhandledRejection' }, 'high');
     }

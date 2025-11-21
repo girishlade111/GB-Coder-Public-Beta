@@ -69,7 +69,9 @@ class CodeExplanationService {
             // Limit cache size to 20 entries
             if (this.explanationCache.size > 20) {
                 const firstKey = this.explanationCache.keys().next().value;
-                this.explanationCache.delete(firstKey);
+                if (firstKey !== undefined) {
+                    this.explanationCache.delete(firstKey);
+                }
             }
 
             return explanation;

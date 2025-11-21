@@ -8,12 +8,10 @@ import {
     Shield,
     Zap,
     Lightbulb,
-    ChevronDown,
-    ChevronRight,
     MessageSquarePlus,
     Code
 } from 'lucide-react';
-import { CodeExplanation, UserLevel, EditorLanguage } from '../types';
+import { CodeExplanation, UserLevel } from '../types';
 
 interface CodeExplanationPopupProps {
     isOpen: boolean;
@@ -142,8 +140,8 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
                                 <button
                                     onClick={() => setActiveTab('breakdown')}
                                     className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'breakdown'
-                                            ? 'border-purple-500 text-purple-400'
-                                            : 'border-transparent text-gray-400 hover:text-gray-300'
+                                        ? 'border-purple-500 text-purple-400'
+                                        : 'border-transparent text-gray-400 hover:text-gray-300'
                                         }`}
                                 >
                                     Breakdown
@@ -151,8 +149,8 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
                                 <button
                                     onClick={() => setActiveTab('notes')}
                                     className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'notes'
-                                            ? 'border-purple-500 text-purple-400'
-                                            : 'border-transparent text-gray-400 hover:text-gray-300'
+                                        ? 'border-purple-500 text-purple-400'
+                                        : 'border-transparent text-gray-400 hover:text-gray-300'
                                         }`}
                                 >
                                     Notes ({explanation.notes.length})
@@ -160,8 +158,8 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
                                 <button
                                     onClick={() => setActiveTab('suggestions')}
                                     className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'suggestions'
-                                            ? 'border-purple-500 text-purple-400'
-                                            : 'border-transparent text-gray-400 hover:text-gray-300'
+                                        ? 'border-purple-500 text-purple-400'
+                                        : 'border-transparent text-gray-400 hover:text-gray-300'
                                         }`}
                                 >
                                     Suggestions
@@ -196,8 +194,8 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
                                     <div className="space-y-3">
                                         {explanation.notes.map((note) => (
                                             <div key={note.id} className={`p-3 rounded-lg border ${note.severity === 'high' ? 'bg-red-500/10 border-red-500/20' :
-                                                    note.severity === 'medium' ? 'bg-yellow-500/10 border-yellow-500/20' :
-                                                        'bg-blue-500/10 border-blue-500/20'
+                                                note.severity === 'medium' ? 'bg-yellow-500/10 border-yellow-500/20' :
+                                                    'bg-blue-500/10 border-blue-500/20'
                                                 }`}>
                                                 <div className="flex items-center gap-2 mb-1">
                                                     {note.type === 'security' && <Shield className="w-4 h-4 text-red-400" />}

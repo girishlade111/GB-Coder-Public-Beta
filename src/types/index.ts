@@ -197,3 +197,28 @@ export interface ExplanationNote {
   title: string;
   description: string;
 }
+
+// AI Error Fix Types
+export interface ErrorFixResponse {
+  id: string;
+  originalError: string;
+  fixedHtml: string;
+  fixedCss: string;
+  fixedJavascript: string;
+  explanation: string;
+  confidence: number;
+  changesApplied: {
+    html: boolean;
+    css: boolean;
+    javascript: boolean;
+  };
+  timestamp: string;
+}
+
+export interface EnhancedConsoleLog extends ConsoleLog {
+  stackTrace?: string;
+  lineNumber?: number;
+  columnNumber?: number;
+  sourceFile?: string;
+  canFix?: boolean;
+}
