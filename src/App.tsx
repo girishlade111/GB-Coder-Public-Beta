@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense } from 'react';
 import { Code2 } from 'lucide-react';
 import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
@@ -14,6 +14,7 @@ import CodeHistoryPage from './components/history/CodeHistoryPage';
 import AboutPage from './components/pages/AboutPage';
 import SaveStatusIndicator from './components/ui/SaveStatusIndicator';
 import Footer from './components/ui/Footer';
+import EditorLoader from './components/ui/EditorLoader';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useCodeHistory } from './hooks/useCodeHistory';
 import { useAutoSave } from './hooks/useAutoSave';
@@ -39,7 +40,7 @@ const defaultJS = ``;
 function App() {
   // DEBUG: Log component mount
   console.log('[DEBUG] App component mounting');
-  
+
   const [html, setHtml] = useState(defaultHTML);
   const [css, setCss] = useState(defaultCSS);
   const [javascript, setJavascript] = useState(defaultJS);
@@ -135,10 +136,10 @@ function App() {
       console.log('[DEBUG] Resize event - width:', window.innerWidth);
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     window.addEventListener('resize', handleResize);
     console.log('[DEBUG] Resize event listener added');
-    
+
     return () => {
       window.removeEventListener('resize', handleResize);
       console.log('[DEBUG] Resize event listener removed');
@@ -154,7 +155,7 @@ function App() {
 
     window.addEventListener('navigate-to-about', handleNavigateToAbout);
     console.log('[DEBUG] Navigation event listener added');
-    
+
     return () => {
       window.removeEventListener('navigate-to-about', handleNavigateToAbout);
       console.log('[DEBUG] Navigation event listener removed');
@@ -168,7 +169,7 @@ function App() {
         console.log('[DEBUG] Generating AI suggestions...');
         console.log('[DEBUG] HTML length:', html.length, 'CSS length:', css.length, 'JS length:', javascript.length);
         console.log('[DEBUG] Dismissed suggestions count:', dismissedSuggestions.size);
-        
+
         const htmlSuggestions = generateAISuggestions(html, 'html');
         const cssSuggestions = generateAISuggestions(css, 'css');
         const jsSuggestions = generateAISuggestions(javascript, 'javascript');
@@ -194,12 +195,12 @@ function App() {
   useEffect(() => {
     try {
       console.log('[DEBUG] Loading external libraries...');
-      
+
       if (!externalLibraryService) {
         console.error('[DEBUG] externalLibraryService is undefined');
         return;
       }
-      
+
       const libraries = externalLibraryService.getLibraries();
       console.log('[DEBUG] Loaded libraries:', libraries.length, libraries);
       setExternalLibraries(libraries);
