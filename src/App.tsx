@@ -24,7 +24,7 @@ import { useCodeExplanation } from './hooks/useCodeExplanation';
 import { downloadAsZip } from './utils/downloadUtils';
 import { generateAISuggestions } from './utils/aiSuggestions';
 import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion } from './types';
-import { geminiEnhancementService } from './services/geminiEnhancementService';
+import { aiEnhancementService } from './services/aiEnhancementService';
 import { externalLibraryService, ExternalLibrary } from './services/externalLibraryService';
 
 type AppView = 'editor' | 'history' | 'about';
@@ -413,7 +413,7 @@ function App() {
     codeHistory.saveState({ html, css, javascript }, `AI applied ${suggestions.length} suggestions`);
 
     const currentCode = getCurrentCodeForLanguage(aiPopupLanguage);
-    const enhancedCode = geminiEnhancementService.applyPartialSuggestions(currentCode, suggestions);
+    const enhancedCode = aiEnhancementService.applyPartialSuggestions(currentCode, suggestions);
 
     switch (aiPopupLanguage) {
       case 'html':
@@ -721,7 +721,7 @@ function App() {
             )}
 
             {/* AI Suggestions Panel */}
-            {showAISuggestions && aiSuggestions.length > 0 && (
+            {showAISuggestions&& (
               <AISuggestionPanel
                 suggestions={aiSuggestions}
                 onApplySuggestion={handleApplySuggestion}
@@ -786,3 +786,4 @@ function App() {
 }
 
 export default App;
+

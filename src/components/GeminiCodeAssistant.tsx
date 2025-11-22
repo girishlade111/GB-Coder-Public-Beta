@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Bot, 
-  Send, 
-  Copy, 
-  Download, 
-  RefreshCw, 
-  CheckCircle, 
-  AlertCircle, 
-  Code, 
+import {
+  Bot,
+  Send,
+  Copy,
+  Download,
+  RefreshCw,
+  CheckCircle,
+  AlertCircle,
+  Code,
   X,
   Maximize2,
   Minimize2,
@@ -15,7 +15,7 @@ import {
   Zap
 } from 'lucide-react';
 import { GeminiChatMessage, GeminiCodeBlock, CodeModificationRequest, EditorLanguage } from '../types';
-import { geminiCodeAssistant } from '../services/geminiCodeAssistant';
+import { aiCodeAssistant } from '../services/aiCodeAssistant';
 
 interface GeminiCodeAssistantProps {
   currentCode: {
@@ -37,7 +37,7 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
-  
+
   // Modification workflow state
   const [modificationState, setModificationState] = useState<{
     isActive: boolean;
@@ -53,10 +53,10 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setApiKeyConfigured(geminiCodeAssistant.isConfigured());
-    
+    setApiKeyConfigured(aiCodeAssistant.isConfigured());
+
     // Add welcome message
-    if (geminiCodeAssistant.isConfigured()) {
+    if (aiCodeAssistant.isConfigured()) {
       setMessages([{
         id: 'welcome',
         type: 'assistant',
@@ -107,7 +107,7 @@ How can I help you today?`,
 
       // Handle modification workflow
       if (modificationState.isActive) {
-        const result = await geminiCodeAssistant.processModificationInput(
+        const result = await aiCodeAssistant.processModificationInput(
           inputMessage,
           modificationState.step,
           {
@@ -128,20 +128,20 @@ How can I help you today?`,
           };
         } else if (result.modification) {
           // Apply the modification
-          const updatedCode = geminiCodeAssistant.applyCodeModification(
+          const updatedCode = aiCodeAssistant.applyCodeModification(
             modificationState.originalCode!,
             result.modification
           );
-          
+
           onCodeUpdate(modificationState.language, updatedCode);
-          
+
           response = {
             id: Date.now().toString(),
             type: 'assistant',
             content: `✅ **Code Modified Successfully**\n\nApplied ${result.modification.action} at line ${result.modification.lineNumber} in ${modificationState.language.toUpperCase()}.`,
             timestamp: new Date().toISOString()
           };
-          
+
           setModificationState({ isActive: false, step: 'lineNumber', language: 'html' });
         } else {
           response = {
@@ -150,15 +150,15 @@ How can I help you today?`,
             content: result.prompt || 'Please continue...',
             timestamp: new Date().toISOString()
           };
-          
+
           // Update modification state for next step
           if (result.awaitingInput) {
-            setModificationState(prev => ({ 
-              ...prev, 
+            setModificationState(prev => ({
+              ...prev,
               step: result.awaitingInput!,
               ...(modificationState.step === 'lineNumber' && { lineNumber: parseInt(inputMessage) }),
-              ...(modificationState.step === 'action' && { 
-                action: inputMessage === '1' || inputMessage.toLowerCase() === 'insert' ? 'insert' : 'replace' 
+              ...(modificationState.step === 'action' && {
+                action: inputMessage === '1' || inputMessage.toLowerCase() === 'insert' ? 'insert' : 'replace'
               })
             }));
           }
@@ -172,8 +172,8 @@ How can I help you today?`,
             // Detect which language to modify based on context or ask user
             const language = detectLanguageFromContext(inputMessage) || 'html';
             const code = currentCode[language];
-            
-            const validation = geminiCodeAssistant.validateLineNumber(code, lineNumber);
+
+            const validation = aiCodeAssistant.validateLineNumber(code, lineNumber);
             if (validation.isValid) {
               setModificationState({
                 isActive: true,
@@ -182,7 +182,7 @@ How can I help you today?`,
                 lineNumber,
                 originalCode: code
               });
-              
+
               response = {
                 id: Date.now().toString(),
                 type: 'assistant',
@@ -208,10 +208,10 @@ How can I help you today?`,
         } else if (isCodeGenerationRequest(inputMessage)) {
           // Handle code generation
           const detectedType = detectLanguageFromRequest(inputMessage);
-          response = await geminiCodeAssistant.generateCode(inputMessage, detectedType);
+          response = await aiCodeAssistant.generateCode(inputMessage, detectedType);
         } else {
           // Handle general chat
-          response = await geminiCodeAssistant.sendMessage({
+          response = await aiCodeAssistant.sendMessage({
             message: inputMessage,
             currentCode,
             conversationHistory: messages.slice(-5) // Last 5 messages for context
@@ -244,7 +244,7 @@ How can I help you today?`,
 
   const handleInsertCode = (codeBlock: GeminiCodeBlock) => {
     onCodeUpdate(codeBlock.language, codeBlock.code);
-    
+
     // Add confirmation message
     const confirmMessage: GeminiChatMessage = {
       id: Date.now().toString(),
@@ -282,8 +282,8 @@ How can I help you today?`,
 
   const isCodeGenerationRequest = (message: string): boolean => {
     const lower = message.toLowerCase();
-    return lower.includes('give me') || lower.includes('generate') || lower.includes('create') || 
-           lower.includes('make') || lower.includes('build') || lower.includes('write');
+    return lower.includes('give me') || lower.includes('generate') || lower.includes('create') ||
+      lower.includes('make') || lower.includes('build') || lower.includes('write');
   };
 
   const renderCodeBlock = (codeBlock: GeminiCodeBlock) => (
@@ -295,11 +295,10 @@ How can I help you today?`,
             {codeBlock.title || `${codeBlock.language.toUpperCase()} Code`}
           </span>
           {codeBlock.validated !== undefined && (
-            <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${
-              codeBlock.validated 
-                ? 'bg-green-900 text-green-300' 
+            <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${codeBlock.validated
+                ? 'bg-green-900 text-green-300'
                 : 'bg-red-900 text-red-300'
-            }`}>
+              }`}>
               {codeBlock.validated ? (
                 <>
                   <CheckCircle className="w-3 h-3" />
@@ -314,7 +313,7 @@ How can I help you today?`,
             </span>
           )}
         </div>
-        
+
         <div className="flex items-center gap-1">
           <button
             onClick={() => handleCopyCode(codeBlock.code)}
@@ -332,20 +331,17 @@ How can I help you today?`,
           </button>
         </div>
       </div>
-      
+
       <div className="p-4">
         {codeBlock.syntaxError && (
           <div className="mb-3 p-2 bg-red-900 border border-red-700 rounded text-red-300 text-sm">
             <strong>Syntax Error:</strong> {codeBlock.syntaxError}
           </div>
         )}
-        
+
         <pre className="text-sm text-gray-300 overflow-x-auto">
           <code className={`language-${codeBlock.language}`}>
-            {codeBlock.lineNumbers 
-              ? geminiCodeAssistant.getCodeWithLineNumbers(codeBlock.code)
-              : codeBlock.code
-            }
+            {codeBlock.code}
           </code>
         </pre>
       </div>
@@ -369,9 +365,8 @@ How can I help you today?`,
   }
 
   return (
-    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${
-      isExpanded ? 'fixed inset-4 z-50' : 'relative'
-    }`}>
+    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
+      }`}>
       {/* Header */}
       <div className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -383,7 +378,7 @@ How can I help you today?`,
             </span>
           )}
         </div>
-        
+
         <div className="flex items-center gap-1">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -392,7 +387,7 @@ How can I help you today?`,
           >
             {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
-          
+
           {onClose && (
             <button
               onClick={onClose}
@@ -406,33 +401,31 @@ How can I help you today?`,
       </div>
 
       {/* Messages */}
-      <div className={`overflow-y-auto p-4 space-y-4 ${
-        isExpanded ? 'h-[calc(100vh-200px)]' : 'flex-1 min-h-64'
-      }`}>
+      <div className={`overflow-y-auto p-4 space-y-4 ${isExpanded ? 'h-[calc(100vh-200px)]' : 'flex-1 min-h-64'
+        }`}>
         {messages.map((message) => (
           <div
             key={message.id}
             className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${
-                message.type === 'user'
+              className={`max-w-[80%] rounded-lg p-3 ${message.type === 'user'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-800 text-gray-200 border border-gray-600'
-              }`}
+                }`}
             >
               <div className="prose prose-sm max-w-none">
                 <div className="whitespace-pre-wrap">{message.content}</div>
                 {message.codeBlocks?.map(renderCodeBlock)}
               </div>
-              
+
               <div className="text-xs opacity-70 mt-2">
                 {new Date(message.timestamp).toLocaleTimeString()}
               </div>
             </div>
           </div>
         ))}
-        
+
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 flex items-center gap-2">
@@ -441,7 +434,7 @@ How can I help you today?`,
             </div>
           </div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -455,16 +448,16 @@ How can I help you today?`,
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={
-              modificationState.isActive 
-                ? `${modificationState.step === 'lineNumber' ? 'Enter line number...' : 
-                     modificationState.step === 'action' ? 'Select action (1 or 2)...' : 
-                     'Confirm changes (Y/N)...'}`
+              modificationState.isActive
+                ? `${modificationState.step === 'lineNumber' ? 'Enter line number...' :
+                  modificationState.step === 'action' ? 'Select action (1 or 2)...' :
+                    'Confirm changes (Y/N)...'}`
                 : "Ask me anything about your code..."
             }
             className="flex-1 bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
             disabled={isLoading}
           />
-          
+
           <button
             onClick={handleSendMessage}
             disabled={isLoading || !inputMessage.trim()}
@@ -473,7 +466,7 @@ How can I help you today?`,
             <Send className="w-4 h-4" />
           </button>
         </div>
-        
+
         <div className="mt-2 text-xs text-gray-500">
           💡 Try: "Create a responsive navbar", "Generate CSS grid", "Modify line 15", "Fix my JavaScript"
         </div>

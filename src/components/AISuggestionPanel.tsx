@@ -63,10 +63,6 @@ const AISuggestionPanel: React.FC<AISuggestionPanelProps> = ({
     }
   };
 
-  if (suggestions.length === 0) {
-    return null;
-  }
-
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
       <div
@@ -89,74 +85,84 @@ const AISuggestionPanel: React.FC<AISuggestionPanelProps> = ({
 
       {!isCollapsed && (
         <div className="max-h-80 overflow-y-auto">
-          {suggestions.map((suggestion) => (
-            <div key={suggestion.id} className="border-b border-gray-700 last:border-b-0">
-              <div
-                className="p-4 hover:bg-gray-800 cursor-pointer transition-colors"
-                onClick={() => toggleExpanded(suggestion.id)}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 flex-1">
-                    {getSeverityIcon(suggestion.severity)}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-sm font-medium text-gray-200 truncate">
-                          {suggestion.title}
-                        </h4>
-                        <span className={`text-xs uppercase font-mono ${getLanguageColor(suggestion.language)}`}>
-                          {suggestion.language}
-                        </span>
-                        {getTypeIcon(suggestion.type)}
-                      </div>
-                      <p className="text-xs text-gray-400 line-clamp-2">
-                        {suggestion.description}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {expandedSuggestions.has(suggestion.id) ? (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
-                    )}
-                    {onDismiss && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDismiss(suggestion.id);
-                        }}
-                        className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
-                        title="Dismiss suggestion"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {expandedSuggestions.has(suggestion.id) && (
-                <div className="px-4 pb-4 bg-gray-850">
-                  <div className="bg-gray-900 rounded-lg p-3 border border-gray-600">
-                    <pre className="text-xs text-gray-300 whitespace-pre-wrap overflow-x-auto">
-                      <code>{suggestion.code}</code>
-                    </pre>
-                  </div>
-                  {onApplySuggestion && (
-                    <div className="flex justify-end mt-3">
-                      <button
-                        onClick={() => onApplySuggestion(suggestion)}
-                        className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-lg transition-colors flex items-center gap-1"
-                      >
-                        <Lightbulb className="w-3 h-3" />
-                        Apply Suggestion
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+          {suggestions.length === 0 ? (
+            <div className="p-8 text-center">
+              <Lightbulb className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+              <h4 className="text-sm font-medium text-gray-400 mb-2">No Suggestions Available</h4>
+              <p className="text-xs text-gray-500">
+                Start coding and AI will analyze your code for improvements, best practices, and optimizations.
+              </p>
             </div>
-          ))}
+          ) : (
+            suggestions.map((suggestion) => (
+              <div key={suggestion.id} className="border-b border-gray-700 last:border-b-0">
+                <div
+                  className="p-4 hover:bg-gray-800 cursor-pointer transition-colors"
+                  onClick={() => toggleExpanded(suggestion.id)}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 flex-1">
+                      {getSeverityIcon(suggestion.severity)}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-sm font-medium text-gray-200 truncate">
+                            {suggestion.title}
+                          </h4>
+                          <span className={`text-xs uppercase font-mono ${getLanguageColor(suggestion.language)}`}>
+                            {suggestion.language}
+                          </span>
+                          {getTypeIcon(suggestion.type)}
+                        </div>
+                        <p className="text-xs text-gray-400 line-clamp-2">
+                          {suggestion.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {expandedSuggestions.has(suggestion.id) ? (
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                      )}
+                      {onDismiss && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDismiss(suggestion.id);
+                          }}
+                          className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
+                          title="Dismiss suggestion"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {expandedSuggestions.has(suggestion.id) && (
+                  <div className="px-4 pb-4 bg-gray-850">
+                    <div className="bg-gray-900 rounded-lg p-3 border border-gray-600">
+                      <pre className="text-xs text-gray-300 whitespace-pre-wrap overflow-x-auto">
+                        <code>{suggestion.code}</code>
+                      </pre>
+                    </div>
+                    {onApplySuggestion && (
+                      <div className="flex justify-end mt-3">
+                        <button
+                          onClick={() => onApplySuggestion(suggestion)}
+                          className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          <Lightbulb className="w-3 h-3" />
+                          Apply Suggestion
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  X, 
-  Sparkles, 
-  RefreshCw, 
-  Check, 
-  AlertCircle, 
-  Copy, 
-  Undo2, 
-  ChevronLeft, 
+import {
+  X,
+  Sparkles,
+  RefreshCw,
+  Check,
+  AlertCircle,
+  Copy,
+  Undo2,
+  ChevronLeft,
   ChevronRight,
   Eye,
   EyeOff,
@@ -22,7 +22,7 @@ import {
   Wrench
 } from 'lucide-react';
 import { AIEnhancement, CodeComparison, EditorLanguage, AICodeSuggestion } from '../types';
-import { geminiEnhancementService } from '../services/geminiEnhancementService';
+import { aiEnhancementService } from '../services/aiEnhancementService';
 
 interface AIEnhancementPopupProps {
   isOpen: boolean;
@@ -60,7 +60,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
   }, [isOpen, code, language]);
 
   const enhanceCode = async () => {
-    if (!geminiEnhancementService.isConfigured()) {
+    if (!aiEnhancementService.isConfigured()) {
       setError('Gemini API key not configured. Please check your environment variables.');
       return;
     }
@@ -72,10 +72,10 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
     setSelectedSuggestions(new Set());
 
     try {
-      const result = await geminiEnhancementService.enhanceCode(code, language);
+      const result = await aiEnhancementService.enhanceCode(code, language);
       setEnhancement(result);
-      
-      const comp = geminiEnhancementService.generateComparison(result.originalCode, result.enhancedCode);
+
+      const comp = aiEnhancementService.generateComparison(result.originalCode, result.enhancedCode);
       setComparison(comp);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to enhance code');
@@ -207,11 +207,10 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
           {enhancement.suggestions.map((suggestion) => (
             <div
               key={suggestion.id}
-              className={`border rounded-lg p-4 transition-all cursor-pointer ${
-                selectedSuggestions.has(suggestion.id)
+              className={`border rounded-lg p-4 transition-all cursor-pointer ${selectedSuggestions.has(suggestion.id)
                   ? 'border-blue-500 bg-blue-900/20'
                   : 'border-gray-600 bg-gray-800 hover:border-gray-500'
-              }`}
+                }`}
               onClick={() => toggleSuggestion(suggestion.id)}
             >
               <div className="flex items-start gap-3">
@@ -223,7 +222,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                     className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
                     {getSuggestionIcon(suggestion.type)}
@@ -232,9 +231,9 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                       {suggestion.impact} impact
                     </span>
                   </div>
-                  
+
                   <p className="text-sm text-gray-400 mb-3">{suggestion.description}</p>
-                  
+
                   {suggestion.code && (
                     <div className="bg-gray-900 rounded p-3 border border-gray-700">
                       <pre className="text-xs text-green-300 overflow-x-auto">
@@ -242,7 +241,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                       </pre>
                     </div>
                   )}
-                  
+
                   {suggestion.lineNumber && (
                     <div className="mt-2 text-xs text-gray-500">
                       Line {suggestion.lineNumber}
@@ -297,42 +296,39 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
               </span>
             )}
           </div>
-          
+
           <div className="flex items-center gap-2">
             {/* Tab Navigation */}
             <div className="flex items-center gap-1 bg-gray-700 rounded-lg p-1">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
-                  activeTab === 'overview' 
-                    ? 'bg-purple-600 text-white' 
+                className={`px-3 py-1 text-xs rounded transition-colors ${activeTab === 'overview'
+                    ? 'bg-purple-600 text-white'
                     : 'text-gray-400 hover:text-gray-200'
-                }`}
+                  }`}
               >
                 Overview
               </button>
               <button
                 onClick={() => setActiveTab('suggestions')}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
-                  activeTab === 'suggestions' 
-                    ? 'bg-purple-600 text-white' 
+                className={`px-3 py-1 text-xs rounded transition-colors ${activeTab === 'suggestions'
+                    ? 'bg-purple-600 text-white'
                     : 'text-gray-400 hover:text-gray-200'
-                }`}
+                  }`}
               >
                 Suggestions
               </button>
               <button
                 onClick={() => setActiveTab('comparison')}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
-                  activeTab === 'comparison' 
-                    ? 'bg-purple-600 text-white' 
+                className={`px-3 py-1 text-xs rounded transition-colors ${activeTab === 'comparison'
+                    ? 'bg-purple-600 text-white'
                     : 'text-gray-400 hover:text-gray-200'
-                }`}
+                  }`}
               >
                 Comparison
               </button>
             </div>
-            
+
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
@@ -411,22 +407,20 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                     <div className="flex items-center gap-1 bg-gray-700 rounded-lg p-1">
                       <button
                         onClick={() => setViewMode('side-by-side')}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${
-                          viewMode === 'side-by-side' 
-                            ? 'bg-purple-600 text-white' 
+                        className={`px-3 py-1 text-xs rounded transition-colors ${viewMode === 'side-by-side'
+                            ? 'bg-purple-600 text-white'
                             : 'text-gray-400 hover:text-gray-200'
-                        }`}
+                          }`}
                       >
                         <ChevronLeft className="w-4 h-4 inline mr-1" />
                         Side by Side
                       </button>
                       <button
                         onClick={() => setViewMode('unified')}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${
-                          viewMode === 'unified' 
-                            ? 'bg-purple-600 text-white' 
+                        className={`px-3 py-1 text-xs rounded transition-colors ${viewMode === 'unified'
+                            ? 'bg-purple-600 text-white'
                             : 'text-gray-400 hover:text-gray-200'
-                        }`}
+                          }`}
                       >
                         Unified
                         <ChevronRight className="w-4 h-4 inline ml-1" />
@@ -467,11 +461,10 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                         {comparison.differences.map((diff, index) => (
                           <div key={index} className="mb-2 text-sm">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                diff.type === 'addition' ? 'bg-green-600 text-white' :
-                                diff.type === 'deletion' ? 'bg-red-600 text-white' :
-                                'bg-yellow-600 text-white'
-                              }`}>
+                              <span className={`px-2 py-0.5 rounded text-xs font-medium ${diff.type === 'addition' ? 'bg-green-600 text-white' :
+                                  diff.type === 'deletion' ? 'bg-red-600 text-white' :
+                                    'bg-yellow-600 text-white'
+                                }`}>
                                 {diff.type.toUpperCase()}
                               </span>
                               <span className="text-gray-400">Line {diff.lineNumber}</span>
@@ -500,7 +493,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                   Copied to clipboard!
                 </span>
               )}
-              
+
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <BarChart3 className="w-4 h-4" />
                 <span>{enhancement.improvements.length} improvements</span>
@@ -512,7 +505,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
               {onUndo && (
                 <button
@@ -523,7 +516,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                   Undo Last Change
                 </button>
               )}
-              
+
               {selectedSuggestions.size > 0 && onApplyPartial && (
                 <button
                   onClick={handleApplyPartialSuggestions}
@@ -533,14 +526,14 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                   Apply Selected ({selectedSuggestions.size})
                 </button>
               )}
-              
+
               <button
                 onClick={onClose}
                 className="px-4 py-2 text-gray-400 hover:text-gray-200 transition-colors"
               >
                 Cancel
               </button>
-              
+
               <button
                 onClick={handleApplyChanges}
                 className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"

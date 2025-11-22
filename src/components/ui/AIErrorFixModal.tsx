@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { X, Sparkles, AlertCircle, Check, Code, FileText } from 'lucide-react';
 import { ErrorFixResponse } from '../../types';
-import { geminiEnhancementService } from '../../services/geminiEnhancementService';
+import { aiEnhancementService } from '../../services/aiEnhancementService';
 
 interface AIErrorFixModalProps {
     isOpen: boolean;
@@ -29,17 +29,17 @@ const AIErrorFixModal: React.FC<AIErrorFixModalProps> = ({
     // Generate diff for each language
     const htmlComparison = useMemo(() => {
         if (!fixResponse || !fixResponse.changesApplied.html) return null;
-        return geminiEnhancementService.generateComparison(originalCode.html, fixResponse.fixedHtml);
+        return aiEnhancementService.generateComparison(originalCode.html, fixResponse.fixedHtml);
     }, [fixResponse, originalCode.html]);
 
     const cssComparison = useMemo(() => {
         if (!fixResponse || !fixResponse.changesApplied.css) return null;
-        return geminiEnhancementService.generateComparison(originalCode.css, fixResponse.fixedCss);
+        return aiEnhancementService.generateComparison(originalCode.css, fixResponse.fixedCss);
     }, [fixResponse, originalCode.css]);
 
     const javascriptComparison = useMemo(() => {
         if (!fixResponse || !fixResponse.changesApplied.javascript) return null;
-        return geminiEnhancementService.generateComparison(originalCode.javascript, fixResponse.fixedJavascript);
+        return aiEnhancementService.generateComparison(originalCode.javascript, fixResponse.fixedJavascript);
     }, [fixResponse, originalCode.javascript]);
 
     const handleApply = () => {
@@ -276,3 +276,4 @@ const AIErrorFixModal: React.FC<AIErrorFixModalProps> = ({
 };
 
 export default AIErrorFixModal;
+

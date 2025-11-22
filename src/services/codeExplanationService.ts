@@ -1,31 +1,14 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { openRouterService } from './openRouterService';
 import { EditorLanguage, CodeExplanation, UserLevel, ExplanationBlock, ExplanationNote } from '../types';
 
-// Initialize Gemini AI
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-
 class CodeExplanationService {
-    private model: any;
-    private readonly apiKey: string;
     private explanationCache: Map<string, CodeExplanation> = new Map();
 
     constructor() {
-        this.apiKey = API_KEY;
-        this.validateAndInitialize();
-    }
-
-    private validateAndInitialize(): void {
-        if (!this.apiKey || this.apiKey.length < 20) {
-            console.warn('⚠️ Gemini API key not configured for code explanations');
-            return;
-        }
-
-        try {
-            const genAI = new GoogleGenerativeAI(this.apiKey);
-            this.model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-            console.log('✓ Code Explanation Service initialized successfully');
-        } catch (error) {
-            console.error('Failed to initialize Code Explanation Service:', error);
+        if (openRouterService.isConfigured()) {
+            console.log('✓ Code Explanation Service initialized successfully with OpenRouter');
+        } else {
+            console.warn('⚠️ OpenRouter API key not configured for code explanations');
         }
     }
 
@@ -37,8 +20,8 @@ class CodeExplanationService {
         language: EditorLanguage,
         userLevel: UserLevel = 'intermediate'
     ): Promise<CodeExplanation> {
-        if (!this.model) {
-            throw new Error('Code Explanation Service is not configured. Please set VITE_GEMINI_API_KEY.');
+        if (!openRouterService.isConfigured()) {
+            throw new Error('OpenRouter API is not configured. Please set VITE_OPENROUTER_API_KEY.');
         }
 
         // Check cache
@@ -58,8 +41,7 @@ class CodeExplanationService {
 
         try {
             const prompt = this.buildExplanationPrompt(code, language, userLevel);
-            const result = await this.model.generateContent(prompt);
-            const response = result.response.text();
+            const response = await openRouterService.sendPrompt(prompt, undefined, true);
 
             const explanation = this.parseExplanationResponse(response, code, language, userLevel);
 
@@ -85,14 +67,13 @@ class CodeExplanationService {
      * Generate annotated code with inline comments
      */
     async generateAnnotatedCode(code: string, language: EditorLanguage): Promise<string> {
-        if (!this.model) {
-            throw new Error('Code Explanation Service is not configured.');
+        if (!openRouterService.isConfigured()) {
+            throw new Error('OpenRouter API is not configured.');
         }
 
         try {
             const prompt = this.buildAnnotationPrompt(code, language);
-            const result = await this.model.generateContent(prompt);
-            const response = result.response.text();
+            const response = await openRouterService.sendPrompt(prompt, undefined, false);
 
             return this.extractCodeFromResponse(response);
         } catch (error) {
@@ -105,14 +86,13 @@ class CodeExplanationService {
      * Generate simplified explanation for beginners
      */
     async generateSimplifiedExplanation(code: string, language: EditorLanguage): Promise<string> {
-        if (!this.model) {
-            throw new Error('Code Explanation Service is not configured.');
+        if (!openRouterService.isConfigured()) {
+            throw new Error('OpenRouter API is not configured.');
         }
 
         try {
             const prompt = this.buildSimplifiedPrompt(code, language);
-            const result = await this.model.generateContent(prompt);
-            return result.response.text();
+            return await openRouterService.sendPrompt(prompt, undefined, false);
         } catch (error) {
             console.error('Error generating simplified explanation:', error);
             throw new Error('Failed to generate simplified explanation');
@@ -310,7 +290,7 @@ Keep the explanation under 200 words. Use short sentences and simple vocabulary.
      * Check if service is configured
      */
     isConfigured(): boolean {
-        return !!this.model;
+        return openRouterService.isConfigured();
     }
 
     /**
