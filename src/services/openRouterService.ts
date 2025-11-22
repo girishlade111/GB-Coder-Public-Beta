@@ -58,7 +58,46 @@ export class OpenRouterService {
             throw new Error('OpenRouter API key not configured. Please check your environment variables.');
         }
 
-        try {
+        // List of models to try in order of preference
+        const modelsToTry = [
+            this.model, // User configured model (default: x-ai/grok-4.1-fast:free)
+            'google/gemini-2.0-flash-exp:free',
+            'google/gemini-2.0-pro-exp-02-05:free',
+            'meta-llama/llama-3.3-70b-instruct:free',
+            'microsoft/phi-3-medium-128k-instruct:free'
+        ];
+
+        // Helper to make the actual fetch request
+        const makeRequest = async (model: string, useReasoning: boolean, useSystemRole: boolean) => {
+            // Prepare messages based on flags
+            let finalMessages = messages.map(({ role, content }) => ({ role, content }));
+
+            // If system role is not supported, merge it into the first user message
+            if (!useSystemRole) {
+                const systemMsg = finalMessages.find(m => m.role === 'system');
+                if (systemMsg) {
+                    finalMessages = finalMessages.filter(m => m.role !== 'system');
+                    if (finalMessages.length > 0 && finalMessages[0].role === 'user') {
+                        finalMessages[0].content = `${systemMsg.content}\n\n${finalMessages[0].content}`;
+                    } else {
+                        finalMessages.unshift({ role: 'user', content: systemMsg.content });
+                    }
+                }
+            }
+
+            const body: any = {
+                model: model,
+                messages: finalMessages,
+                temperature,
+                max_tokens: maxTokens,
+            };
+
+            if (useReasoning) {
+                body.reasoning = { enabled: true };
+            }
+
+            console.log(`[OpenRouter] Attempting request with model: ${model}, reasoning: ${useReasoning}, systemRole: ${useSystemRole}`);
+
             const response = await fetch(this.baseUrl, {
                 method: 'POST',
                 headers: {
@@ -67,39 +106,75 @@ export class OpenRouterService {
                     'HTTP-Referer': window.location.href,
                     'X-Title': 'GB Coder'
                 },
-                body: JSON.stringify({
-                    model: this.model,
-                    messages,
-                    temperature,
-                    max_tokens: maxTokens,
-                    ...(enableReasoning && { reasoning: { enabled: true } })
-                })
+                body: JSON.stringify(body)
             });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(
-                    `OpenRouter API error: ${response.status} - ${errorData.error?.message || response.statusText}`
-                );
+                console.warn(`[OpenRouter] Request failed for ${model}:`, response.status, errorData);
+
+                // Throw specific error object to handle in retry loop
+                throw {
+                    status: response.status,
+                    message: errorData.error?.message || response.statusText,
+                    isRetryable: [408, 429, 500, 502, 503, 504].includes(response.status) || response.status === 422
+                };
             }
 
-            const data: OpenRouterResponse = await response.json();
-            return data;
-        } catch (error) {
-            console.error('OpenRouter API Error:', error);
+            return await response.json();
+        };
 
-            if (error instanceof Error) {
-                if (error.message.includes('API key')) {
-                    throw new Error('Invalid API key. Please check your VITE_OPENROUTER_API_KEY environment variable.');
-                } else if (error.message.includes('quota') || error.message.includes('limit')) {
-                    throw new Error('API quota exceeded. Please try again later or check your billing.');
-                } else if (error.message.includes('model')) {
-                    throw new Error('Model not available. The service may be temporarily unavailable.');
+        let lastError: any = null;
+
+        // Iterate through models
+        for (const model of modelsToTry) {
+            try {
+                // Strategy 1: Try with reasoning (if enabled) and system role
+                try {
+                    return await makeRequest(model, enableReasoning, true);
+                } catch (err: any) {
+                    if (err.status === 422 && enableReasoning) {
+                        // Strategy 2: Retry without reasoning
+                        console.warn(`[OpenRouter] 422 with reasoning for ${model}. Retrying without...`);
+                        try {
+                            return await makeRequest(model, false, true);
+                        } catch (retryErr: any) {
+                            if (retryErr.status === 422) {
+                                // Strategy 3: Retry without system role
+                                console.warn(`[OpenRouter] 422 with system role for ${model}. Retrying without...`);
+                                return await makeRequest(model, false, false);
+                            }
+                            throw retryErr;
+                        }
+                    } else if (err.status === 429) {
+                        // Rate limit - immediately try next model
+                        console.warn(`[OpenRouter] Rate limit (429) for ${model}. Switching to next model...`);
+                        lastError = err;
+                        continue;
+                    } else {
+                        throw err;
+                    }
                 }
+            } catch (error: any) {
+                console.warn(`[OpenRouter] Failed with model ${model}:`, error);
+                lastError = error;
+                // Continue to next model
             }
-
-            throw new Error(`Failed to connect to OpenRouter: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
+
+        // If we get here, all models failed
+        console.error('OpenRouter API Fatal Error: All models failed', lastError);
+
+        if (lastError) {
+            if (lastError.message?.includes('API key')) {
+                throw new Error('Invalid API key. Please check your VITE_OPENROUTER_API_KEY environment variable.');
+            } else if (lastError.message?.includes('quota') || lastError.message?.includes('limit') || lastError.status === 429) {
+                throw new Error('API quota exceeded or rate limited. Please try again later.');
+            }
+            throw new Error(`Failed to connect to OpenRouter: ${lastError.message || 'Unknown error'}`);
+        }
+
+        throw new Error('Failed to connect to OpenRouter: All available models failed.');
     }
 
     /**
