@@ -96,7 +96,7 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
         {/* Header */}
@@ -119,7 +119,7 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                 Add Libraries
               </h3>
-              
+
               {/* Search */}
               <div className="relative mb-4">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -177,11 +177,10 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                           <h4 className="font-medium text-gray-900 dark:text-white">
                             {lib.name}
                           </h4>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            lib.type === 'css'
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                          }`}>
+                          <span className={`px-2 py-1 text-xs rounded-full ${lib.type === 'css'
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            }`}>
                             {lib.type.toUpperCase()}
                           </span>
                         </div>
@@ -223,11 +222,11 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
           </div>
 
           {/* Right Panel - Current Libraries */}
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-6 overflow-hidden">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
               Current Libraries ({libraries.length})
             </h3>
-            
+
             {libraries.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
@@ -241,33 +240,32 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                 </p>
               </div>
             ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3 max-h-[calc(90vh-12rem)] overflow-y-auto pr-2">
                 {libraries.map((lib) => (
                   <div
                     key={lib.id}
-                    className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg"
+                    className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <h4 className="font-medium text-gray-900 dark:text-white">
                             {lib.name}
                           </h4>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            lib.type === 'css'
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                          }`}>
+                          <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${lib.type === 'css'
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            }`}>
                             {lib.type.toUpperCase()}
                           </span>
                         </div>
-                        <code className="text-xs bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded text-gray-800 dark:text-gray-200 block truncate">
+                        <code className="text-xs bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded text-gray-800 dark:text-gray-200 block break-all leading-relaxed">
                           {lib.url}
                         </code>
                       </div>
                       <button
                         onClick={() => removeLibrary(lib.id)}
-                        className="ml-4 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="flex-shrink-0 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         title="Remove library"
                       >
                         <Trash2 className="w-4 h-4" />
