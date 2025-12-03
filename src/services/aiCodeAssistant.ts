@@ -37,7 +37,7 @@ export class AICodeAssistant {
 
             return {
                 id: Date.now().toString(),
-                role: 'assistant',
+                type: 'assistant',
                 content: assistantMessage.content,
                 timestamp: new Date().toISOString(),
                 codeBlocks: [codeBlock]
@@ -63,9 +63,13 @@ export class AICodeAssistant {
                 { role: 'system', content: systemPrompt }
             ];
 
+
             // Add conversation history if available
             if (request.conversationHistory) {
-                messages.push(...request.conversationHistory);
+                messages.push(...request.conversationHistory.map(msg => ({
+                    role: msg.type === 'user' ? 'user' as const : 'assistant' as const,
+                    content: msg.content
+                })));
             } else {
                 messages.push(...this.conversationHistory);
             }
@@ -73,7 +77,7 @@ export class AICodeAssistant {
             // Add current message
             messages.push({
                 role: 'user',
-                content: request.message + (request.codeContext ? `\n\nCurrent code context:\nHTML:\n${request.codeContext.html}\n\nCSS:\n${request.codeContext.css}\n\nJavaScript:\n${request.codeContext.javascript}` : '')
+                content: request.message
             });
 
             const response = await openRouterService.chat(messages, { enableReasoning: true });
@@ -95,7 +99,7 @@ export class AICodeAssistant {
 
             return {
                 id: Date.now().toString(),
-                role: 'assistant',
+                type: 'assistant',
                 content: assistantMessage.content,
                 timestamp: new Date().toISOString(),
                 codeBlocks: codeBlocks.length > 0 ? codeBlocks : undefined
@@ -152,9 +156,9 @@ Respond with the code in a markdown code block.`;
         const code = match ? match[1].trim() : text.trim();
 
         return {
+            id: `code-${Date.now()}`,
             language,
-            code,
-            lineCount: code.split('\n').length
+            code
         };
     }
 
@@ -171,9 +175,9 @@ Respond with the code in a markdown code block.`;
             const code = match[2].trim();
 
             blocks.push({
+                id: `code-${Date.now()}-${blocks.length}`,
                 language,
-                code,
-                lineCount: code.split('\n').length
+                code
             });
         }
 
@@ -220,9 +224,9 @@ Respond with the code in a markdown code block.`;
     applyCodeModification(originalCode: string, modification: CodeModificationRequest): string {
         const lines = originalCode.split('\n');
         if (modification.action === 'insert') {
-            lines.splice(modification.lineNumber - 1, 0, modification.newCode);
+            lines.splice(modification.lineNumber - 1, 0, modification.code);
         } else {
-            lines[modification.lineNumber - 1] = modification.newCode;
+            lines[modification.lineNumber - 1] = modification.code;
         }
         return lines.join('\n');
     }
@@ -231,9 +235,9 @@ Respond with the code in a markdown code block.`;
      * Process modification input (stub - returns error for now)
      */
     async processModificationInput(
-        input: string,
-        step: string,
-        context: any
+        _input: string,
+        _step: string,
+        _context: any
     ): Promise<any> {
         return {
             error: 'Code modification workflow is not yet implemented with OpenRouter. Please use direct code generation instead.'

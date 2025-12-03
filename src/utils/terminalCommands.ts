@@ -1,9 +1,8 @@
-import { TerminalOutput, VirtualFile, NPMPackage, TerminalState } from '../types';
+import { TerminalOutput, NPMPackage, TerminalState } from '../types';
 import { downloadAsZip } from './downloadUtils';
 
 export class TerminalCommandProcessor {
   private state: TerminalState;
-  private onCodeChange: (html: string, css: string, js: string) => void;
   private onThemeChange: (theme: 'dark' | 'light') => void;
   private onSnippetSave: (name: string, html: string, css: string, js: string) => void;
   private onSnippetLoad: (name: string) => void;
@@ -13,7 +12,6 @@ export class TerminalCommandProcessor {
   constructor(
     initialState: TerminalState,
     callbacks: {
-      onCodeChange: (html: string, css: string, js: string) => void;
       onThemeChange: (theme: 'dark' | 'light') => void;
       onSnippetSave: (name: string, html: string, css: string, js: string) => void;
       onSnippetLoad: (name: string) => void;
@@ -22,7 +20,6 @@ export class TerminalCommandProcessor {
     }
   ) {
     this.state = initialState;
-    this.onCodeChange = callbacks.onCodeChange;
     this.onThemeChange = callbacks.onThemeChange;
     this.onSnippetSave = callbacks.onSnippetSave;
     this.onSnippetLoad = callbacks.onSnippetLoad;
@@ -57,6 +54,8 @@ export class TerminalCommandProcessor {
           return this.loadSnippet(args);
         case 'npm':
           return this.handleNpm(args);
+        case 'node':
+          return this.handleNode(args);
         case 'fetch':
           return this.fetchResource(args);
         case 'ls':
@@ -91,8 +90,6 @@ export class TerminalCommandProcessor {
           return this.showStatus();
         case 'about':
           return this.showAbout();
-        case 'about':
-          return this.showAbout();
         default:
           return this.unknownCommand(command);
       }
@@ -109,7 +106,7 @@ export class TerminalCommandProcessor {
   private showAbout(): TerminalOutput[] {
     // Dispatch navigation event
     window.dispatchEvent(new CustomEvent('navigate-to-about'));
-    
+
     return [{
       id: Date.now().toString(),
       type: 'success',
@@ -185,7 +182,7 @@ export class TerminalCommandProcessor {
   private downloadCode(): TerminalOutput[] {
     const code = this.getCurrentCode();
     downloadAsZip(code.html, code.css, code.javascript);
-    
+
     return [{
       id: Date.now().toString(),
       type: 'success',
@@ -205,7 +202,7 @@ export class TerminalCommandProcessor {
     }
 
     this.onThemeChange(theme as 'dark' | 'light');
-    
+
     return [{
       id: Date.now().toString(),
       type: 'success',
@@ -227,9 +224,9 @@ export class TerminalCommandProcessor {
     // Get current theme from localStorage to determine what to toggle to
     const currentTheme = localStorage.getItem('gb-coder-theme') || 'dark';
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+
     this.onThemeChange(newTheme);
-    
+
     return [{
       id: Date.now().toString(),
       type: 'success',
@@ -298,7 +295,17 @@ export class TerminalCommandProcessor {
       return [{
         id: Date.now().toString(),
         type: 'info',
-        message: 'npm <command>\n\nCommands:\n  install <package>  Install a package\n  uninstall <package>  Uninstall a package\n  list  List installed packages\n  search <query>  Search for packages',
+        message: 'npm <command>\n\nCommands:\n  install <package>  Install a package\n  uninstall <package>  Uninstall a package\n  list  List installed packages\n  search <query>  Search for packages\n  config <get|set>   Manage configuration',
+        timestamp: new Date().toISOString(),
+      }];
+    }
+
+    // Handle version flag
+    if (args[0] === '-v' || args[0] === '--version') {
+      return [{
+        id: Date.now().toString(),
+        type: 'info',
+        message: '9.5.1',
         timestamp: new Date().toISOString(),
       }];
     }
@@ -314,6 +321,8 @@ export class TerminalCommandProcessor {
         return this.npmList();
       case 'search':
         return this.npmSearch(subargs);
+      case 'config':
+        return this.npmConfig(subargs);
       default:
         return [{
           id: Date.now().toString(),
@@ -322,6 +331,34 @@ export class TerminalCommandProcessor {
           timestamp: new Date().toISOString(),
         }];
     }
+  }
+
+  private npmConfig(args: string[]): TerminalOutput[] {
+    if (args.length < 2 || args[0] !== 'get') {
+      return [{
+        id: Date.now().toString(),
+        type: 'error',
+        message: 'Usage: npm config get <key>',
+        timestamp: new Date().toISOString(),
+      }];
+    }
+
+    const key = args[1];
+    if (key === 'prefix') {
+      return [{
+        id: Date.now().toString(),
+        type: 'info',
+        message: '/usr/local', // Simulated prefix
+        timestamp: new Date().toISOString(),
+      }];
+    }
+
+    return [{
+      id: Date.now().toString(),
+      type: 'info',
+      message: 'undefined',
+      timestamp: new Date().toISOString(),
+    }];
   }
 
   private npmInstall(packages: string[]): TerminalOutput[] {
@@ -408,7 +445,7 @@ export class TerminalCommandProcessor {
 
   private npmList(): TerminalOutput[] {
     const packages = Object.values(this.state.npmPackages);
-    
+
     if (packages.length === 0) {
       return [{
         id: Date.now().toString(),
@@ -418,7 +455,7 @@ export class TerminalCommandProcessor {
       }];
     }
 
-    const packageList = packages.map(pkg => 
+    const packageList = packages.map(pkg =>
       `├── ${pkg.name}@${pkg.version} (${pkg.size}KB)`
     ).join('\n');
 
@@ -441,7 +478,7 @@ export class TerminalCommandProcessor {
     }
 
     const searchTerm = query.join(' ');
-    
+
     // Simulate search results
     const mockResults = [
       `${searchTerm}`,
@@ -451,7 +488,7 @@ export class TerminalCommandProcessor {
       `${searchTerm}-plugin`,
     ];
 
-    const results = mockResults.map(pkg => 
+    const results = mockResults.map(pkg =>
       `📦 ${pkg}@${this.generateRandomVersion()} - Simulated package for ${searchTerm}`
     ).join('\n');
 
@@ -474,7 +511,7 @@ export class TerminalCommandProcessor {
     }
 
     const url = args[0];
-    
+
     // Validate URL format
     try {
       new URL(url);
@@ -514,7 +551,10 @@ export class TerminalCommandProcessor {
   }
 
   private listFiles(args: string[]): TerminalOutput[] {
-    const path = args[0] || this.state.currentDirectory;
+    // Filter out flags (arguments starting with -)
+    const paths = args.filter(arg => !arg.startsWith('-'));
+    const path = paths[0] || this.state.currentDirectory;
+
     const files = Object.values(this.state.fileSystem)
       .filter(file => file.parent === path || (path === '/' && !file.parent));
 
@@ -531,6 +571,7 @@ export class TerminalCommandProcessor {
       const type = file.type === 'directory' ? 'd' : '-';
       const size = file.size ? `${file.size}B` : '-';
       const date = new Date(file.modified).toLocaleDateString();
+      // Mock permissions and user/group for 'ls -la' style output
       return `${type}rwxr-xr-x  1 user  staff  ${size.padStart(8)}  ${date}  ${file.name}`;
     }).join('\n');
 
@@ -577,7 +618,7 @@ export class TerminalCommandProcessor {
 
     const dirName = args[0];
     const now = new Date().toISOString();
-    
+
     this.state.fileSystem[dirName] = {
       name: dirName,
       type: 'directory',
@@ -606,7 +647,7 @@ export class TerminalCommandProcessor {
 
     const fileName = args[0];
     const now = new Date().toISOString();
-    
+
     this.state.fileSystem[fileName] = {
       name: fileName,
       type: 'file',
@@ -675,7 +716,7 @@ export class TerminalCommandProcessor {
     }
 
     const fileName = args[0];
-    
+
     if (!this.state.fileSystem[fileName]) {
       return [{
         id: Date.now().toString(),
@@ -705,7 +746,12 @@ export class TerminalCommandProcessor {
   }
 
   private echo(args: string[]): TerminalOutput[] {
-    const message = args.join(' ');
+    const message = args.map(arg => {
+      if (arg === '$RANDOM') return Math.floor(Math.random() * 32768).toString();
+      if (arg === '$USER') return 'gb-coder-developer';
+      return arg;
+    }).join(' ');
+
     return [{
       id: Date.now().toString(),
       type: 'info',
@@ -796,40 +842,6 @@ export class TerminalCommandProcessor {
     }];
   }
 
-  private showAbout(): TerminalOutput[] {
-    const aboutText = `
-╭─────────────────────────────────────────────────────────────╮
-│                         ABOUT GB CODER                     │
-├─────────────────────────────────────────────────────────────┤
-│ GB Coder is a powerful web-based code editor and           │
-│ development environment built with modern technologies.    │
-│                                                             │
-│ Features:                                                   │
-│ • Real-time HTML, CSS, and JavaScript editing              │
-│ • Live preview with instant updates                        │
-│ • Terminal with simulated file system                      │
-│ • NPM package simulation                                    │
-│ • Code snippet management                                   │
-│ • Theme switching (dark/light)                             │
-│ • Export functionality                                      │
-│                                                             │
-│ Built with:                                                 │
-│ • React + TypeScript                                        │
-│ • Monaco Editor                                             │
-│ • Modern CSS                                                │
-│                                                             │
-│ Version: 1.0.0                                              │
-│ Created by: GB Development Team                             │
-╰─────────────────────────────────────────────────────────────╯`;
-
-    return [{
-      id: Date.now().toString(),
-      type: 'info',
-      message: aboutText,
-      timestamp: new Date().toISOString(),
-    }];
-  }
-
   private unknownCommand(command: string): TerminalOutput[] {
     return [{
       id: Date.now().toString(),
@@ -852,5 +864,64 @@ export class TerminalCommandProcessor {
 
   updateState(newState: Partial<TerminalState>): void {
     this.state = { ...this.state, ...newState };
+  }
+
+  private handleNode(args: string[]): TerminalOutput[] {
+    if (args.length === 0) {
+      return [{
+        id: Date.now().toString(),
+        type: 'info',
+        message: 'Welcome to Node.js v18.16.0.\nType ".help" for more information.',
+        timestamp: new Date().toISOString(),
+      }];
+    }
+
+    if (args[0] === '-v' || args[0] === '--version') {
+      return [{
+        id: Date.now().toString(),
+        type: 'info',
+        message: 'v18.16.0',
+        timestamp: new Date().toISOString(),
+      }];
+    }
+
+    if (args[0] === '-p') {
+      const script = args.slice(1).join(' ');
+      // Specific simulation for the requested command
+      if (script.includes('process.platform') && script.includes('process.version')) {
+        return [{
+          id: Date.now().toString(),
+          type: 'info',
+          message: 'win32 v18.16.0',
+          timestamp: new Date().toISOString(),
+        }];
+      }
+
+      // Generic eval simulation (very limited)
+      try {
+        // eslint-disable-next-line no-eval
+        const result = eval(script);
+        return [{
+          id: Date.now().toString(),
+          type: 'info',
+          message: String(result),
+          timestamp: new Date().toISOString(),
+        }];
+      } catch (e) {
+        return [{
+          id: Date.now().toString(),
+          type: 'error',
+          message: 'Error evaluating script',
+          timestamp: new Date().toISOString(),
+        }];
+      }
+    }
+
+    return [{
+      id: Date.now().toString(),
+      type: 'error',
+      message: `❌ Unknown node command or script: ${args[0]}`,
+      timestamp: new Date().toISOString(),
+    }];
   }
 }

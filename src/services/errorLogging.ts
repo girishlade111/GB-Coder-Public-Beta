@@ -83,17 +83,6 @@ class ErrorLoggingService {
         }
     }
 
-    // Map severity to logging level
-    private _mapSeverityToLevel(severity: ErrorLog['severity']): string {
-        const mapping = {
-            low: 'info',
-            medium: 'warning',
-            high: 'error',
-            critical: 'fatal',
-        };
-        return mapping[severity];
-    }
-
     // Get recent errors
     getRecentErrors(count = 10): ErrorLog[] {
         return this.errorLogs.slice(-count);

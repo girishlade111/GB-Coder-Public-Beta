@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, Suspense } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Code2 } from 'lucide-react';
 import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
@@ -14,7 +14,6 @@ import CodeHistoryPage from './components/history/CodeHistoryPage';
 import AboutPage from './components/pages/AboutPage';
 import SaveStatusIndicator from './components/ui/SaveStatusIndicator';
 import Footer from './components/ui/Footer';
-import EditorLoader from './components/ui/EditorLoader';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useCodeHistory } from './hooks/useCodeHistory';
 import { useAutoSave } from './hooks/useAutoSave';
@@ -721,7 +720,7 @@ function App() {
             )}
 
             {/* AI Suggestions Panel */}
-            {showAISuggestions&& (
+            {showAISuggestions && (
               <AISuggestionPanel
                 suggestions={aiSuggestions}
                 onApplySuggestion={handleApplySuggestion}

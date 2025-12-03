@@ -1,36 +1,33 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
-  Terminal, X, Plus, Search, Settings, Download, Upload, Copy, Maximize2, Minimize2,
-  Filter, Trash2, Pin, PinOff, ChevronDown, ChevronRight, AlertCircle, Info,
-  AlertTriangle, Bug, Zap, Clock, BarChart2, Shield, Keyboard, Palette, Command, Database,
-  Activity, Code, Play, FileCode, CheckCircle, RefreshCw, Eye, EyeOff, Terminal as TerminalIcon,
-  Cpu, HardDrive, Globe, Wifi, WifiOff, XCircle, Maximize
+  Terminal, X, Plus, Search, Settings, Download, Copy, Maximize2, Minimize2,
+  Filter, Trash2, Pin, AlertCircle, Info,
+  AlertTriangle, Bug, Zap, CheckCircle, Eye, EyeOff, Terminal as TerminalIcon,
+  Cpu, HardDrive, XCircle, Play
 } from 'lucide-react';
 import {
   ConsoleLogEntry, ConsoleTab, ConsoleFilter, LogLevel, ConsoleTheme,
-  AutoCompleteItem, SearchResult, LayoutConfig
+  AutoCompleteItem
 } from '../types/console.types';
-import { ConsoleLog } from '../types';
-import { syntaxHighlighter } from '../services/syntaxHighlighter';
+import { ConsoleLog, TerminalState } from '../types';
+import { TerminalCommandProcessor } from '../utils/terminalCommands';
 import { autoCompleteService } from '../services/autoCompleteService';
 import { searchFilterService } from '../services/searchFilterService';
-import { keyboardShortcutManager } from '../services/keyboardShortcutManager';
 import { commandHistoryService } from '../services/commandHistoryService';
 import { performanceAnalyticsService } from '../services/performanceAnalyticsService';
 import { securityService } from '../services/securityService';
 import { sessionDataService } from '../services/sessionDataService';
-import { debugToolsService } from '../services/debugToolsService';
 
 interface EnhancedConsoleProps {
   // Basic props (from current ConsolePanel)
   logs: ConsoleLog[];
   onClear: () => void;
-  
+
   // HTML/CSS/JS code access for validation & preview
   html: string;
   css: string;
   javascript: string;
-  
+
   // Optional advanced features
   onCommand?: (command: string) => Promise<void>;
   className?: string;
@@ -46,13 +43,6 @@ interface ValidationResult {
   source: 'html' | 'css' | 'js';
 }
 
-interface NetworkRequest {
-  url: string;
-  method: string;
-  status: number;
-  duration: number;
-  timestamp: number;
-}
 
 const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   logs,
@@ -66,10 +56,10 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   // Core state
   const [activeMode, setActiveMode] = useState<ConsoleMode>('console');
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Basic Console state
   const [basicFilter, setBasicFilter] = useState<LogLevel | 'all'>('all');
-  
+
   // Advanced Console state
   const [tabs, setTabs] = useState<ConsoleTab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string>('');
@@ -81,12 +71,11 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   const [selectedAutoCompleteIndex, setSelectedAutoCompleteIndex] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<ConsoleTheme>('dark');
-  const [showShortcutsManager, setShowShortcutsManager] = useState(false);
-  
+
   // Validator state
   const [validationResults, setValidationResults] = useState<ValidationResult[]>([]);
   const [autoValidate, setAutoValidate] = useState(true);
-  
+
   // Preview Console state
   const [previewMessages, setPreviewMessages] = useState<Array<{
     id: string;
@@ -97,7 +86,6 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
     line?: number;
   }>>([]);
   const [showPreview, setShowPreview] = useState(true);
-  const [networkRequests, setNetworkRequests] = useState<NetworkRequest[]>([]);
   const [performanceMetrics, setPerformanceMetrics] = useState({
     loadTime: 0,
     memoryUsage: 0,
@@ -105,12 +93,32 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
     executionTime: 0
   });
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  
+
   // Common refs
   const inputRef = useRef<HTMLInputElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
+  // Terminal State for Command Processor
+  const terminalState = useRef<TerminalState>({
+    currentDirectory: '/',
+    fileSystem: {},
+    environment: {},
+    commandHistory: [],
+    npmPackages: JSON.parse(localStorage.getItem('gb-coder-npm-packages') || '{}'),
+  });
+
+  // Initialize Command Processor
+  const commandProcessor = useMemo(() => new TerminalCommandProcessor(
+    terminalState.current,
+    {
+      onThemeChange: () => { }, // Handled by existing theme logic
+      onSnippetSave: () => { }, // Handled by existing snippet logic
+      onSnippetLoad: () => { }, // Handled by existing snippet logic
+      getCurrentCode: () => ({ html, css, javascript }),
+      getSnippets: () => [], // Not needed for console commands
+    }
+  ), [html, css, javascript]);
+
   // Initialize Advanced Console tabs
   useEffect(() => {
     if (tabs.length === 0) {
@@ -119,14 +127,14 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       setActiveTabId(defaultTab.id);
     }
   }, []);
-  
+
   // Auto-scroll to bottom
   useEffect(() => {
     if (outputRef.current) {
       outputRef.current.scrollTop = outputRef.current.scrollHeight;
     }
   }, [logs, previewMessages, tabs, activeTabId]);
-  
+
   // Create new tab for Advanced Console
   const createTab = (name: string): ConsoleTab => {
     return {
@@ -145,22 +153,22 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       updatedAt: Date.now(),
     };
   };
-  
+
   // Get active tab for Advanced Console
   const activeTab = useMemo(() => {
     return tabs.find(t => t.id === activeTabId);
   }, [tabs, activeTabId]);
-  
+
   // Get filtered logs for Basic Console
   const filteredBasicLogs = useMemo(() => {
     if (basicFilter === 'all') return logs;
     return logs.filter(log => log.type === basicFilter);
   }, [logs, basicFilter]);
-  
+
   // Get filtered logs for Advanced Console
   const filteredAdvancedLogs = useMemo(() => {
     if (!activeTab) return [];
-    
+
     if (searchQuery) {
       const filter: ConsoleFilter = {
         ...activeTab.filters,
@@ -169,25 +177,25 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       const results = searchFilterService.searchLogs(activeTab.logs, filter);
       return results.map(r => r.logEntry);
     }
-    
+
     return activeTab.logs;
   }, [activeTab, searchQuery]);
-  
+
   // HTML Validation
   const validateHTML = useCallback((htmlCode: string): ValidationResult[] => {
     const results: ValidationResult[] = [];
-    
+
     try {
       // Check for unclosed tags
       const openTags = htmlCode.match(/<([a-z][a-z0-9]*)\b[^>]*>/gi) || [];
       const closeTags = htmlCode.match(/<\/([a-z][a-z0-9]*)>/gi) || [];
-      
+
       const openTagNames = openTags.map(tag => tag.match(/<([a-z][a-z0-9]*)/i)?.[1]).filter(Boolean);
       const closeTagNames = closeTags.map(tag => tag.match(/<\/([a-z][a-z0-9]*)/i)?.[1]).filter(Boolean);
-      
+
       // Self-closing tags
       const selfClosing = ['img', 'br', 'hr', 'input', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
-      
+
       openTagNames.forEach((tag, index) => {
         if (tag && !selfClosing.includes(tag.toLowerCase())) {
           const openCount = openTagNames.filter(t => t === tag).length;
@@ -214,7 +222,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
           source: 'html'
         });
       }
-      
+
       if (htmlCode.includes('<a') && !htmlCode.match(/<a[^>]+href=/i)) {
         const lineNumber = htmlCode.split('\n').findIndex(line => line.includes('<a'));
         results.push({
@@ -250,19 +258,19 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
         source: 'html'
       });
     }
-    
+
     return results;
   }, []);
-  
+
   // CSS Validation
   const validateCSS = useCallback((cssCode: string): ValidationResult[] => {
     const results: ValidationResult[] = [];
-    
+
     try {
       // Check for unclosed braces
       const openBraces = (cssCode.match(/{/g) || []).length;
       const closeBraces = (cssCode.match(/}/g) || []).length;
-      
+
       if (openBraces !== closeBraces) {
         const lineNumber = cssCode.split('\n').length;
         results.push({
@@ -275,15 +283,15 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
       // Check for missing semicolons
       const rules = cssCode.match(/[^{}]+{[^{}]+}/g) || [];
-      rules.forEach((rule, index) => {
+      rules.forEach((rule) => {
         const declarations = rule.match(/{([^}]+)}/)?.[1];
         if (declarations) {
           const lines = declarations.split('\n').filter(l => l.trim());
           lines.forEach(line => {
             const trimmedLine = line.trim();
             if (trimmedLine && !trimmedLine.endsWith(';') && !trimmedLine.endsWith('{')) {
-              const lineNumber = cssCode.substring(0, cssCode.indexOf(rule)).split('\n').length + 
-                               declarations.substring(0, declarations.indexOf(line)).split('\n').length;
+              const lineNumber = cssCode.substring(0, cssCode.indexOf(rule)).split('\n').length +
+                declarations.substring(0, declarations.indexOf(line)).split('\n').length;
               results.push({
                 line: lineNumber,
                 severity: 'warning',
@@ -317,14 +325,14 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
         source: 'css'
       });
     }
-    
+
     return results;
   }, []);
-  
+
   // JavaScript Validation
   const validateJS = useCallback((jsCode: string): ValidationResult[] => {
     const results: ValidationResult[] = [];
-    
+
     try {
       // Basic syntax check using Function constructor
       new Function(jsCode);
@@ -333,7 +341,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
         // Try to extract line number from error message
         const lineMatch = error.message.match(/line (\d+)/);
         const line = lineMatch ? parseInt(lineMatch[1]) : undefined;
-        
+
         results.push({
           line,
           severity: 'error',
@@ -369,7 +377,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
         });
       });
     }
-    
+
     if (jsCode.includes('===') && jsCode.match(/[^=]===[^=]/g)) {
       const tripleEqualsMatches = jsCode.matchAll(/[^=]===[^=]/g);
       Array.from(tripleEqualsMatches).forEach(match => {
@@ -391,22 +399,22 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
         source: 'js'
       });
     }
-    
+
     return results;
   }, []);
-  
+
   // Run validation
   const runValidation = useCallback(() => {
     const htmlErrors = validateHTML(html);
     const cssErrors = validateCSS(css);
     const jsErrors = validateJS(javascript);
-    
+
     const allResults = [...htmlErrors, ...cssErrors, ...jsErrors];
     setValidationResults(allResults);
-    
+
     return allResults;
   }, [html, css, javascript, validateHTML, validateCSS, validateJS]);
-  
+
   // Auto-validate when code changes
   useEffect(() => {
     if (autoValidate && activeMode === 'validator') {
@@ -414,7 +422,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       return () => clearTimeout(timer);
     }
   }, [html, css, javascript, autoValidate, activeMode, runValidation]);
-  
+
   // Add message to Preview Console
   const addPreviewMessage = useCallback((msg: Omit<typeof previewMessages[0], 'id' | 'timestamp'>) => {
     setPreviewMessages(prev => [...prev, {
@@ -423,12 +431,12 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       timestamp: Date.now(),
     }]);
   }, []);
-  
+
   // Clear Preview Console
   const clearPreviewMessages = () => {
     setPreviewMessages([]);
   };
-  
+
   // Run code in iframe for Preview Console
   const runPreviewCode = useCallback(() => {
     if (!iframeRef.current) return;
@@ -561,7 +569,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
     addPreviewMessage({ type: 'info', message: '✓ Code executed successfully' });
   }, [html, css, javascript, addPreviewMessage]);
-  
+
   // Listen for messages from preview iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -575,14 +583,14 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       } else if (event.data.type === 'performance') {
         setPerformanceMetrics(prev => ({ ...prev, ...event.data.data }));
       } else if (event.data.type === 'network') {
-        setNetworkRequests(prev => [...prev, event.data.data]);
+        // setNetworkRequests(prev => [...prev, event.data.data]); // Removed unused state update
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [addPreviewMessage]);
-  
+
   // Advanced Console functions
   const addAdvancedLog = useCallback((log: ConsoleLogEntry) => {
     setTabs(prev => prev.map(tab => {
@@ -601,7 +609,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       performanceAnalyticsService.trackError(new Error(log.message));
     }
   }, [activeTabId]);
-  
+
   const clearAdvancedLogs = useCallback(() => {
     setTabs(prev => prev.map(tab => {
       if (tab.id === activeTabId) {
@@ -614,13 +622,13 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       return tab;
     }));
   }, [activeTabId]);
-  
+
   const addAdvancedTab = () => {
     const newTab = createTab(`Console ${tabs.length + 1}`);
     setTabs(prev => [...prev, newTab]);
     setActiveTabId(newTab.id);
   };
-  
+
   const closeAdvancedTab = (tabId: string) => {
     if (tabs.length <= 1) return;
 
@@ -632,7 +640,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       setActiveTabId(tabs[newActiveIndex]?.id || '');
     }
   };
-  
+
   // Command handling for Advanced Console
   const handleAdvancedSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -668,7 +676,22 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
     const startTime = performance.now();
 
     try {
-      if (onCommand) {
+      // Check if it's an npm command, node command, or other terminal command
+      const terminalCommands = ['npm', 'node', 'help', 'ls', 'dir', 'cd', 'mkdir', 'touch', 'cat', 'rm', 'pwd', 'echo', 'env', 'history', 'whoami', 'date', 'version', 'status', 'about', 'fetch', 'run', 'download', 'theme', 'toggle', 'save', 'load'];
+      const cmdName = trimmedCommand.split(' ')[0].toLowerCase();
+
+      if (terminalCommands.includes(cmdName)) {
+        const results = commandProcessor.processCommand(trimmedCommand);
+
+        results.forEach(result => {
+          addAdvancedLog({
+            id: result.id,
+            timestamp: new Date(result.timestamp).getTime(),
+            level: result.type === 'success' ? 'success' : result.type === 'error' ? 'error' : 'info',
+            message: result.message,
+          });
+        });
+      } else if (onCommand) {
         await onCommand(trimmedCommand);
       }
 
@@ -690,7 +713,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
     setCommand('');
     setShowAutoComplete(false);
   };
-  
+
   // Input handling for Advanced Console
   const handleAdvancedInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -711,12 +734,12 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       setShowAutoComplete(false);
     }
   };
-  
+
   const handleAdvancedKeyDown = (e: React.KeyboardEvent) => {
     if (showAutoComplete) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedAutoCompleteIndex(prev => 
+        setSelectedAutoCompleteIndex(prev =>
           Math.min(prev + 1, autoCompleteItems.length - 1)
         );
       } else if (e.key === 'ArrowUp') {
@@ -743,7 +766,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       }
     }
   };
-  
+
   // UI Helper functions
   const getLogIcon = (type: ConsoleLog['type'] | LogLevel) => {
     switch (type) {
@@ -768,7 +791,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       default: return 'text-gray-300';
     }
   };
-  
+
   const getValidationIcon = (severity: ValidationResult['severity']) => {
     switch (severity) {
       case 'error': return <XCircle className="w-4 h-4 text-red-400" />;
@@ -776,7 +799,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       case 'info': return <Info className="w-4 h-4 text-blue-400" />;
     }
   };
-  
+
   const getValidationColor = (severity: ValidationResult['severity']) => {
     switch (severity) {
       case 'error': return 'text-red-300';
@@ -792,7 +815,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
   // Copy output functions
   const copyBasicOutput = () => {
-    const text = filteredBasicLogs.map(log => 
+    const text = filteredBasicLogs.map(log =>
       `[${new Date(log.timestamp).toISOString()}] [${log.type.toUpperCase()}] ${log.message}`
     ).join('\n');
 
@@ -802,7 +825,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   };
 
   const copyAdvancedOutput = () => {
-    const text = filteredAdvancedLogs.map(log => 
+    const text = filteredAdvancedLogs.map(log =>
       `[${new Date(log.timestamp).toISOString()}] [${log.level.toUpperCase()}] ${log.message}`
     ).join('\n');
 
@@ -812,7 +835,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   };
 
   const copyValidationResults = () => {
-    const text = validationResults.map(result => 
+    const text = validationResults.map(result =>
       `[${result.source.toUpperCase()}] ${result.severity.toUpperCase()}${result.line ? ` (Line ${result.line})` : ''}: ${result.message}`
     ).join('\n');
 
@@ -822,7 +845,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   };
 
   const copyPreviewOutput = () => {
-    const text = previewMessages.map(msg => 
+    const text = previewMessages.map(msg =>
       `[${new Date(msg.timestamp).toISOString()}] [${msg.type.toUpperCase()}] ${msg.message}`
     ).join('\n');
 
@@ -832,9 +855,8 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   };
 
   return (
-    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${
-      isExpanded ? 'fixed inset-4 z-50' : 'relative'
-    } ${className}`}>
+    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
+      } ${className}`}>
       {/* Header */}
       <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -842,9 +864,9 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
           <h3 className="text-sm font-medium text-gray-300">GB Console</h3>
           <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">
             {activeMode === 'console' ? filteredBasicLogs.length :
-             activeMode === 'advanced' ? filteredAdvancedLogs.length :
-             activeMode === 'validator' ? validationResults.length :
-             previewMessages.length} items
+              activeMode === 'advanced' ? filteredAdvancedLogs.length :
+                activeMode === 'validator' ? validationResults.length :
+                  previewMessages.length} items
           </span>
         </div>
 
@@ -859,7 +881,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               <Search className="w-4 h-4" />
             </button>
           )}
-          
+
           {/* Settings button (Advanced mode) */}
           {activeMode === 'advanced' && (
             <button
@@ -870,7 +892,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               <Settings className="w-4 h-4" />
             </button>
           )}
-          
+
           {/* Auto-validate toggle (Validator mode) */}
           {activeMode === 'validator' && (
             <label className="flex items-center gap-1 text-xs text-gray-400">
@@ -883,7 +905,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               Auto-validate
             </label>
           )}
-          
+
           {/* Preview toggle (Preview mode) */}
           {activeMode === 'preview' && (
             <button
@@ -894,7 +916,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               {showPreview ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             </button>
           )}
-          
+
           {/* Copy button */}
           <button
             onClick={() => {
@@ -910,7 +932,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
           >
             <Copy className="w-4 h-4" />
           </button>
-          
+
           {/* Clear button */}
           <button
             onClick={() => {
@@ -926,7 +948,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
           >
             <Trash2 className="w-4 h-4" />
           </button>
-          
+
           {/* Run button (Preview mode) */}
           {activeMode === 'preview' && (
             <button
@@ -938,7 +960,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               Run
             </button>
           )}
-          
+
           {/* Export button (Advanced mode) */}
           {activeMode === 'advanced' && (
             <button
@@ -949,7 +971,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               <Download className="w-4 h-4" />
             </button>
           )}
-          
+
           {/* Validate button (Validator mode) */}
           {activeMode === 'validator' && (
             <button
@@ -961,7 +983,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               Validate
             </button>
           )}
-          
+
           {/* Expand button */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -984,11 +1006,10 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
           <button
             key={key}
             onClick={() => setActiveMode(key)}
-            className={`px-4 py-2 text-sm border-r border-gray-700 flex items-center gap-2 ${
-              activeMode === key
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-750'
-            }`}
+            className={`px-4 py-2 text-sm border-r border-gray-700 flex items-center gap-2 ${activeMode === key
+              ? 'bg-gray-900 text-white'
+              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-750'
+              }`}
           >
             <Icon className="w-4 h-4" />
             {label}
@@ -1032,11 +1053,10 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               <button
                 key={filter}
                 onClick={() => setBasicFilter(filter)}
-                className={`px-2 py-1 rounded text-xs ${
-                  basicFilter === filter
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
+                className={`px-2 py-1 rounded text-xs ${basicFilter === filter
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
               >
                 {filter === 'all' ? 'All' : filter.toUpperCase()}
               </button>
@@ -1051,9 +1071,8 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
           {tabs.map(tab => (
             <div
               key={tab.id}
-              className={`flex items-center gap-2 px-3 py-2 border-r border-gray-700 cursor-pointer ${
-                tab.id === activeTabId ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-200'
-              }`}
+              className={`flex items-center gap-2 px-3 py-2 border-r border-gray-700 cursor-pointer ${tab.id === activeTabId ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-200'
+                }`}
               onClick={() => setActiveTabId(tab.id)}
             >
               {tab.isPinned && <Pin className="w-3 h-3" />}
@@ -1086,7 +1105,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       <div className="flex" style={{ height: isExpanded ? 'calc(100vh - 200px)' : '300px' }}>
         {/* Main Content */}
         <div className={`flex-1 overflow-auto ${activeMode === 'preview' && showPreview ? 'w-1/2' : 'w-full'}`}>
-          
+
           {/* BASIC CONSOLE MODE */}
           {activeMode === 'console' && (
             <div ref={outputRef} className="bg-black p-4 h-full overflow-y-auto font-mono text-sm">
@@ -1174,9 +1193,8 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
                     {autoCompleteItems.map((item, index) => (
                       <div
                         key={item.value}
-                        className={`px-3 py-2 cursor-pointer flex items-center justify-between ${
-                          index === selectedAutoCompleteIndex ? 'bg-gray-700' : 'hover:bg-gray-700'
-                        }`}
+                        className={`px-3 py-2 cursor-pointer flex items-center justify-between ${index === selectedAutoCompleteIndex ? 'bg-gray-700' : 'hover:bg-gray-700'
+                          }`}
                         onClick={() => {
                           setCommand(item.value);
                           setShowAutoComplete(false);
@@ -1226,11 +1244,10 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
                   {validationResults.map((result, index) => (
                     <div
                       key={index}
-                      className={`flex items-start gap-3 p-3 rounded border-l-4 ${
-                        result.severity === 'error' ? 'bg-red-900/20 border-red-400' :
+                      className={`flex items-start gap-3 p-3 rounded border-l-4 ${result.severity === 'error' ? 'bg-red-900/20 border-red-400' :
                         result.severity === 'warning' ? 'bg-yellow-900/20 border-yellow-400' :
-                        'bg-blue-900/20 border-blue-400'
-                      }`}
+                          'bg-blue-900/20 border-blue-400'
+                        }`}
                     >
                       {getValidationIcon(result.severity)}
                       <div className="flex-1">
@@ -1243,11 +1260,10 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
                               Line {result.line}
                             </span>
                           )}
-                          <span className={`text-xs px-2 py-0.5 rounded ${
-                            result.severity === 'error' ? 'bg-red-600 text-white' :
+                          <span className={`text-xs px-2 py-0.5 rounded ${result.severity === 'error' ? 'bg-red-600 text-white' :
                             result.severity === 'warning' ? 'bg-yellow-600 text-white' :
-                            'bg-blue-600 text-white'
-                          }`}>
+                              'bg-blue-600 text-white'
+                            }`}>
                             {result.severity.toUpperCase()}
                           </span>
                         </div>

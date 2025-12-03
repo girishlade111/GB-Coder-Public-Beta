@@ -9,12 +9,10 @@ import {
   Undo2,
   ChevronLeft,
   ChevronRight,
-  Eye,
   EyeOff,
   Download,
   BarChart3,
   CheckCircle2,
-  XCircle,
   Info,
   Zap,
   Shield,
@@ -208,8 +206,8 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
             <div
               key={suggestion.id}
               className={`border rounded-lg p-4 transition-all cursor-pointer ${selectedSuggestions.has(suggestion.id)
-                  ? 'border-blue-500 bg-blue-900/20'
-                  : 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                ? 'border-blue-500 bg-blue-900/20'
+                : 'border-gray-600 bg-gray-800 hover:border-gray-500'
                 }`}
               onClick={() => toggleSuggestion(suggestion.id)}
             >
@@ -303,8 +301,8 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`px-3 py-1 text-xs rounded transition-colors ${activeTab === 'overview'
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-gray-200'
                   }`}
               >
                 Overview
@@ -312,8 +310,8 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
               <button
                 onClick={() => setActiveTab('suggestions')}
                 className={`px-3 py-1 text-xs rounded transition-colors ${activeTab === 'suggestions'
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-gray-200'
                   }`}
               >
                 Suggestions
@@ -321,8 +319,8 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
               <button
                 onClick={() => setActiveTab('comparison')}
                 className={`px-3 py-1 text-xs rounded transition-colors ${activeTab === 'comparison'
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-gray-200'
                   }`}
               >
                 Comparison
@@ -408,8 +406,8 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                       <button
                         onClick={() => setViewMode('side-by-side')}
                         className={`px-3 py-1 text-xs rounded transition-colors ${viewMode === 'side-by-side'
-                            ? 'bg-purple-600 text-white'
-                            : 'text-gray-400 hover:text-gray-200'
+                          ? 'bg-purple-600 text-white'
+                          : 'text-gray-400 hover:text-gray-200'
                           }`}
                       >
                         <ChevronLeft className="w-4 h-4 inline mr-1" />
@@ -418,8 +416,8 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                       <button
                         onClick={() => setViewMode('unified')}
                         className={`px-3 py-1 text-xs rounded transition-colors ${viewMode === 'unified'
-                            ? 'bg-purple-600 text-white'
-                            : 'text-gray-400 hover:text-gray-200'
+                          ? 'bg-purple-600 text-white'
+                          : 'text-gray-400 hover:text-gray-200'
                           }`}
                       >
                         Unified
@@ -462,8 +460,8 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                           <div key={index} className="mb-2 text-sm">
                             <div className="flex items-center gap-2 mb-1">
                               <span className={`px-2 py-0.5 rounded text-xs font-medium ${diff.type === 'addition' ? 'bg-green-600 text-white' :
-                                  diff.type === 'deletion' ? 'bg-red-600 text-white' :
-                                    'bg-yellow-600 text-white'
+                                diff.type === 'deletion' ? 'bg-red-600 text-white' :
+                                  'bg-yellow-600 text-white'
                                 }`}>
                                 {diff.type.toUpperCase()}
                               </span>

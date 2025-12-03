@@ -10,11 +10,9 @@ import {
   Code,
   X,
   Maximize2,
-  Minimize2,
-  Settings,
-  Zap
+  Minimize2
 } from 'lucide-react';
-import { GeminiChatMessage, GeminiCodeBlock, CodeModificationRequest, EditorLanguage } from '../types';
+import { GeminiChatMessage, GeminiCodeBlock, EditorLanguage } from '../types';
 import { aiCodeAssistant } from '../services/aiCodeAssistant';
 
 interface GeminiCodeAssistantProps {
@@ -296,8 +294,8 @@ How can I help you today?`,
           </span>
           {codeBlock.validated !== undefined && (
             <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${codeBlock.validated
-                ? 'bg-green-900 text-green-300'
-                : 'bg-red-900 text-red-300'
+              ? 'bg-green-900 text-green-300'
+              : 'bg-red-900 text-red-300'
               }`}>
               {codeBlock.validated ? (
                 <>
@@ -410,8 +408,8 @@ How can I help you today?`,
           >
             <div
               className={`max-w-[80%] rounded-lg p-3 ${message.type === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-800 text-gray-200 border border-gray-600'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-800 text-gray-200 border border-gray-600'
                 }`}
             >
               <div className="prose prose-sm max-w-none">

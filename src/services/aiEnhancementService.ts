@@ -175,7 +175,7 @@ Response format:
     /**
      * Parse analysis response for real-time suggestions
      */
-    private parseAnalysisResponse(response: string, language: EditorLanguage): AICodeSuggestion[] {
+    private parseAnalysisResponse(response: string, _language: EditorLanguage): AICodeSuggestion[] {
         try {
             const jsonMatch = response.match(/\{[\s\S]*\}/);
             if (!jsonMatch) return [];
@@ -243,7 +243,7 @@ Response format:
     /**
      * Apply partial suggestions to code
      */
-    applyPartialSuggestions(originalCode: string, suggestions: AICodeSuggestion[]): string {
+    applyPartialSuggestions(originalCode: string, _suggestions: AICodeSuggestion[]): string {
         // This is a simplified implementation
         // In a real scenario, you'd need more sophisticated code transformation
         return originalCode;
