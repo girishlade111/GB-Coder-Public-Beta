@@ -1,19 +1,22 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
 import { Code2 } from 'lucide-react';
 import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
 import PreviewPanel from './components/PreviewPanel';
-import EnhancedConsole from './components/EnhancedConsole';
-import SnippetManager from './components/SnippetManager';
-import AISuggestionPanel from './components/AISuggestionPanel';
-import GeminiCodeAssistant from './components/GeminiCodeAssistant';
-import AIEnhancementPopup from './components/AIEnhancementPopup';
-import CodeExplanationPopup from './components/CodeExplanationPopup';
-import ExternalLibraryManager from './components/ExternalLibraryManager';
-import CodeHistoryPage from './components/history/CodeHistoryPage';
-import AboutPage from './components/pages/AboutPage';
 import SaveStatusIndicator from './components/ui/SaveStatusIndicator';
 import Footer from './components/ui/Footer';
+
+// Lazy load heavy components
+const EnhancedConsole = lazy(() => import('./components/EnhancedConsole'));
+const SnippetManager = lazy(() => import('./components/SnippetManager'));
+const AISuggestionPanel = lazy(() => import('./components/AISuggestionPanel'));
+const GeminiCodeAssistant = lazy(() => import('./components/GeminiCodeAssistant'));
+const AIEnhancementPopup = lazy(() => import('./components/AIEnhancementPopup'));
+const CodeExplanationPopup = lazy(() => import('./components/CodeExplanationPopup'));
+const ExternalLibraryManager = lazy(() => import('./components/ExternalLibraryManager'));
+const CodeHistoryPage = lazy(() => import('./components/history/CodeHistoryPage'));
+const AboutPage = lazy(() => import('./components/pages/AboutPage'));
+
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useCodeHistory } from './hooks/useCodeHistory';
 import { useAutoSave } from './hooks/useAutoSave';
@@ -546,17 +549,28 @@ function App() {
           }
         />
         <div className="flex-1">
-          <AboutPage />
+          <Suspense fallback={
+            <div className="flex items-center justify-center p-12">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-gray-400">Loading About Page...</p>
+              </div>
+            </div>
+          }>
+            <AboutPage />
+          </Suspense>
         </div>
         <Footer />
 
         {/* External Library Manager for About page */}
-        <ExternalLibraryManager
-          isOpen={showExternalLibraryManager}
-          onClose={() => setShowExternalLibraryManager(false)}
-          libraries={externalLibraries}
-          onLibrariesChange={handleExternalLibrariesChange}
-        />
+        <Suspense fallback={null}>
+          <ExternalLibraryManager
+            isOpen={showExternalLibraryManager}
+            onClose={() => setShowExternalLibraryManager(false)}
+            libraries={externalLibraries}
+            onLibrariesChange={handleExternalLibrariesChange}
+          />
+        </Suspense>
       </div>
     );
   }
@@ -601,17 +615,28 @@ function App() {
           }
         />
         <div className="flex-1">
-          <CodeHistoryPage />
+          <Suspense fallback={
+            <div className="flex items-center justify-center p-12">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-gray-400">Loading History...</p>
+              </div>
+            </div>
+          }>
+            <CodeHistoryPage />
+          </Suspense>
         </div>
         <Footer />
 
         {/* External Library Manager for History page */}
-        <ExternalLibraryManager
-          isOpen={showExternalLibraryManager}
-          onClose={() => setShowExternalLibraryManager(false)}
-          libraries={externalLibraries}
-          onLibrariesChange={handleExternalLibrariesChange}
-        />
+        <Suspense fallback={null}>
+          <ExternalLibraryManager
+            isOpen={showExternalLibraryManager}
+            onClose={() => setShowExternalLibraryManager(false)}
+            libraries={externalLibraries}
+            onLibrariesChange={handleExternalLibrariesChange}
+          />
+        </Suspense>
       </div>
     );
   }
@@ -701,43 +726,56 @@ function App() {
               onConsoleLog={handleConsoleLog}
             />
 
-            <EnhancedConsole
-              logs={consoleLogs}
-              onClear={clearConsoleLogs}
-              html={html}
-              css={css}
-              javascript={javascript}
-              onCommand={handleCommand}
-            />
+            <Suspense fallback={
+              <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 text-center">
+                <div className="w-6 h-6 border-3 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-gray-400 text-sm">Loading Console...</p>
+              </div>
+            }>
+              <EnhancedConsole
+                logs={consoleLogs}
+                onClear={clearConsoleLogs}
+                html={html}
+                css={css}
+                javascript={javascript}
+                onCommand={handleCommand}
+              />
+            </Suspense>
 
             {/* Gemini Assistant */}
             {showGeminiAssistant && (
-              <GeminiCodeAssistant
-                currentCode={{ html, css, javascript }}
-                onCodeUpdate={handleCodeUpdate}
-                onClose={() => setShowGeminiAssistant(false)}
-              />
+              <Suspense fallback={<div className="bg-gray-900 border border-gray-700 rounded-lg p-4"><p className="text-gray-400 text-sm">Loading AI Assistant...</p></div>}>
+                <GeminiCodeAssistant
+                  currentCode={{ html, css, javascript }}
+                  onCodeUpdate={handleCodeUpdate}
+                  onClose={() => setShowGeminiAssistant(false)}
+                />
+              </Suspense>
             )}
 
             {/* AI Suggestions Panel */}
             {showAISuggestions && (
-              <AISuggestionPanel
-                suggestions={aiSuggestions}
-                onApplySuggestion={handleApplySuggestion}
-                onDismiss={handleDismissSuggestion}
-              />
+              <Suspense fallback={null}>
+                <AISuggestionPanel
+                  suggestions={aiSuggestions}
+                  onApplySuggestion={handleApplySuggestion}
+                  onDismiss={handleDismissSuggestion}
+                />
+              </Suspense>
             )}
 
             {/* Snippets Panel */}
             {showSnippets && (
-              <SnippetManager
-                snippets={snippets}
-                onSave={saveSnippet}
-                onLoad={loadSnippet}
-                onDelete={deleteSnippet}
-                onUpdate={updateSnippet}
-                currentCode={{ html, css, javascript }}
-              />
+              <Suspense fallback={null}>
+                <SnippetManager
+                  snippets={snippets}
+                  onSave={saveSnippet}
+                  onLoad={loadSnippet}
+                  onDelete={deleteSnippet}
+                  onUpdate={updateSnippet}
+                  currentCode={{ html, css, javascript }}
+                />
+              </Suspense>
             )}
           </div>
         </div>
@@ -747,39 +785,45 @@ function App() {
       <Footer />
 
       {/* AI Enhancement Popup */}
-      <AIEnhancementPopup
-        isOpen={aiPopupOpen}
-        onClose={handleAIPopupClose}
-        code={aiPopupCode}
-        language={aiPopupLanguage}
-        onApplyChanges={handleAIEnhancementApply}
-        onApplyPartial={handleAIPartialApply}
-        onUndo={codeHistory.canUndo ? handleUndo : undefined}
-      />
+      <Suspense fallback={null}>
+        <AIEnhancementPopup
+          isOpen={aiPopupOpen}
+          onClose={handleAIPopupClose}
+          code={aiPopupCode}
+          language={aiPopupLanguage}
+          onApplyChanges={handleAIEnhancementApply}
+          onApplyPartial={handleAIPartialApply}
+          onUndo={codeHistory.canUndo ? handleUndo : undefined}
+        />
+      </Suspense>
 
       {/* External Library Manager */}
-      <ExternalLibraryManager
-        isOpen={showExternalLibraryManager}
-        onClose={() => setShowExternalLibraryManager(false)}
-        libraries={externalLibraries}
-        onLibrariesChange={handleExternalLibrariesChange}
-      />
+      <Suspense fallback={null}>
+        <ExternalLibraryManager
+          isOpen={showExternalLibraryManager}
+          onClose={() => setShowExternalLibraryManager(false)}
+          libraries={externalLibraries}
+          onLibrariesChange={handleExternalLibrariesChange}
+        />
+      </Suspense>
 
       {/* Code Explanation Popup */}
-      <CodeExplanationPopup
-        isOpen={showExplanationPopup}
-        onClose={() => {
-          setShowExplanationPopup(false);
-          clearExplanation(); // Clear explanation state when popup is closed
-        }}
-        explanation={explanation}
-        isLoading={isExplanationLoading}
-        position={popupPosition}
-        onUserLevelChange={(level) => explanation && explainCode(explanation.code, explanation.language, level)}
-        onShowSimplified={getSimplifiedExplanation}
-        onShowAnnotated={getAnnotatedCode}
-        onAddComments={handleAddComments}
-      />
+      <Suspense fallback={null}>
+        <CodeExplanationPopup
+          isOpen={showExplanationPopup}
+          onClose={() => {
+            setShowExplanationPopup(false);
+            clearExplanation(); // Clear explanation state when popup is closed
+          }}
+          explanation={explanation}
+          isLoading={isExplanationLoading}
+          position={popupPosition}
+          onUserLevelChange={(level) => explanation && explainCode(explanation.code, explanation.language, level)}
+          onShowSimplified={getSimplifiedExplanation}
+          onShowAnnotated={getAnnotatedCode}
+          onAddComments={handleAddComments}
+        />
+      </Suspense>
     </div>
   );
 }
