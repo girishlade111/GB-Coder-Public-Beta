@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { 
-  Save, 
-  FolderOpen, 
-  Download, 
-  Trash2, 
-  Plus, 
-  Search, 
-  Filter, 
+import {
+  Save,
+  FolderOpen,
+  Download,
+  Trash2,
+  Plus,
+  Search,
+  Filter,
   Upload,
   Edit3,
   Copy,
@@ -19,9 +19,9 @@ import {
   Archive
 } from 'lucide-react';
 import { CodeSnippet } from '../types';
-import { 
-  exportSnippetAsJSON, 
-  importSnippetFromJSON, 
+import {
+  exportSnippetAsJSON,
+  importSnippetFromJSON,
   exportAllSnippets,
   searchSnippets,
   sortSnippets,
@@ -60,27 +60,27 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showStats, setShowStats] = useState(false);
-  
+
   // Form states
   const [snippetName, setSnippetName] = useState('');
   const [snippetDescription, setSnippetDescription] = useState('');
   const [snippetTags, setSnippetTags] = useState('');
   const [snippetCategory, setSnippetCategory] = useState('');
-  
+
   // Import/Export states
   const [importError, setImportError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter and sort snippets
   const filteredSnippets = React.useMemo(() => {
     let filtered = searchSnippets(snippets, searchQuery);
-    
+
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(snippet => snippet.category === selectedCategory);
     }
-    
+
     return sortSnippets(filtered, sortBy);
   }, [snippets, searchQuery, selectedCategory, sortBy]);
 
@@ -104,7 +104,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
   const handleSave = () => {
     if (snippetName.trim()) {
       const tags = snippetTags.split(',').map(tag => tag.trim()).filter(Boolean);
-      
+
       if (editingSnippet) {
         // Update existing snippet
         onUpdate(editingSnippet.id, {
@@ -120,16 +120,16 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
       } else {
         // Create new snippet
         onSave(
-          snippetName.trim(), 
-          currentCode.html, 
-          currentCode.css, 
+          snippetName.trim(),
+          currentCode.html,
+          currentCode.css,
           currentCode.javascript,
           snippetDescription.trim() || undefined,
           tags.length > 0 ? tags : undefined,
           snippetCategory.trim() || undefined
         );
       }
-      
+
       resetForm();
       setIsModalOpen(false);
     }
@@ -207,10 +207,10 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
           <Save className="w-4 h-4" />
           Save Snippet
         </button>
-        
+
         <button
           onClick={() => setShowSnippets(!showSnippets)}
-          className="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors text-sm"
+          className="flex items-center gap-2 px-3 py-2 bg-dark-gray hover:bg-gray-600 text-gray-200 rounded-lg transition-colors text-sm"
         >
           <FolderOpen className="w-4 h-4" />
           Snippets ({snippets.length})
@@ -234,7 +234,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
           onChange={handleImport}
           className="hidden"
         />
-        
+
         <button
           onClick={() => fileInputRef.current?.click()}
           className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
@@ -265,9 +265,9 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
 
       {/* Snippets Panel */}
       {showSnippets && (
-        <div className="mt-4 bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+        <div className="mt-4 bg-dark-gray border border-gray-700 rounded-lg overflow-hidden">
           {/* Header with controls */}
-          <div className="bg-gray-900 px-4 py-3 border-b border-gray-700">
+          <div className="bg-matte-black px-4 py-3 border-b border-gray-700">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-gray-300">Saved Snippets</h3>
               <button
@@ -280,7 +280,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
 
             {/* Statistics */}
             {showStats && (
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 p-3 bg-gray-800 rounded-lg">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 p-3 bg-dark-gray rounded-lg">
                 <div className="text-center">
                   <div className="text-lg font-bold text-blue-400">{stats.totalSnippets}</div>
                   <div className="text-xs text-gray-400">Snippets</div>
@@ -313,14 +313,14 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                   placeholder="Search snippets..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
+                  className="w-full pl-10 pr-4 py-2 bg-dark-gray border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
                 />
               </div>
-              
+
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:border-blue-500 text-sm"
+                className="px-3 py-2 bg-dark-gray border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:border-blue-500 text-sm"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>
@@ -328,7 +328,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                   </option>
                 ))}
               </select>
-              
+
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -345,8 +345,8 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
           <div className="max-h-96 overflow-y-auto">
             {filteredSnippets.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                {searchQuery || selectedCategory !== 'all' 
-                  ? 'No snippets match your filters' 
+                {searchQuery || selectedCategory !== 'all'
+                  ? 'No snippets match your filters'
                   : 'No snippets saved yet'
                 }
               </div>
@@ -355,7 +355,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                 {filteredSnippets.map((snippet) => (
                   <div
                     key={snippet.id}
-                    className="flex items-start justify-between p-4 bg-gray-900 rounded-lg border border-gray-600 hover:border-gray-500 transition-colors"
+                    className="flex items-start justify-between p-4 bg-matte-black rounded-lg border border-gray-600 hover:border-gray-500 transition-colors"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
@@ -368,13 +368,13 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                           </span>
                         )}
                       </div>
-                      
+
                       {snippet.description && (
                         <p className="text-xs text-gray-400 mb-2 line-clamp-2">
                           {snippet.description}
                         </p>
                       )}
-                      
+
                       {snippet.tags && snippet.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {snippet.tags.map((tag, index) => (
@@ -387,7 +387,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                           ))}
                         </div>
                       )}
-                      
+
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
@@ -401,7 +401,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-1 ml-4">
                       <button
                         onClick={() => onLoad(snippet)}
@@ -410,7 +410,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                       >
                         <FolderOpen className="w-4 h-4" />
                       </button>
-                      
+
                       <button
                         onClick={() => duplicateSnippet(snippet)}
                         className="p-2 hover:bg-gray-700 rounded text-gray-400 hover:text-blue-400 transition-colors"
@@ -418,7 +418,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                       >
                         <Copy className="w-4 h-4" />
                       </button>
-                      
+
                       <button
                         onClick={() => handleEdit(snippet)}
                         className="p-2 hover:bg-gray-700 rounded text-gray-400 hover:text-yellow-400 transition-colors"
@@ -426,7 +426,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
-                      
+
                       <button
                         onClick={() => exportSnippetAsJSON(snippet)}
                         className="p-2 hover:bg-gray-700 rounded text-gray-400 hover:text-purple-400 transition-colors"
@@ -434,7 +434,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                       >
                         <Download className="w-4 h-4" />
                       </button>
-                      
+
                       <button
                         onClick={() => onDelete(snippet.id)}
                         className="p-2 hover:bg-red-600 rounded text-gray-400 hover:text-red-200 transition-colors"
@@ -454,7 +454,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
       {/* Save/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-dark-gray border border-gray-700 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-200">
                 {editingSnippet ? 'Edit Snippet' : 'Save New Snippet'}
@@ -469,7 +469,7 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -480,11 +480,11 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                   value={snippetName}
                   onChange={(e) => setSnippetName(e.target.value)}
                   placeholder="Enter snippet name"
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-matte-black border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
                   autoFocus
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Description
@@ -494,10 +494,10 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                   onChange={(e) => setSnippetDescription(e.target.value)}
                   placeholder="Optional description"
                   rows={3}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+                  className="w-full px-3 py-2 bg-matte-black border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Category
@@ -507,10 +507,10 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                   value={snippetCategory}
                   onChange={(e) => setSnippetCategory(e.target.value)}
                   placeholder="e.g., Components, Layouts, Animations"
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-matte-black border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Tags
@@ -520,14 +520,14 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                   value={snippetTags}
                   onChange={(e) => setSnippetTags(e.target.value)}
                   placeholder="Comma-separated tags (e.g., responsive, animation, form)"
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-matte-black border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Separate multiple tags with commas
                 </p>
               </div>
             </div>
-            
+
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => {

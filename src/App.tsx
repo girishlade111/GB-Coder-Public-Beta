@@ -512,7 +512,7 @@ function App() {
   // Render about page
   if (currentView === 'about') {
     return (
-      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-gray-900' : 'bg-gray-50'
+      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'
         }`}>
         <NavigationBar
           onAutoSaveToggle={() => setAutoSaveEnabled(!autoSaveEnabled)}
@@ -578,7 +578,7 @@ function App() {
   // Render history view
   if (currentView === 'history') {
     return (
-      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-gray-900' : 'bg-gray-50'
+      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'
         }`}>
         <NavigationBar
           onAutoSaveToggle={() => setAutoSaveEnabled(!autoSaveEnabled)}
@@ -643,7 +643,7 @@ function App() {
 
   // Render main editor view
   return (
-    <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-gray-900' : 'bg-gray-50'
+    <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'
       }`}>
       {/* Navigation Bar */}
       <NavigationBar
@@ -727,7 +727,7 @@ function App() {
             />
 
             <Suspense fallback={
-              <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 text-center">
+              <div className="bg-matte-black border border-gray-700 rounded-lg p-4 text-center">
                 <div className="w-6 h-6 border-3 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                 <p className="text-gray-400 text-sm">Loading Console...</p>
               </div>

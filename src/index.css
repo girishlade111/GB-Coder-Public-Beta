@@ -4,7 +4,7 @@
 
 /* Enhanced Terminal Styling */
 .terminal-container {
-  @apply bg-gray-900 text-gray-100;
+  @apply bg-matte-black text-bright-white;
   font-family: 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 

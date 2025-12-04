@@ -858,7 +858,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
     <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
       } ${className}`}>
       {/* Header */}
-      <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
+      <div className="bg-dark-gray px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Terminal className="w-4 h-4 text-green-400" />
           <h3 className="text-sm font-medium text-gray-300">GB Console</h3>
@@ -996,7 +996,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       </div>
 
       {/* Mode Tabs */}
-      <div className="bg-gray-800 border-b border-gray-700 flex items-center">
+      <div className="bg-dark-gray border-b border-gray-700 flex items-center">
         {([
           { key: 'console', label: 'Console', icon: Terminal },
           { key: 'advanced', label: 'Advanced', icon: TerminalIcon },
@@ -1007,7 +1007,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
             key={key}
             onClick={() => setActiveMode(key)}
             className={`px-4 py-2 text-sm border-r border-gray-700 flex items-center gap-2 ${activeMode === key
-              ? 'bg-gray-900 text-white'
+              ? 'bg-matte-black text-white'
               : 'text-gray-400 hover:text-gray-200 hover:bg-gray-750'
               }`}
           >
@@ -1019,7 +1019,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
       {/* Search Bar (Advanced mode) */}
       {activeMode === 'advanced' && showSearch && (
-        <div className="bg-gray-800 border-b border-gray-700 p-2">
+        <div className="bg-dark-gray border-b border-gray-700 p-2">
           <div className="flex items-center gap-2">
             <Search className="w-4 h-4 text-gray-400" />
             <input
@@ -1045,7 +1045,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
       {/* Filter Bar (Basic Console mode) */}
       {activeMode === 'console' && (
-        <div className="bg-gray-800 border-b border-gray-700 p-2">
+        <div className="bg-dark-gray border-b border-gray-700 p-2">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-400">Filter:</span>
@@ -1067,11 +1067,11 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
       {/* Tabs (Advanced mode) */}
       {activeMode === 'advanced' && (
-        <div className="bg-gray-800 border-b border-gray-700 flex items-center overflow-x-auto">
+        <div className="bg-dark-gray border-b border-gray-700 flex items-center overflow-x-auto">
           {tabs.map(tab => (
             <div
               key={tab.id}
-              className={`flex items-center gap-2 px-3 py-2 border-r border-gray-700 cursor-pointer ${tab.id === activeTabId ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-200'
+              className={`flex items-center gap-2 px-3 py-2 border-r border-gray-700 cursor-pointer ${tab.id === activeTabId ? 'bg-matte-black text-white' : 'text-gray-400 hover:text-gray-200'
                 }`}
               onClick={() => setActiveTabId(tab.id)}
             >
@@ -1108,7 +1108,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
           {/* BASIC CONSOLE MODE */}
           {activeMode === 'console' && (
-            <div ref={outputRef} className="bg-black p-4 h-full overflow-y-auto font-mono text-sm">
+            <div ref={outputRef} className="bg-matte-black p-4 h-full overflow-y-auto font-mono text-sm">
               {filteredBasicLogs.length === 0 ? (
                 <div className="text-gray-500 italic text-center py-8">
                   Console output will appear here...
@@ -1136,7 +1136,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
             <div className="h-full flex flex-col">
               {/* Settings Panel */}
               {showSettings && (
-                <div className="bg-gray-800 border-b border-gray-700 p-3">
+                <div className="bg-dark-gray border-b border-gray-700 p-3">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                       <label className="text-gray-400 block mb-1">Theme</label>
@@ -1160,7 +1160,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               {/* Output Area */}
               <div
                 ref={outputRef}
-                className={`bg-black p-4 font-mono overflow-y-auto flex-1 text-sm`}
+                className={`bg-matte-black p-4 font-mono overflow-y-auto flex-1 text-sm`}
               >
                 {filteredAdvancedLogs.length === 0 ? (
                   <div className="text-gray-500 italic text-center py-8">
@@ -1186,10 +1186,10 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               </div>
 
               {/* Input Area */}
-              <form onSubmit={handleAdvancedSubmit} className="bg-gray-800 border-t border-gray-700 p-3 relative">
+              <form onSubmit={handleAdvancedSubmit} className="bg-dark-gray border-t border-gray-700 p-3 relative">
                 {/* Auto-complete dropdown */}
                 {showAutoComplete && autoCompleteItems.length > 0 && (
-                  <div className="absolute bottom-full left-0 right-0 bg-gray-800 border border-gray-700 rounded-t-lg max-h-48 overflow-y-auto">
+                  <div className="absolute bottom-full left-0 right-0 bg-dark-gray border border-gray-700 rounded-t-lg max-h-48 overflow-y-auto">
                     {autoCompleteItems.map((item, index) => (
                       <div
                         key={item.value}
@@ -1232,7 +1232,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
           {/* VALIDATOR MODE */}
           {activeMode === 'validator' && (
-            <div className="bg-gray-900 p-4 h-full overflow-y-auto">
+            <div className="bg-matte-black p-4 h-full overflow-y-auto">
               {validationResults.length === 0 ? (
                 <div className="text-gray-500 italic text-center py-8">
                   No validation issues found.
@@ -1280,7 +1280,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
           {/* PREVIEW CONSOLE MODE */}
           {activeMode === 'preview' && (
-            <div ref={outputRef} className="bg-black p-4 h-full overflow-y-auto font-mono text-sm">
+            <div ref={outputRef} className="bg-matte-black p-4 h-full overflow-y-auto font-mono text-sm">
               {previewMessages.length === 0 ? (
                 <div className="text-gray-500 italic text-center py-8">
                   Console output will appear here...
@@ -1309,7 +1309,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
         {/* Preview Panel (Preview mode only) */}
         {activeMode === 'preview' && showPreview && (
           <div className="w-1/2 border-l border-gray-700 bg-white flex flex-col">
-            <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 text-sm text-gray-300 flex items-center justify-between">
+            <div className="bg-dark-gray px-4 py-2 border-b border-gray-700 text-sm text-gray-300 flex items-center justify-between">
               <span>Live Preview</span>
               <div className="flex items-center gap-2 text-xs">
                 <Cpu className="w-3 h-3" />

@@ -142,13 +142,13 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
       case 'high': return 'text-red-400 bg-red-900/20 border-red-700';
       case 'medium': return 'text-yellow-400 bg-yellow-900/20 border-yellow-700';
       case 'low': return 'text-green-400 bg-green-900/20 border-green-700';
-      default: return 'text-gray-400 bg-gray-900/20 border-gray-700';
+      default: return 'text-gray-400 bg-matte-black/20 border-gray-700';
     }
   };
 
   const renderCodeBlock = (code: string, title: string, isEnhanced = false) => (
     <div className="flex-1 min-w-0">
-      <div className="bg-gray-800 px-4 py-2 border-b border-gray-600 flex items-center justify-between">
+      <div className="bg-dark-gray px-4 py-2 border-b border-gray-600 flex items-center justify-between">
         <h4 className="text-sm font-medium text-gray-300">{title}</h4>
         <div className="flex items-center gap-2">
           {isEnhanced && enhancement && (
@@ -165,7 +165,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
           </button>
         </div>
       </div>
-      <div className="bg-gray-900 p-4 h-80 overflow-auto">
+      <div className="bg-matte-black p-4 h-80 overflow-auto">
         <pre className="text-sm text-gray-300 whitespace-pre-wrap">
           <code className={isEnhanced ? 'text-green-300' : ''}>{code}</code>
         </pre>
@@ -207,7 +207,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
               key={suggestion.id}
               className={`border rounded-lg p-4 transition-all cursor-pointer ${selectedSuggestions.has(suggestion.id)
                 ? 'border-blue-500 bg-blue-900/20'
-                : 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                : 'border-gray-600 bg-dark-gray hover:border-gray-500'
                 }`}
               onClick={() => toggleSuggestion(suggestion.id)}
             >
@@ -233,7 +233,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                   <p className="text-sm text-gray-400 mb-3">{suggestion.description}</p>
 
                   {suggestion.code && (
-                    <div className="bg-gray-900 rounded p-3 border border-gray-700">
+                    <div className="bg-matte-black rounded p-3 border border-gray-700">
                       <pre className="text-xs text-green-300 overflow-x-auto">
                         <code>{suggestion.code}</code>
                       </pre>
@@ -258,7 +258,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
     if (!comparison) return null;
 
     return (
-      <div className="grid grid-cols-3 gap-4 p-4 bg-gray-800 rounded-lg border border-gray-600">
+      <div className="grid grid-cols-3 gap-4 p-4 bg-dark-gray rounded-lg border border-gray-600">
         <div className="text-center">
           <div className="text-2xl font-bold text-green-400">{comparison.stats.linesAdded}</div>
           <div className="text-xs text-gray-400">Lines Added</div>
@@ -279,9 +279,9 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-7xl max-h-[90vh] overflow-hidden">
+      <div className="bg-matte-black border border-gray-700 rounded-lg w-full max-w-7xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-gray-800 px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+        <div className="bg-dark-gray px-6 py-4 border-b border-gray-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Sparkles className="w-6 h-6 text-purple-400" />
             <h2 className="text-lg font-semibold text-gray-200">AI Code Enhancement</h2>
@@ -370,7 +370,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
               {activeTab === 'overview' && (
                 <div className="space-y-6">
                   {/* Improvements Summary */}
-                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-600">
+                  <div className="bg-dark-gray rounded-lg p-4 border border-gray-600">
                     <h3 className="text-lg font-medium text-gray-200 mb-3 flex items-center gap-2">
                       <CheckCircle2 className="w-5 h-5 text-green-400" />
                       Improvements Made
@@ -383,7 +383,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                         </li>
                       ))}
                     </ul>
-                    <div className="bg-gray-900 rounded p-3 border border-gray-700">
+                    <div className="bg-matte-black rounded p-3 border border-gray-700">
                       <p className="text-sm text-gray-400">{enhancement.explanation}</p>
                     </div>
                   </div>
@@ -427,7 +427,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                   </div>
 
                   {/* Code Comparison */}
-                  <div className="bg-gray-800 rounded-lg border border-gray-600 overflow-hidden">
+                  <div className="bg-dark-gray rounded-lg border border-gray-600 overflow-hidden">
                     {viewMode === 'side-by-side' ? (
                       <div className="flex">
                         {renderCodeBlock(enhancement.originalCode, 'Original Code')}
@@ -443,7 +443,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
 
                   {/* Differences */}
                   {comparison && showDifferences && (
-                    <div className="bg-gray-800 rounded-lg border border-gray-600">
+                    <div className="bg-dark-gray rounded-lg border border-gray-600">
                       <div className="px-4 py-2 border-b border-gray-600 flex items-center justify-between">
                         <h4 className="text-sm font-medium text-gray-300">
                           Changes ({comparison.differences.length})
@@ -467,7 +467,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
                               </span>
                               <span className="text-gray-400">Line {diff.lineNumber}</span>
                             </div>
-                            <div className="bg-gray-900 p-2 rounded border-l-4 border-l-gray-600">
+                            <div className="bg-matte-black p-2 rounded border-l-4 border-l-gray-600">
                               <code className="text-gray-300">{diff.content}</code>
                             </div>
                           </div>
@@ -483,7 +483,7 @@ const AIEnhancementPopup: React.FC<AIEnhancementPopupProps> = ({
 
         {/* Footer */}
         {enhancement && (
-          <div className="bg-gray-800 px-6 py-4 border-t border-gray-700 flex items-center justify-between">
+          <div className="bg-dark-gray px-6 py-4 border-t border-gray-700 flex items-center justify-between">
             <div className="flex items-center gap-4">
               {copiedToClipboard && (
                 <span className="text-sm text-green-400 flex items-center gap-1">

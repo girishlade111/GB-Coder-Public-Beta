@@ -11,21 +11,21 @@ const Footer: React.FC = () => {
 
   return (
     <footer className={`mt-auto border-t transition-colors ${isDark
-        ? 'bg-gray-900 border-gray-700 text-gray-300'
-        : 'bg-white border-gray-200 text-gray-600'
+      ? 'bg-matte-black border-gray-700 text-bright-white'
+      : 'bg-bright-white border-gray-200 text-gray-600'
       }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Company Section */}
           <div>
-            <h3 className={`font-semibold mb-4 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+            <h3 className={`font-semibold mb-4 ${isDark ? 'text-bright-white' : 'text-gray-900'}`}>
               Company
             </h3>
             <ul className="space-y-2">
               <li>
                 <button
                   onClick={() => handleNavigation('about')}
-                  className={`text-sm hover:underline transition-colors ${isDark ? 'hover:text-gray-100' : 'hover:text-gray-900'
+                  className={`text-sm hover:underline transition-colors ${isDark ? 'hover:text-bright-white' : 'hover:text-gray-900'
                     }`}
                 >
                   About Us

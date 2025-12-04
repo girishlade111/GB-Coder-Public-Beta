@@ -85,11 +85,11 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
     return (
         <div
             ref={popupRef}
-            className="fixed z-50 w-[450px] max-h-[80vh] bg-gray-900 border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="fixed z-50 w-[450px] max-h-[80vh] bg-matte-black border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             style={style}
         >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-800/50">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-dark-gray/50">
                 <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-purple-500/20 rounded-lg">
                         <BookOpen className="w-4 h-4 text-purple-400" />
@@ -101,7 +101,7 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
                     <select
                         value={explanation?.userLevel || 'intermediate'}
                         onChange={(e) => onUserLevelChange(e.target.value as UserLevel)}
-                        className="bg-gray-800 text-xs text-gray-300 border border-gray-700 rounded px-2 py-1 focus:outline-none focus:border-purple-500"
+                        className="bg-dark-gray text-xs text-bright-white border border-gray-600 rounded px-2 py-1 focus:outline-none focus:border-purple-500"
                         disabled={isLoading}
                     >
                         <option value="beginner">Beginner</option>
@@ -111,7 +111,7 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
 
                     <button
                         onClick={onClose}
-                        className="p-1 hover:bg-gray-800 rounded-md text-gray-400 hover:text-white transition-colors"
+                        className="p-1 hover:bg-dark-gray rounded-md text-gray-400 hover:text-white transition-colors"
                     >
                         <X className="w-4 h-4" />
                     </button>
@@ -136,7 +136,7 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
 
                         {/* Tabs */}
                         <div>
-                            <div className="flex border-b border-gray-800 mb-4">
+                            <div className="flex border-b border-gray-700 mb-4">
                                 <button
                                     onClick={() => setActiveTab('breakdown')}
                                     className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'breakdown'
@@ -173,13 +173,13 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
                                         {explanation.breakdown.map((block) => (
                                             <div key={block.id} className="group">
                                                 <div className="flex items-start gap-3">
-                                                    <div className="mt-1 p-1 bg-gray-800 rounded text-xs font-mono text-gray-500">
+                                                    <div className="mt-1 p-1 bg-dark-gray rounded text-xs font-mono text-gray-500">
                                                         {block.lineStart}-{block.lineEnd}
                                                     </div>
                                                     <div>
                                                         <p className="text-sm text-gray-300">{block.explanation}</p>
                                                         {block.codeSnippet && (
-                                                            <pre className="mt-1 p-2 bg-gray-950 rounded text-xs text-gray-400 overflow-x-auto">
+                                                            <pre className="mt-1 p-2 bg-matte-black rounded text-xs text-gray-400 overflow-x-auto">
                                                                 <code>{block.codeSnippet}</code>
                                                             </pre>
                                                         )}
@@ -202,7 +202,7 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
                                                     {note.type === 'performance' && <Zap className="w-4 h-4 text-yellow-400" />}
                                                     {note.type === 'pitfall' && <AlertTriangle className="w-4 h-4 text-orange-400" />}
                                                     {note.type === 'best-practice' && <Lightbulb className="w-4 h-4 text-blue-400" />}
-                                                    <span className="text-sm font-medium text-gray-200">{note.title}</span>
+                                                    <span className="text-sm font-medium text-bright-white">{note.title}</span>
                                                 </div>
                                                 <p className="text-sm text-gray-400">{note.description}</p>
                                             </div>
@@ -228,7 +228,7 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
 
                         {/* Example Input/Output */}
                         {explanation.exampleInputOutput && (
-                            <div className="bg-gray-950 rounded-lg p-3 text-xs font-mono">
+                            <div className="bg-matte-black rounded-lg p-3 text-xs font-mono">
                                 <div className="mb-2">
                                     <span className="text-gray-500 uppercase tracking-wider">Input:</span>
                                     <div className="text-gray-300 mt-1">{explanation.exampleInputOutput.input}</div>
@@ -250,7 +250,7 @@ ${explanation.notes.map(n => `- [${n.type.toUpperCase()}] ${n.title}: ${n.descri
 
             {/* Footer Actions */}
             {explanation && (
-                <div className="p-3 border-t border-gray-800 bg-gray-800/30 flex items-center justify-between gap-2">
+                <div className="p-3 border-t border-gray-700 bg-dark-gray/30 flex items-center justify-between gap-2">
                     <div className="flex gap-2">
                         <button
                             onClick={onShowSimplified}

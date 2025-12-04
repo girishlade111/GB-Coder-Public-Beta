@@ -64,9 +64,9 @@ const AISuggestionPanel: React.FC<AISuggestionPanelProps> = ({
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
+    <div className="bg-matte-black border border-gray-700 rounded-lg overflow-hidden">
       <div
-        className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex items-center justify-between cursor-pointer hover:bg-gray-750 transition-colors"
+        className="bg-dark-gray px-4 py-3 border-b border-gray-700 flex items-center justify-between cursor-pointer hover:bg-gray-750 transition-colors"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ const AISuggestionPanel: React.FC<AISuggestionPanelProps> = ({
             suggestions.map((suggestion) => (
               <div key={suggestion.id} className="border-b border-gray-700 last:border-b-0">
                 <div
-                  className="p-4 hover:bg-gray-800 cursor-pointer transition-colors"
+                  className="p-4 hover:bg-dark-gray cursor-pointer transition-colors"
                   onClick={() => toggleExpanded(suggestion.id)}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -141,7 +141,7 @@ const AISuggestionPanel: React.FC<AISuggestionPanelProps> = ({
                 </div>
 
                 {expandedSuggestions.has(suggestion.id) && (
-                  <div className="px-4 pb-4 bg-gray-850">
+                  <div className="px-4 pb-4 bg-dark-gray">
                     <div className="bg-gray-900 rounded-lg p-3 border border-gray-600">
                       <pre className="text-xs text-gray-300 whitespace-pre-wrap overflow-x-auto">
                         <code>{suggestion.code}</code>

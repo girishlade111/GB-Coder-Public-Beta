@@ -10,11 +10,11 @@ interface PreviewPanelProps {
   onConsoleLog: (log: ConsoleLog) => void;
 }
 
-const PreviewPanel: React.FC<PreviewPanelProps> = ({ 
-  html, 
-  css, 
-  javascript, 
-  onConsoleLog 
+const PreviewPanel: React.FC<PreviewPanelProps> = ({
+  html,
+  css,
+  javascript,
+  onConsoleLog
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,11 +41,11 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const generatePreviewContent = () => {
     const sanitizedHtml = sanitizeCode(html, 'html');
     const sanitizedCss = sanitizeCode(css, 'css');
-    
+
     // Get external libraries
     const externalLibraries = externalLibraryService.getLibraries();
     const externalLibsHTML = externalLibraryService.generateInjectionHTML();
-    
+
     return `
 <!DOCTYPE html>
 <html lang="en">
@@ -191,7 +191,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
     // Listen for storage changes (when libraries are updated)
     window.addEventListener('storage', handleExternalLibrariesChange);
-    
+
     // Custom event for real-time updates
     window.addEventListener('external-libraries-updated', handleExternalLibrariesChange);
 
@@ -227,7 +227,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
   };
 
   return (
-    <div className="w-full h-96 bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+    <div className="w-full h-96 bg-dark-gray rounded-lg overflow-hidden border border-gray-700">
       <div className="bg-gray-900 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-300">Live Preview</h3>
         <div className="flex items-center gap-2">
@@ -249,7 +249,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
       </div>
       <div className="relative h-full">
         {isLoading && (
-          <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-10">
+          <div className="absolute inset-0 bg-dark-gray bg-opacity-75 flex items-center justify-center z-10">
             <RefreshCw className="w-6 h-6 text-blue-400 animate-spin" />
           </div>
         )}

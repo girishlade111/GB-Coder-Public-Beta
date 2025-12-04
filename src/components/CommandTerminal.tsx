@@ -51,13 +51,13 @@ const CommandTerminal: React.FC<CommandTerminalProps> = ({ onCommand }) => {
   }, []);
 
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
-      <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex items-center gap-2">
+    <div className="bg-matte-black border border-gray-700 rounded-lg overflow-hidden">
+      <div className="bg-dark-gray px-4 py-2 border-b border-gray-700 flex items-center gap-2">
         <Terminal className="w-4 h-4 text-gray-400" />
-        <h3 className="text-sm font-medium text-gray-300">Command Terminal</h3>
+        <h3 className="text-sm font-medium text-bright-white">Command Terminal</h3>
       </div>
       <form onSubmit={handleSubmit} className="p-3">
-        <div className="flex items-center gap-2 bg-gray-800 rounded-lg border border-gray-600 px-3 py-2">
+        <div className="flex items-center gap-2 bg-dark-gray rounded-lg border border-gray-600 px-3 py-2">
           <span className="text-green-400 font-mono text-sm">$</span>
           <input
             ref={inputRef}

@@ -36,14 +36,14 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden w-full">
+    <div className="bg-dark-gray border border-gray-700 rounded-lg overflow-hidden w-full">
       <div
-        className="bg-gray-900 px-4 py-3 border-b border-gray-700 flex items-center justify-between cursor-pointer hover:bg-gray-800 transition-colors"
+        className="bg-matte-black px-4 py-3 border-b border-gray-700 flex items-center justify-between cursor-pointer hover:bg-dark-gray transition-colors"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         <div className="flex items-center gap-2">
           {icon}
-          <h3 className="text-sm font-medium text-gray-300">{title}</h3>
+          <h3 className="text-sm font-medium text-bright-white">{title}</h3>
           <span className="text-xs bg-gray-700 text-gray-400 px-2 py-0.5 rounded uppercase">
             {language}
           </span>

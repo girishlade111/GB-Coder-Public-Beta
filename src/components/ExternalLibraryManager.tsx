@@ -98,10 +98,10 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-bright-white dark:bg-dark-gray rounded-xl shadow-xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-bright-white">
             External Library Manager
           </h2>
           <button
@@ -116,7 +116,7 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
           {/* Left Panel - Add Libraries */}
           <div className="flex-1 p-6 border-r border-gray-200 dark:border-gray-700">
             <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-bright-white mb-4">
                 Add Libraries
               </h3>
 
@@ -128,7 +128,7 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                   placeholder="Search libraries..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-gray text-gray-900 dark:text-bright-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
@@ -141,7 +141,7 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                   <select
                     value={customType}
                     onChange={(e) => setCustomType(e.target.value as 'css' | 'js')}
-                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-gray text-gray-900 dark:text-bright-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="css">CSS</option>
                     <option value="js">JavaScript</option>
@@ -151,7 +151,7 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                     placeholder="Enter library URL..."
                     value={customUrl}
                     onChange={(e) => setCustomUrl(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-gray text-gray-900 dark:text-bright-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <button
                     onClick={addCustomLibrary}
@@ -169,12 +169,12 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                 {filteredLibraries.map((lib) => (
                   <div
                     key={lib.url}
-                    className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-gray transition-colors"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium text-gray-900 dark:text-white">
+                          <h4 className="font-medium text-gray-900 dark:text-bright-white">
                             {lib.name}
                           </h4>
                           <span className={`px-2 py-1 text-xs rounded-full ${lib.type === 'css'
@@ -185,17 +185,17 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                           </span>
                         </div>
                         {lib.description && (
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                             {lib.description}
                           </p>
                         )}
                         <div className="flex items-center gap-2">
-                          <code className="text-xs bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded text-gray-800 dark:text-gray-200 flex-1 truncate">
+                          <code className="text-xs bg-gray-100 dark:bg-dark-gray px-2 py-1 rounded text-gray-800 dark:text-bright-white flex-1 truncate">
                             {lib.url}
                           </code>
                           <button
                             onClick={() => copyToClipboard(lib.url)}
-                            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
                             title="Copy URL"
                           >
                             {copiedUrl === lib.url ? (
@@ -223,13 +223,13 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
 
           {/* Right Panel - Current Libraries */}
           <div className="flex-1 p-6 overflow-hidden">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-bright-white mb-4">
               Current Libraries ({libraries.length})
             </h3>
 
             {libraries.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-dark-gray rounded-full flex items-center justify-center">
                   <ExternalLink className="w-8 h-8 text-gray-400" />
                 </div>
                 <p className="text-gray-500 dark:text-gray-400">
@@ -244,12 +244,12 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                 {libraries.map((lib) => (
                   <div
                     key={lib.id}
-                    className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-gray transition-colors"
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <h4 className="font-medium text-gray-900 dark:text-white">
+                          <h4 className="font-medium text-gray-900 dark:text-bright-white">
                             {lib.name}
                           </h4>
                           <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${lib.type === 'css'
@@ -259,7 +259,7 @@ const ExternalLibraryManager: React.FC<ExternalLibraryManagerProps> = ({
                             {lib.type.toUpperCase()}
                           </span>
                         </div>
-                        <code className="text-xs bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded text-gray-800 dark:text-gray-200 block break-all leading-relaxed">
+                        <code className="text-xs bg-gray-100 dark:bg-dark-gray px-2 py-1 rounded text-gray-800 dark:text-bright-white block break-all leading-relaxed">
                           {lib.url}
                         </code>
                       </div>
