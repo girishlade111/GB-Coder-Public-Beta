@@ -11,9 +11,8 @@ import {
   Maximize2,
   Minimize2,
   Paperclip,
-
   FileText,
-  MessageSquarePlus
+  Plus
 } from 'lucide-react';
 import { GeminiChatMessage, GeminiCodeBlock, EditorLanguage, Attachment } from '../types';
 import { aiCodeAssistant } from '../services/aiCodeAssistant';
@@ -626,22 +625,23 @@ How can I help you today?`,
         }}
       >
         <div
-          className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 flex items-center justify-between cursor-move drag-handle"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 cursor-move drag-handle"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
           onMouseDown={handleMouseDown}
         >
-          <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-white" />
-            <h3 className="text-base font-semibold text-white">Code Buddy</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
+            <Sparkles className="w-5 h-5 text-white" style={{ flexShrink: 0 }} />
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Code Buddy</h3>
           </div>
-          {onClose && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px', flexShrink: 0 }}>
             <button
               onClick={onClose}
-              className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+              style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(239,68,68,0.3)', borderRadius: '8px', border: 'none', cursor: 'pointer' }}
               title="Close"
             >
-              <X className="w-4 h-4" />
+              <X style={{ width: '16px', height: '16px', color: 'white' }} />
             </button>
-          )}
+          </div>
         </div>
         <div className="p-6 text-center">
           <Sparkles className="w-12 h-12 text-blue-400 mx-auto mb-4" />
@@ -671,28 +671,53 @@ How can I help you today?`,
         }}
         onMouseDown={handleMouseDown}
       >
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 flex items-center justify-between drag-handle">
-          <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-white" />
-            <h3 className="text-base font-semibold text-white">Code Buddy</h3>
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 drag-handle">
+          {/* Row 1: Title */}
+          <div style={{ padding: '12px 16px 8px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Sparkles style={{ width: '20px', height: '20px', color: 'white' }} />
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'white', margin: 0 }}>Code Buddy</h3>
           </div>
-          <div className="flex items-center gap-1">
+
+          {/* Row 2: Action Buttons */}
+          <div style={{ padding: '0 16px 12px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               onClick={() => setIsMinimized(false)}
-              className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+              style={{
+                padding: '6px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'white',
+                fontSize: '12px'
+              }}
               title="Restore"
             >
-              <Maximize2 className="w-4 h-4" />
+              <Maximize2 style={{ width: '14px', height: '14px' }} />
+              Restore
             </button>
-            {onClose && (
-              <button
-                onClick={onClose}
-                className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+            <button
+              onClick={onClose}
+              style={{
+                padding: '6px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                backgroundColor: 'rgba(239,68,68,0.4)',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'white',
+                fontSize: '12px'
+              }}
+              title="Close"
+            >
+              <X style={{ width: '14px', height: '14px' }} />
+              Close
+            </button>
           </div>
         </div>
       </div>
@@ -711,53 +736,95 @@ How can I help you today?`,
         height: `${size.height}px`
       } : {}}
     >
-      {/* Header */}
+      {/* Header - Two Row Layout */}
       <div
-        className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 flex items-center justify-between cursor-move drag-handle"
+        className="bg-gradient-to-r from-blue-600 to-purple-600 cursor-move drag-handle"
         onMouseDown={handleMouseDown}
       >
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-white" />
-          <h3 className="text-base font-semibold text-white">Code Buddy</h3>
-          {modificationState.isActive && (
-            <span className="text-xs bg-white/20 text-white px-2 py-1 rounded-lg">
-              Modification Mode
-            </span>
-          )}
+        {/* Row 1: Title */}
+        <div style={{ padding: '12px 16px 8px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Sparkles style={{ width: '20px', height: '20px', color: 'white' }} />
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'white', margin: 0 }}>Code Buddy</h3>
         </div>
 
-        <div className="flex items-center gap-1">
+        {/* Row 2: Action Buttons */}
+        <div style={{ padding: '0 16px 12px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={handleNewChat}
-            className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+            style={{
+              padding: '6px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'white',
+              fontSize: '12px'
+            }}
             title="New Chat"
           >
-            <MessageSquarePlus className="w-4 h-4" />
+            <Plus style={{ width: '14px', height: '14px' }} />
+            New
           </button>
           <button
             onClick={() => setIsMinimized(true)}
-            className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+            style={{
+              padding: '6px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'white',
+              fontSize: '12px'
+            }}
             title="Minimize"
           >
-            <Minimize2 className="w-4 h-4" />
+            <Minimize2 style={{ width: '14px', height: '14px' }} />
+            Min
           </button>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+            style={{
+              padding: '6px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'white',
+              fontSize: '12px'
+            }}
             title={isExpanded ? "Restore" : "Maximize"}
           >
-            {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {isExpanded ? <Minimize2 style={{ width: '14px', height: '14px' }} /> : <Maximize2 style={{ width: '14px', height: '14px' }} />}
+            {isExpanded ? 'Restore' : 'Max'}
           </button>
-
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          <button
+            onClick={onClose}
+            style={{
+              padding: '6px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: 'rgba(239,68,68,0.4)',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'white',
+              fontSize: '12px'
+            }}
+            title="Close"
+          >
+            <X style={{ width: '14px', height: '14px' }} />
+            Close
+          </button>
         </div>
       </div>
 
