@@ -11,7 +11,9 @@ import {
   Maximize2,
   Minimize2,
   Paperclip,
-  FileText
+
+  FileText,
+  MessageSquarePlus
 } from 'lucide-react';
 import { GeminiChatMessage, GeminiCodeBlock, EditorLanguage, Attachment } from '../types';
 import { aiCodeAssistant } from '../services/aiCodeAssistant';
@@ -71,12 +73,36 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   useEffect(() => {
     setApiKeyConfigured(aiCodeAssistant.isConfigured());
 
-    // Add welcome message
+    // Load history from localStorage
+    const savedHistory = localStorage.getItem('codeBuddyHistory');
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory);
+        if (parsed.length > 0) {
+          setMessages(parsed);
+          return;
+        }
+      } catch (e) {
+        console.error('Failed to parse chat history', e);
+      }
+    }
+
+    // Add welcome message if no history
     if (aiCodeAssistant.isConfigured()) {
-      setMessages([{
-        id: 'welcome',
-        type: 'assistant',
-        content: `🤖 **Code Buddy Ready**
+      setMessages([getWelcomeMessage()]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('codeBuddyHistory', JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  const getWelcomeMessage = (): GeminiChatMessage => ({
+    id: 'welcome',
+    type: 'assistant',
+    content: `🤖 **Code Buddy Ready**
 
 I'm your specialized code assistant for HTML, CSS, and JavaScript. I can help you with:
 
@@ -92,10 +118,14 @@ I'm your specialized code assistant for HTML, CSS, and JavaScript. I can help yo
 - "Modify line [number]" (starts modification workflow)
 
 How can I help you today?`,
-        timestamp: new Date().toISOString()
-      }]);
-    }
-  }, []);
+    timestamp: new Date().toISOString()
+  });
+
+  const handleNewChat = () => {
+    aiCodeAssistant.clearHistory();
+    localStorage.removeItem('codeBuddyHistory');
+    setMessages([getWelcomeMessage()]);
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -486,8 +516,44 @@ How can I help you today?`,
       lower.includes('make') || lower.includes('build') || lower.includes('write');
   };
 
+  const renderMessageContent = (content: string) => {
+    const parts = content.split(/(```(?:[\w-]+)?\n[\s\S]*?```)/g);
+
+    return parts.map((part, index) => {
+      if (part.startsWith('```')) {
+        const match = part.match(/```([\w-]+)?\n([\s\S]*?)```/);
+        if (match) {
+          const language = (match[1] || 'javascript').toLowerCase();
+          const code = match[2];
+
+          let editorLanguage: EditorLanguage = 'javascript';
+          if (language.includes('html')) editorLanguage = 'html';
+          else if (language.includes('css')) editorLanguage = 'css';
+
+          return (
+            <div key={index} className="my-4">
+              {renderCodeBlock({
+                id: `code-${index}`,
+                language: editorLanguage,
+                code: code.trim()
+              })}
+            </div>
+          );
+        }
+      }
+
+      if (!part.trim()) return null;
+
+      return (
+        <div key={index} className="whitespace-pre-wrap">
+          {part}
+        </div>
+      );
+    });
+  };
+
   const renderCodeBlock = (codeBlock: GeminiCodeBlock) => (
-    <div key={codeBlock.id} className="mt-4 bg-gray-900 rounded-lg border border-gray-600 overflow-hidden">
+    <div key={codeBlock.id} className="bg-gray-900 rounded-lg border border-gray-600 overflow-hidden">
       <div className="bg-gray-800 px-4 py-2 flex items-center justify-between border-b border-gray-600">
         <div className="flex items-center gap-2">
           <Code className="w-4 h-4 text-blue-400" />
@@ -662,6 +728,13 @@ How can I help you today?`,
 
         <div className="flex items-center gap-1">
           <button
+            onClick={handleNewChat}
+            className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+            title="New Chat"
+          >
+            <MessageSquarePlus className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setIsMinimized(true)}
             className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
             title="Minimize"
@@ -705,8 +778,7 @@ How can I help you today?`,
                 }`}
             >
               <div className="prose prose-sm max-w-none">
-                <div className="whitespace-pre-wrap">{message.content}</div>
-                {message.codeBlocks?.map(renderCodeBlock)}
+                {renderMessageContent(message.content)}
               </div>
 
               <div className="text-xs opacity-70 mt-2">
