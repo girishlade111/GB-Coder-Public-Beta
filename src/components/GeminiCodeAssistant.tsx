@@ -49,6 +49,8 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   // Attachments state
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showMentionPopup, setShowMentionPopup] = useState(false);
+  const [mentionFilter, setMentionFilter] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Modification workflow state
@@ -230,8 +232,63 @@ How can I help you today?`,
 
 
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputMessage(value);
+
+    // Check for @ mention
+    const lastWord = value.split(/\s/).pop();
+    if (lastWord?.startsWith('@')) {
+      setShowMentionPopup(true);
+      setMentionFilter(lastWord.substring(1).toLowerCase());
+    } else {
+      setShowMentionPopup(false);
+    }
+  };
+
+  const handleMentionSelect = (type: 'html' | 'css' | 'javascript') => {
+    const words = inputMessage.split(/\s/);
+    words.pop(); // Remove the partial @mention
+    const newValue = [...words, `@${type}`].join(' ') + ' ';
+    setInputMessage(newValue);
+    setShowMentionPopup(false);
+    inputRef.current?.focus();
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
+
+    // Check for mentions and create attachments
+    const mentionedAttachments: Attachment[] = [];
+    if (inputMessage.toLowerCase().includes('@html')) {
+      mentionedAttachments.push({
+        id: `mention-html-${Date.now()}`,
+        name: 'index.html',
+        type: 'file',
+        content: currentCode.html,
+        mimeType: 'text/html'
+      });
+    }
+    if (inputMessage.toLowerCase().includes('@css')) {
+      mentionedAttachments.push({
+        id: `mention-css-${Date.now()}`,
+        name: 'style.css',
+        type: 'file',
+        content: currentCode.css,
+        mimeType: 'text/css'
+      });
+    }
+    if (inputMessage.toLowerCase().includes('@javascript') || inputMessage.toLowerCase().includes('@js')) {
+      mentionedAttachments.push({
+        id: `mention-js-${Date.now()}`,
+        name: 'script.js',
+        type: 'file',
+        content: currentCode.javascript,
+        mimeType: 'text/javascript'
+      });
+    }
+
+    const allAttachments = [...attachments, ...mentionedAttachments];
 
     const userMessage: GeminiChatMessage = {
       id: Date.now().toString(),
@@ -356,7 +413,7 @@ How can I help you today?`,
             message: inputMessage,
             currentCode,
             conversationHistory: messages.slice(-5), // Last 5 messages for context
-            attachments
+            attachments: allAttachments
           });
         }
       }
@@ -678,6 +735,27 @@ How can I help you today?`,
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
+        {/* Mention Popup */}
+        {showMentionPopup && (
+          <div className="absolute bottom-full left-4 mb-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 animate-in slide-in-from-bottom-2 duration-200">
+            <div className="p-2 border-b border-gray-700 text-xs font-medium text-gray-400">
+              Mention file
+            </div>
+            <div className="max-h-48 overflow-y-auto">
+              {['html', 'css', 'javascript'].filter(t => t.includes(mentionFilter)).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => handleMentionSelect(type as any)}
+                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition-colors"
+                >
+                  <Code className="w-4 h-4" />
+                  <span>Current {type.toUpperCase()}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Attachments Preview */}
         {attachments.length > 0 && (
           <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
@@ -732,7 +810,7 @@ How can I help you today?`,
             ref={inputRef}
             type="text"
             value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
+            onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder={
               modificationState.isActive
