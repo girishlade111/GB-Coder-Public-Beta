@@ -1,18 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Bot,
+  Sparkles,
   Send,
   Copy,
   Download,
-  RefreshCw,
   CheckCircle,
   AlertCircle,
   Code,
   X,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Paperclip,
+  FileText
 } from 'lucide-react';
-import { GeminiChatMessage, GeminiCodeBlock, EditorLanguage } from '../types';
+import { GeminiChatMessage, GeminiCodeBlock, EditorLanguage, Attachment } from '../types';
 import { aiCodeAssistant } from '../services/aiCodeAssistant';
 
 interface GeminiCodeAssistantProps {
@@ -34,7 +35,21 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
+
+  // Window position and size state - Bottom Right Corner
+  const [position, setPosition] = useState({ x: window.innerWidth - 424, y: window.innerHeight - 520 });
+  const [size, setSize] = useState({ width: 400, height: 500 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+
+  // Attachments state
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Modification workflow state
   const [modificationState, setModificationState] = useState<{
@@ -49,6 +64,7 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const windowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setApiKeyConfigured(aiCodeAssistant.isConfigured());
@@ -58,7 +74,7 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
       setMessages([{
         id: 'welcome',
         type: 'assistant',
-        content: `🤖 **Gemini Code Assistant Ready**
+        content: `🤖 **Code Buddy Ready**
 
 I'm your specialized code assistant for HTML, CSS, and JavaScript. I can help you with:
 
@@ -83,9 +99,136 @@ How can I help you today?`,
     scrollToBottom();
   }, [messages]);
 
+  // Handle mouse move for dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        setPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y
+        });
+      } else if (isResizing) {
+        const deltaX = e.clientX - resizeStart.x;
+        const deltaY = e.clientY - resizeStart.y;
+
+        setSize({
+          width: Math.max(320, resizeStart.width + deltaX),
+          height: Math.max(400, resizeStart.height + deltaY)
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setIsResizing(false);
+    };
+
+    if (isDragging || isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, isResizing, dragOffset, resizeStart]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.drag-handle')) {
+      setIsDragging(true);
+      const rect = windowRef.current?.getBoundingClientRect();
+      if (rect) {
+        setDragOffset({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        });
+      }
+    }
+  };
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    setResizeStart({
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height
+    });
+  };
+
+  // File handling
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      await processFiles(Array.from(e.target.files));
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      await processFiles(Array.from(e.dataTransfer.files));
+    }
+  };
+
+  const processFiles = async (files: File[]) => {
+    const newAttachments: Attachment[] = [];
+
+    for (const file of files) {
+      try {
+        const isImage = file.type.startsWith('image/');
+        const content = await readFile(file);
+
+        newAttachments.push({
+          id: Math.random().toString(36).substring(7),
+          name: file.name,
+          type: isImage ? 'image' : 'file',
+          content,
+          mimeType: file.type
+        });
+      } catch (error) {
+        console.error('Error reading file:', file.name, error);
+      }
+    }
+
+    setAttachments(prev => [...prev, ...newAttachments]);
+  };
+
+  const readFile = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      if (file.type.startsWith('image/')) {
+        reader.readAsDataURL(file);
+      } else {
+        reader.readAsText(file);
+      }
+
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+    });
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments(prev => prev.filter(a => a.id !== id));
+  };
+
+
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -212,12 +355,14 @@ How can I help you today?`,
           response = await aiCodeAssistant.sendMessage({
             message: inputMessage,
             currentCode,
-            conversationHistory: messages.slice(-5) // Last 5 messages for context
+            conversationHistory: messages.slice(-5), // Last 5 messages for context
+            attachments
           });
         }
       }
 
       setMessages(prev => [...prev, response]);
+      setAttachments([]); // Clear attachments after sending
     } catch (error) {
       const errorMessage: GeminiChatMessage = {
         id: Date.now().toString(),
@@ -348,30 +493,111 @@ How can I help you today?`,
 
   if (!apiKeyConfigured) {
     return (
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 text-center">
-        <Bot className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-200 mb-2">Gemini API Key Required</h3>
-        <p className="text-gray-400 mb-4">
-          To use the Gemini Code Assistant, please add your API key to the environment variables.
-        </p>
-        <div className="bg-gray-800 rounded-lg p-4 text-left">
-          <p className="text-sm text-gray-300 mb-2">Add to your .env file:</p>
-          <code className="text-green-400 text-sm">VITE_GEMINI_API_KEY=your_api_key_here</code>
+      <div
+        ref={windowRef}
+        className="fixed bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          width: `${size.width}px`
+        }}
+      >
+        <div
+          className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 flex items-center justify-between cursor-move drag-handle"
+          onMouseDown={handleMouseDown}
+        >
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-white" />
+            <h3 className="text-base font-semibold text-white">Code Buddy</h3>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+        <div className="p-6 text-center">
+          <Sparkles className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-200 mb-2">Gemini API Key Required</h3>
+          <p className="text-gray-400 mb-4">
+            To use Code Buddy, please add your API key to the environment variables.
+          </p>
+          <div className="bg-gray-800 rounded-lg p-4 text-left">
+            <p className="text-sm text-gray-300 mb-2">Add to your .env file:</p>
+            <code className="text-green-400 text-sm">VITE_GEMINI_API_KEY=your_api_key_here</code>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Minimized view
+  if (isMinimized) {
+    return (
+      <div
+        ref={windowRef}
+        className="fixed bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50 cursor-move"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          width: '280px'
+        }}
+        onMouseDown={handleMouseDown}
+      >
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 flex items-center justify-between drag-handle">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-white" />
+            <h3 className="text-base font-semibold text-white">Code Buddy</h3>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsMinimized(false)}
+              className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+              title="Restore"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
-      }`}>
+    <div
+      ref={windowRef}
+      className={`fixed bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50 ${isExpanded ? 'inset-4' : ''
+        }`}
+      style={!isExpanded ? {
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: `${size.width}px`,
+        height: `${size.height}px`
+      } : {}}
+    >
       {/* Header */}
-      <div className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Bot className="w-5 h-5 text-blue-400" />
-          <h3 className="text-sm font-medium text-gray-300">Gemini Code Assistant</h3>
+      <div
+        className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 flex items-center justify-between cursor-move drag-handle"
+        onMouseDown={handleMouseDown}
+      >
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-5 h-5 text-white" />
+          <h3 className="text-base font-semibold text-white">Code Buddy</h3>
           {modificationState.isActive && (
-            <span className="text-xs bg-orange-600 text-white px-2 py-1 rounded">
+            <span className="text-xs bg-white/20 text-white px-2 py-1 rounded-lg">
               Modification Mode
             </span>
           )}
@@ -379,9 +605,16 @@ How can I help you today?`,
 
         <div className="flex items-center gap-1">
           <button
+            onClick={() => setIsMinimized(true)}
+            className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+            title="Minimize"
+          >
+            <Minimize2 className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
-            title={isExpanded ? "Minimize" : "Maximize"}
+            className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
+            title={isExpanded ? "Restore" : "Maximize"}
           >
             {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
@@ -389,7 +622,7 @@ How can I help you today?`,
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
+              className="p-1.5 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-all"
               title="Close"
             >
               <X className="w-4 h-4" />
@@ -399,17 +632,19 @@ How can I help you today?`,
       </div>
 
       {/* Messages */}
-      <div className={`overflow-y-auto p-4 space-y-4 ${isExpanded ? 'h-[calc(100vh-200px)]' : 'flex-1 min-h-64'
-        }`}>
+      <div className={`overflow-y-auto p-4 space-y-4 ${isExpanded ? 'h-[calc(100vh-200px)]' : 'flex-1'
+        }`}
+        style={!isExpanded ? { height: `calc(${size.height}px - 140px)` } : {}}
+      >
         {messages.map((message) => (
           <div
             key={message.id}
             className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${message.type === 'user'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800 text-gray-200 border border-gray-600'
+              className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${message.type === 'user'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-tr-sm'
+                : 'bg-gray-700/50 text-gray-100 rounded-tl-sm backdrop-blur-sm'
                 }`}
             >
               <div className="prose prose-sm max-w-none">
@@ -426,9 +661,9 @@ How can I help you today?`,
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 animate-spin text-blue-400" />
-              <span className="text-gray-300">Generating response...</span>
+            <div className="bg-gray-700/50 rounded-2xl rounded-tl-sm p-4 flex items-center gap-3 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 animate-pulse text-blue-400" />
+              <span className="text-gray-300 text-sm font-medium">Thinking...</span>
             </div>
           </div>
         )}
@@ -437,8 +672,62 @@ How can I help you today?`,
       </div>
 
       {/* Input */}
-      <div className="bg-gray-800 border-t border-gray-700 p-4">
+      <div
+        className={`bg-gray-800/95 backdrop-blur border-t border-gray-700/50 p-4 transition-colors ${isDragOver ? 'bg-blue-900/50 border-blue-500' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {/* Attachments Preview */}
+        {attachments.length > 0 && (
+          <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
+            {attachments.map(att => (
+              <div key={att.id} className="relative group flex-shrink-0">
+                <div className="bg-gray-700/80 rounded-lg p-2 flex items-center gap-2 border border-gray-600">
+                  {att.type === 'image' ? (
+                    <div className="w-8 h-8 rounded overflow-hidden bg-gray-800">
+                      <img src={att.content} alt={att.name} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <FileText className="w-8 h-8 text-blue-400 p-1" />
+                  )}
+                  <span className="text-xs text-gray-300 max-w-[100px] truncate">{att.name}</span>
+                  <button
+                    onClick={() => removeAttachment(att.id)}
+                    className="absolute -top-1.5 -right-1.5 bg-gray-600 rounded-full p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-500"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isDragOver && (
+          <div className="absolute inset-0 bg-blue-900/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
+            <div className="text-center">
+              <Paperclip className="w-8 h-8 text-blue-300 mx-auto mb-2 animate-bounce" />
+              <p className="text-blue-200 font-medium">Drop files to attach</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            title="Attach files"
+          >
+            <Paperclip className="w-5 h-5" />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={handleFileSelect}
+          />
           <input
             ref={inputRef}
             type="text"
@@ -469,6 +758,17 @@ How can I help you today?`,
           💡 Try: "Create a responsive navbar", "Generate CSS grid", "Modify line 15", "Fix my JavaScript"
         </div>
       </div>
+
+      {/* Resize Handle */}
+      {!isExpanded && (
+        <div
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-gray-700 hover:bg-gray-600"
+          onMouseDown={handleResizeMouseDown}
+          style={{
+            clipPath: 'polygon(100% 0, 100% 100%, 0 100%)'
+          }}
+        />
+      )}
     </div>
   );
 };

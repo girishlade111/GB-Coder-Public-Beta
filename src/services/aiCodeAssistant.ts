@@ -59,7 +59,7 @@ export class AICodeAssistant {
         try {
             const systemPrompt = `You are a helpful coding assistant for the GB Coder web editor. You help users with HTML, CSS, and JavaScript code.`;
 
-            const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string; reasoning_details?: any }> = [
+            const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string | any[]; reasoning_details?: any }> = [
                 { role: 'system', content: systemPrompt }
             ];
 
@@ -75,9 +75,36 @@ export class AICodeAssistant {
             }
 
             // Add current message
+            let finalContent: string | any[] = request.message;
+
+            if (request.attachments && request.attachments.length > 0) {
+                const contentParts: any[] = [{ type: 'text', text: request.message }];
+
+                for (const attachment of request.attachments) {
+                    if (attachment.type === 'image') {
+                        contentParts.push({
+                            type: 'image_url',
+                            image_url: {
+                                url: attachment.content
+                            }
+                        });
+                    } else if (attachment.type === 'file') {
+                        // Append file content to text prompt
+                        contentParts[0].text += `\n\nFile: ${attachment.name}\n\`\`\`${attachment.mimeType || ''}\n${attachment.content}\n\`\`\``;
+                    }
+                }
+
+                // If we have images or modified text, use the appropriate format
+                if (contentParts.length > 1) {
+                    finalContent = contentParts;
+                } else {
+                    finalContent = contentParts[0].text;
+                }
+            }
+
             messages.push({
                 role: 'user',
-                content: request.message
+                content: finalContent
             });
 
             const response = await openRouterService.chat(messages, { enableReasoning: true });

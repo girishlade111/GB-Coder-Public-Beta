@@ -80,6 +80,14 @@ export interface CodeDifference {
 }
 
 // Gemini Chat Types
+export interface Attachment {
+  id: string;
+  name: string;
+  type: 'image' | 'file';
+  content: string;
+  mimeType?: string;
+}
+
 export interface GeminiChatMessage {
   id: string;
   type: 'user' | 'assistant';
@@ -117,6 +125,7 @@ export interface GeminiChatRequest {
     javascript: string;
   };
   conversationHistory?: GeminiChatMessage[];
+  attachments?: Attachment[];
 }
 
 // Terminal-specific types

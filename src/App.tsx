@@ -742,17 +742,6 @@ function App() {
               />
             </Suspense>
 
-            {/* Gemini Assistant */}
-            {showGeminiAssistant && (
-              <Suspense fallback={<div className="bg-gray-900 border border-gray-700 rounded-lg p-4"><p className="text-gray-400 text-sm">Loading AI Assistant...</p></div>}>
-                <GeminiCodeAssistant
-                  currentCode={{ html, css, javascript }}
-                  onCodeUpdate={handleCodeUpdate}
-                  onClose={() => setShowGeminiAssistant(false)}
-                />
-              </Suspense>
-            )}
-
             {/* AI Suggestions Panel */}
             {showAISuggestions && (
               <Suspense fallback={null}>
@@ -824,6 +813,17 @@ function App() {
           onAddComments={handleAddComments}
         />
       </Suspense>
+
+      {/* Code Buddy - Floating AI Assistant */}
+      {showGeminiAssistant && (
+        <Suspense fallback={null}>
+          <GeminiCodeAssistant
+            currentCode={{ html, css, javascript }}
+            onCodeUpdate={handleCodeUpdate}
+            onClose={() => setShowGeminiAssistant(false)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

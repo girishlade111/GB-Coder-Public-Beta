@@ -6,7 +6,7 @@
 
 interface OpenRouterMessage {
     role: 'user' | 'assistant' | 'system';
-    content: string;
+    content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
     reasoning_details?: any;
 }
 

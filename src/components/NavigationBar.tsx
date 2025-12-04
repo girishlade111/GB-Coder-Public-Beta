@@ -1,10 +1,10 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { 
-  Menu, 
-  Bot, 
-  Lightbulb, 
-  FolderOpen, 
-  Undo2, 
+import {
+  Menu,
+  Sparkles,
+  Lightbulb,
+  FolderOpen,
+  Undo2,
   Redo2,
   Save,
   Play,
@@ -20,7 +20,7 @@ import {
   Settings
 } from 'lucide-react';
 import { EditorLanguage } from '../types';
-import ThemeToggle from './ui/ThemeToggle';  
+import ThemeToggle from './ui/ThemeToggle';
 import { useTheme } from '../hooks/useTheme';
 
 interface NavigationBarProps {
@@ -74,7 +74,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<FileUpload[]>([]);
   const [showFileIndicator, setShowFileIndicator] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -94,7 +94,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       handleFileUpload(files);
@@ -104,16 +104,16 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   // Handle file upload
   const handleFileUpload = useCallback(async (files: FileList) => {
     const validFiles: FileUpload[] = [];
-    
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const extension = file.name.split('.').pop()?.toLowerCase();
-      
+
       let fileType: EditorLanguage | null = null;
       if (extension === 'html' || extension === 'htm') fileType = 'html';
       else if (extension === 'css') fileType = 'css';
       else if (extension === 'js' || extension === 'javascript') fileType = 'javascript';
-      
+
       if (fileType && file.size < 1024 * 1024) { // 1MB limit
         try {
           const content = await file.text();
@@ -128,12 +128,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         }
       }
     }
-    
+
     if (validFiles.length > 0) {
       setUploadedFiles(validFiles);
       setShowFileIndicator(true);
       onImport(files);
-      
+
       // Hide indicator after 3 seconds
       setTimeout(() => setShowFileIndicator(false), 3000);
     }
@@ -197,18 +197,16 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   return (
     <>
       {/* Main Navigation Bar */}
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-40 backdrop-blur-sm border-b shadow-sm transition-all duration-200 ${
-          isDark 
-            ? 'bg-gray-900/95 border-gray-700' 
+      <nav
+        className={`fixed top-0 left-0 right-0 z-40 backdrop-blur-sm border-b shadow-sm transition-all duration-200 ${isDark
+            ? 'bg-gray-900/95 border-gray-700'
             : 'bg-white/95 border-gray-200'
-        } ${
-          isDragOver 
-            ? isDark 
-              ? 'bg-blue-900/95 border-blue-600' 
+          } ${isDragOver
+            ? isDark
+              ? 'bg-blue-900/95 border-blue-600'
               : 'bg-blue-50/95 border-blue-300'
             : ''
-        }`}
+          }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -218,14 +216,13 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
             {/* Left side - Logo */}
             <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 min-w-0 flex-1">
               <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-4">
-                <img 
-                  src="/tghjkl.jpeg" 
-                  alt="GB Coder Logo" 
+                <img
+                  src="/tghjkl.jpeg"
+                  alt="GB Coder Logo"
                   className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl object-contain"
                 />
-                <span className={`text-sm sm:text-lg lg:text-xl xl:text-2xl font-bold truncate ${
-                  isDark ? 'text-gray-100' : 'text-gray-900'
-                }`}>
+                <span className={`text-sm sm:text-lg lg:text-xl xl:text-2xl font-bold truncate ${isDark ? 'text-gray-100' : 'text-gray-900'
+                  }`}>
                   <span className="block sm:inline">GB Coder</span>
                 </span>
               </div>
@@ -239,11 +236,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
               {/* Settings Button */}
               <button
                 onClick={onExternalLibraryManagerToggle}
-                className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${
-                  isDark
+                className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${isDark
                     ? 'text-gray-300 hover:bg-gray-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
                 title="External Library Manager"
                 aria-label="External Library Manager"
               >
@@ -254,13 +250,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${
-                    isDropdownOpen 
+                  className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${isDropdownOpen
                       ? (isDark ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black')
                       : (isDark
                         ? 'text-gray-300 hover:bg-gray-800'
                         : 'text-gray-600 hover:bg-gray-100')
-                  }`}
+                    }`}
                   title="Menu"
                   aria-label="Toggle navigation menu"
                   aria-expanded={isDropdownOpen}
@@ -271,18 +266,16 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
                 {/* Dropdown Content */}
                 {isDropdownOpen && (
-                  <div className={`absolute right-0 mt-2 w-80 sm:w-96 rounded-xl shadow-lg border py-2 z-50 animate-in slide-in-from-top-2 duration-200 ${
-                    isDark
+                  <div className={`absolute right-0 mt-2 w-80 sm:w-96 rounded-xl shadow-lg border py-2 z-50 animate-in slide-in-from-top-2 duration-200 ${isDark
                       ? 'bg-gray-800 border-gray-700'
                       : 'bg-white border-gray-200'
-                  }`}>
+                    }`}>
                     {/* Menu Content - All Features Consolidated */}
                     <div className="py-2">
                       {/* AI Features */}
                       <div className="px-4 pb-3">
-                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                          isDark ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
                           AI Features
                         </h4>
                         <div className="space-y-1">
@@ -291,16 +284,15 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               onAIAssistantToggle();
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
-                              aiAssistantOpen
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${aiAssistantOpen
                                 ? 'bg-blue-600 text-blue-100'
                                 : isDark
                                   ? 'text-gray-300 hover:bg-gray-700'
                                   : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
-                            <Bot className="w-4 h-4" />
-                            AI Assistant
+                            <Sparkles className="w-4 h-4" />
+                            Code Buddy
                             {aiAssistantOpen && (
                               <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white text-blue-600">
                                 Active
@@ -313,13 +305,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               onAISuggestionsToggle();
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
-                              aiSuggestionsOpen
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${aiSuggestionsOpen
                                 ? 'bg-purple-600 text-purple-100'
                                 : isDark
                                   ? 'text-gray-300 hover:bg-gray-700'
                                   : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <Lightbulb className="w-4 h-4" />
                             AI Suggestions
@@ -336,9 +327,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
                       {/* Code Operations */}
                       <div className="px-4 py-3">
-                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                          isDark ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
                           Code Operations
                         </h4>
                         <div className="grid grid-cols-2 gap-2">
@@ -347,11 +337,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               onRun();
                               setIsDropdownOpen(false);
                             }}
-                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${
-                              isDark
+                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <Play className="w-4 h-4" />
                             Run
@@ -362,23 +351,21 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               onAutoSaveToggle();
                               setIsDropdownOpen(false);
                             }}
-                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${
-                              autoSaveEnabled 
+                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${autoSaveEnabled
                                 ? 'bg-green-600 text-green-100'
                                 : isDark
                                   ? 'text-gray-300 hover:bg-gray-700'
                                   : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <Save className="w-4 h-4" />
                             Save
-                            <span className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${
-                              autoSaveEnabled 
-                                ? 'bg-white text-green-600' 
+                            <span className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${autoSaveEnabled
+                                ? 'bg-white text-green-600'
                                 : isDark
                                   ? 'bg-gray-600 text-gray-300'
                                   : 'bg-gray-200 text-gray-600'
-                            }`}>
+                              }`}>
                               {autoSaveEnabled ? 'ON' : 'OFF'}
                             </span>
                           </button>
@@ -389,9 +376,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
                       {/* Edit Operations */}
                       <div className="px-4 py-3">
-                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                          isDark ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
                           Edit
                         </h4>
                         <div className="grid grid-cols-2 gap-2">
@@ -401,13 +387,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               setIsDropdownOpen(false);
                             }}
                             disabled={!canUndo}
-                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${
-                              canUndo
+                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${canUndo
                                 ? isDark
                                   ? 'text-gray-300 hover:bg-gray-700'
                                   : 'text-gray-700 hover:bg-gray-50'
                                 : 'text-gray-500 cursor-not-allowed'
-                            }`}
+                              }`}
                           >
                             <Undo2 className="w-4 h-4" />
                             Undo
@@ -419,13 +404,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               setIsDropdownOpen(false);
                             }}
                             disabled={!canRedo}
-                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${
-                              canRedo
+                            className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${canRedo
                                 ? isDark
                                   ? 'text-gray-300 hover:bg-gray-700'
                                   : 'text-gray-700 hover:bg-gray-50'
                                 : 'text-gray-500 cursor-not-allowed'
-                            }`}
+                              }`}
                           >
                             <Redo2 className="w-4 h-4" />
                             Redo
@@ -437,9 +421,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
                       {/* File Management */}
                       <div className="px-4 py-3">
-                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                          isDark ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
                           Files
                         </h4>
                         <div className="space-y-1">
@@ -448,11 +431,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               fileInputRef.current?.click();
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
-                              isDark
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <Upload className="w-4 h-4" />
                             Import Files
@@ -463,11 +445,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               onExport();
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
-                              isDark
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <Download className="w-4 h-4" />
                             Export Project
@@ -479,9 +460,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
                       {/* Settings & Tools */}
                       <div className="px-4 py-3">
-                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${
-                          isDark ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
+                        <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
                           Settings & Tools
                         </h4>
                         <div className="space-y-1">
@@ -490,11 +470,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               onSnippetsToggle();
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
-                              isDark
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <FolderOpen className="w-4 h-4" />
                             Snippets
@@ -507,11 +486,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               window.dispatchEvent(new CustomEvent('theme-change', { detail: newTheme }));
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
-                              isDark
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                             {isDark ? 'Light Mode' : 'Dark Mode'}
@@ -522,11 +500,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               window.dispatchEvent(new CustomEvent('navigate-to-about'));
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
-                              isDark
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <FileText className="w-4 h-4" />
                             About Us
@@ -537,11 +514,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               onReset();
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${
-                              isDark
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <RotateCcw className="w-4 h-4" />
                             Reset Project
@@ -558,23 +534,19 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
         {/* Drag & Drop Overlay */}
         {isDragOver && (
-          <div className={`absolute inset-0 border-2 border-dashed flex items-center justify-center ${
-            isDark
+          <div className={`absolute inset-0 border-2 border-dashed flex items-center justify-center ${isDark
               ? 'bg-blue-900/90 border-blue-400'
               : 'bg-blue-50/90 border-blue-300'
-          }`}>
+            }`}>
             <div className="text-center">
-              <Upload className={`w-8 h-8 mx-auto mb-2 ${
-                isDark ? 'text-blue-400' : 'text-blue-600'
-              }`} />
-              <p className={`font-medium ${
-                isDark ? 'text-blue-300' : 'text-blue-700'
-              }`}>
+              <Upload className={`w-8 h-8 mx-auto mb-2 ${isDark ? 'text-blue-400' : 'text-blue-600'
+                }`} />
+              <p className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-700'
+                }`}>
                 Drop HTML, CSS, or JS files here
               </p>
-              <p className={`text-sm ${
-                isDark ? 'text-blue-400' : 'text-blue-600'
-              }`}>
+              <p className={`text-sm ${isDark ? 'text-blue-400' : 'text-blue-600'
+                }`}>
                 Multiple files supported
               </p>
             </div>
@@ -583,37 +555,32 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
         {/* File Upload Indicator */}
         {showFileIndicator && uploadedFiles.length > 0 && (
-          <div className={`absolute top-full left-4 mt-2 rounded-lg shadow-lg border p-3 z-50 animate-in slide-in-from-top-2 duration-200 ${
-            isDark
+          <div className={`absolute top-full left-4 mt-2 rounded-lg shadow-lg border p-3 z-50 animate-in slide-in-from-top-2 duration-200 ${isDark
               ? 'bg-gray-800 border-gray-700'
               : 'bg-white border-gray-200'
-          }`}>
+            }`}>
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className={`text-sm font-medium ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}>
+              <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'
+                }`}>
                 Files Uploaded
               </span>
               <button
                 onClick={() => setShowFileIndicator(false)}
-                className={`ml-auto p-1 rounded ${
-                  isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                }`}
+                className={`ml-auto p-1 rounded ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
               >
-                <X className={`w-3 h-3 ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`} />
+                <X className={`w-3 h-3 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`} />
               </button>
             </div>
             <div className="space-y-1">
               {uploadedFiles.map((file, index) => (
-                <div key={index} className={`flex items-center gap-2 text-xs ${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                }`}>
+                <div key={index} className={`flex items-center gap-2 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'
+                  }`}>
                   {getFileIcon(file.type)}
                   <span className="truncate max-w-32">{file.name}</span>
-                  <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>
+                  <span className={isDark ? 'text-gray-500' : 'text-gray-400'} >
                     ({Math.round(file.size / 1024)}KB)
                   </span>
                 </div>
