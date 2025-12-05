@@ -23,12 +23,18 @@ import { useAutoSave } from './hooks/useAutoSave';
 import { useFileUpload } from './hooks/useFileUpload';
 import { useTheme } from './hooks/useTheme';
 import { useCodeExplanation } from './hooks/useCodeExplanation';
+import { useCodeSelection } from './hooks/useCodeSelection';
+import { useSelectionOperations } from './hooks/useSelectionOperations';
+import SelectionToolbar from './components/SelectionToolbar';
+import SelectionResultPanel from './components/SelectionResultPanel';
 import { downloadAsZip } from './utils/downloadUtils';
 import { generateAISuggestions } from './utils/aiSuggestions';
+import * as monacoHelper from './utils/monacoSelectionHelper';
 import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion } from './types';
 import { aiEnhancementService } from './services/aiEnhancementService';
 import { externalLibraryService, ExternalLibrary } from './services/externalLibraryService';
 import { formattingService } from './services/formattingService';
+import { SelectionOperationType } from './services/selectionOperationsService';
 
 
 type AppView = 'editor' | 'history' | 'about';
@@ -92,6 +98,13 @@ function App() {
     clearExplanation
   } = useCodeExplanation();
   const [showExplanationPopup, setShowExplanationPopup] = useState<boolean>(false);
+
+  // Selection operations
+  const htmlEditorRef = React.useRef<any>(null);
+  const cssEditorRef = React.useRef<any>(null);
+  const jsEditorRef = React.useRef<any>(null);
+  const { selection, updateSelection, clearSelection, hasSelection } = useCodeSelection();
+  const selectionOps = useSelectionOperations();
 
   // Code history for undo/redo functionality
   const codeHistory = useCodeHistory({ html, css, javascript });
@@ -539,6 +552,63 @@ function App() {
   };
 
 
+  // Selection Operation Handlers
+  const handleSelectionChange = useCallback((editor: any, language: EditorLanguage) => {
+    console.log('[App] handleSelectionChange called for', language);
+    updateSelection(editor, language);
+  }, [updateSelection]);
+
+  const handleSelectionOperation = useCallback(async (operation: SelectionOperationType) => {
+    console.log('[App] handleSelectionOperation called with operation:', operation);
+    console.log('[App] hasSelection:', hasSelection);
+    console.log('[App] selection.code:', selection.code?.substring(0, 50));
+    console.log('[App] selection.language:', selection.language);
+
+    if (!hasSelection || !selection.code || !selection.language) {
+      console.warn('[App] No code selected - aborting operation');
+      return;
+    }
+
+    console.log('[App] Executing operation:', operation, 'for', selection.language);
+    const context = selection.fullFileCode;
+    console.log('[App] Context length:', context?.length || 0);
+
+    try {
+      await selectionOps.executeOperation(operation, selection.code, selection.language, context);
+      console.log('[App] Operation completed successfully');
+    } catch (error) {
+      console.error('[App] Operation failed:', error);
+    }
+  }, [hasSelection, selection, selectionOps]);
+
+  const handleApplySelectionChanges = useCallback((newCode: string) => {
+    if (!selection.editorInstance || !selection.range) {
+      console.error('No editor instance or range available');
+      return;
+    }
+
+    // Apply the changes using Monaco helper
+    const success = monacoHelper.replaceSelectedCode(selection.editorInstance, newCode, selection.range);
+
+    if (success) {
+      // Save to history
+      codeHistory.saveState({ html, css, javascript }, `Applied ${selectionOps.result?.operation}`);
+
+      // Clear selection and result
+      clearSelection();
+      selectionOps.clearResult();
+
+      console.log(`Applied ${selectionOps.result?.operation} changes successfully`);
+    } else {
+      console.error('Failed to apply selection changes');
+    }
+  }, [selection, selectionOps, codeHistory, html, css, javascript, clearSelection]);
+
+  const handleCloseSelectionResult = useCallback(() => {
+    selectionOps.clearResult();
+  }, [selectionOps]);
+
+
   // Code Explanation Handlers
   // Note: handleExplainCode was removed as it was unused.
   // The actual code explanation is handled by onExplainRequest callback.
@@ -762,6 +832,8 @@ function App() {
               isAILoading={aiLoadingStates.html}
               onFormat={handleFormatHtml}
               isFormatLoading={formatLoadingStates.html}
+              editorRef={htmlEditorRef}
+              onSelectionChange={(editor) => handleSelectionChange(editor, 'html')}
             />
 
             <EditorPanel
@@ -774,6 +846,8 @@ function App() {
               isAILoading={aiLoadingStates.css}
               onFormat={handleFormatCss}
               isFormatLoading={formatLoadingStates.css}
+              editorRef={cssEditorRef}
+              onSelectionChange={(editor) => handleSelectionChange(editor, 'css')}
             />
 
             <EditorPanel
@@ -786,6 +860,8 @@ function App() {
               isAILoading={aiLoadingStates.javascript}
               onFormat={handleFormatJavascript}
               isFormatLoading={formatLoadingStates.javascript}
+              editorRef={jsEditorRef}
+              onSelectionChange={(editor) => handleSelectionChange(editor, 'javascript')}
             />
           </div>
 
@@ -925,6 +1001,28 @@ function App() {
             onClose={() => setShowGeminiAssistant(false)}
           />
         </Suspense>
+      )}
+
+
+      {/* Selection Toolbar - Appears when code is selected */}
+      {hasSelection && selection.position && (
+        <SelectionToolbar
+          position={selection.position}
+          language={selection.language!}
+          onOperation={handleSelectionOperation}
+          isLoading={selectionOps.isLoading}
+          currentOperation={selectionOps.result?.operation}
+        />
+      )}
+
+      {/* Selection Result Panel - Appears when operation completes */}
+      {selectionOps.result && selection.language && (
+        <SelectionResultPanel
+          result={selectionOps.result}
+          language={selection.language}
+          onClose={handleCloseSelectionResult}
+          onApplyChanges={selectionOps.result.hasCodeChanges ? handleApplySelectionChanges : undefined}
+        />
       )}
     </div>
   );

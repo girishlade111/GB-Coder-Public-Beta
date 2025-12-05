@@ -19,6 +19,8 @@ interface EditorPanelProps {
   isFormatLoading?: boolean;
   onExplain?: () => void;
   isExplainLoading?: boolean;
+  editorRef?: React.MutableRefObject<any>;
+  onSelectionChange?: (editor: any) => void;
 }
 
 const EditorPanel: React.FC<EditorPanelProps> = ({
@@ -33,6 +35,8 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
   isFormatLoading = false,
   onExplain,
   isExplainLoading = false,
+  editorRef,
+  onSelectionChange,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -123,6 +127,8 @@ const EditorPanel: React.FC<EditorPanelProps> = ({
               onChange={onChange}
               height="300px"
               readOnly={isLocked}
+              editorRef={editorRef}
+              onSelectionChange={onSelectionChange}
             />
           </div>
 
