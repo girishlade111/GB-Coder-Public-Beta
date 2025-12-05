@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { RefreshCw, ExternalLink } from 'lucide-react';
+import { RefreshCw, ExternalLink, Monitor, Tablet, Smartphone, Maximize2, X } from 'lucide-react';
 import { ConsoleLog } from '../types';
 import { externalLibraryService } from '../services/externalLibraryService';
+
+type ViewMode = 'desktop' | 'tablet' | 'mobile' | 'fullscreen';
 
 interface PreviewPanelProps {
   html: string;
@@ -18,6 +20,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('desktop');
 
   // Sanitize code input to prevent XSS attacks
   const sanitizeCode = (code: string, language: string): string => {
@@ -218,6 +221,18 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
     return () => window.removeEventListener('message', handleMessage);
   }, [onConsoleLog]);
 
+  // Handle ESC key to exit fullscreen
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && viewMode === 'fullscreen') {
+        setViewMode('desktop');
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [viewMode]);
+
   const openInNewTab = () => {
     const content = generatePreviewContent();
     const blob = new Blob([content], { type: 'text/html' });
@@ -226,42 +241,149 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
-  return (
-    <div className="w-full h-96 bg-dark-gray rounded-lg overflow-hidden border border-gray-700">
-      <div className="bg-gray-900 px-4 py-2 border-b border-gray-700 flex items-center justify-between">
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+  };
+
+  // Get iframe container width based on view mode
+  const getContainerWidth = () => {
+    switch (viewMode) {
+      case 'mobile':
+        return '375px';
+      case 'tablet':
+        return '768px';
+      case 'desktop':
+      case 'fullscreen':
+        return '100%';
+    }
+  };
+
+  // Render preview content (used in both normal and fullscreen modes)
+  const renderPreviewContent = () => (
+    <>
+      <div className={`${viewMode === 'fullscreen' ? 'bg-gray-800' : 'bg-gray-900'} px-4 py-2 border-b border-gray-700 flex items-center justify-between`}>
         <h3 className="text-sm font-medium text-gray-300">Live Preview</h3>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={refreshPreview}
-            className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
-            title="Refresh Preview"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={openInNewTab}
-            className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
-            title="Open in New Tab"
-          >
-            <ExternalLink className="w-4 h-4" />
-          </button>
+        <div className="flex items-center gap-3">
+          {/* View Mode Toggles */}
+          <div className="flex items-center gap-1 border border-gray-700 rounded bg-gray-800 p-1">
+            <button
+              onClick={() => handleViewModeChange('mobile')}
+              className={`p-1.5 rounded transition-all ${viewMode === 'mobile'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                }`}
+              title="Mobile View (375px)"
+            >
+              <Smartphone className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleViewModeChange('tablet')}
+              className={`p-1.5 rounded transition-all ${viewMode === 'tablet'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                }`}
+              title="Tablet View (768px)"
+            >
+              <Tablet className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleViewModeChange('desktop')}
+              className={`p-1.5 rounded transition-all ${viewMode === 'desktop'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                }`}
+              title="Desktop View (Full Width)"
+            >
+              <Monitor className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-700"></div>
+
+          {/* Existing Controls */}
+          <div className="flex items-center gap-2">
+            {viewMode !== 'fullscreen' && (
+              <button
+                onClick={() => handleViewModeChange('fullscreen')}
+                className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
+                title="Fullscreen Mode"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              onClick={refreshPreview}
+              className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
+              title="Refresh Preview"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={openInNewTab}
+              className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
+              title="Open in New Tab"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
-      <div className="relative h-full">
+      <div className={`relative ${viewMode === 'fullscreen' ? 'h-full' : 'h-full'} flex items-start justify-center overflow-auto bg-gray-800`}>
         {isLoading && (
           <div className="absolute inset-0 bg-dark-gray bg-opacity-75 flex items-center justify-center z-10">
             <RefreshCw className="w-6 h-6 text-blue-400 animate-spin" />
           </div>
         )}
-        <iframe
-          ref={iframeRef}
-          className="w-full h-full bg-white"
-          title="Code Preview"
-          sandbox="allow-scripts allow-same-origin"
-          srcDoc={generatePreviewContent()}
-        />
+        <div
+          className="transition-all duration-300 ease-in-out h-full"
+          style={{
+            width: getContainerWidth(),
+            maxWidth: '100%'
+          }}
+        >
+          <iframe
+            ref={iframeRef}
+            className="w-full h-full bg-white shadow-lg"
+            title="Code Preview"
+            sandbox="allow-scripts allow-same-origin"
+            srcDoc={generatePreviewContent()}
+          />
+        </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Normal Preview Panel */}
+      {viewMode !== 'fullscreen' && (
+        <div className="w-full h-96 bg-dark-gray rounded-lg overflow-hidden border border-gray-700">
+          {renderPreviewContent()}
+        </div>
+      )}
+
+      {/* Fullscreen Overlay */}
+      {viewMode === 'fullscreen' && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex flex-col">
+          {/* Exit Button */}
+          <div className="absolute top-4 right-4 z-10">
+            <button
+              onClick={() => setViewMode('desktop')}
+              className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-300 hover:text-white transition-colors border border-gray-600 shadow-lg"
+              title="Exit Fullscreen (ESC)"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Preview Content */}
+          <div className="flex-1 flex flex-col">
+            {renderPreviewContent()}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
