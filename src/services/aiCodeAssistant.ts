@@ -274,6 +274,89 @@ Respond with the code in a markdown code block.`;
     }
 
     /**
+     * Detect and parse code from AI response
+     */
+    detectCodeInResponse(message: string): {
+        hasCode: boolean;
+        html?: string;
+        css?: string;
+        javascript?: string;
+        explanations: string[];
+    } {
+        const result = {
+            hasCode: false,
+            html: undefined as string | undefined,
+            css: undefined as string | undefined,
+            javascript: undefined as string | undefined,
+            explanations: [] as string[]
+        };
+
+        // Extract all code blocks
+        const codeBlockRegex = /```(html|css|javascript|js)?\n([\s\S]*?)```/gi;
+        const matches = Array.from(message.matchAll(codeBlockRegex));
+
+        if (matches.length === 0) {
+            result.explanations = [message];
+            return result;
+        }
+
+        result.hasCode = true;
+
+        // Parse each code block
+        matches.forEach(match => {
+            const language = (match[1] || '').toLowerCase();
+            const code = match[2].trim();
+
+            if (language === 'html' || (!language && code.includes('<') && code.includes('>'))) {
+                result.html = code;
+            } else if (language === 'css' || (!language && (code.includes('{') && code.includes('}') && code.includes(':')))) {
+                result.css = code;
+            } else if (language === 'javascript' || language === 'js' || !language) {
+                result.javascript = code;
+            }
+        });
+
+        // Extract explanations (text between code blocks and before/after)
+        const parts = message.split(/```(?:html|css|javascript|js)?\n[\s\S]*?```/);
+        result.explanations = parts
+            .map(part => part.trim())
+            .filter(part => part.length > 0);
+
+        return result;
+    }
+
+    /**
+     * Format response for chatbot display
+     */
+    formatResponseForChatbot(parsedCode: {
+        hasCode: boolean;
+        html?: string;
+        css?: string;
+        javascript?: string;
+        explanations: string[];
+    }): string {
+        let formattedResponse = '';
+
+        // Add explanations
+        if (parsedCode.explanations.length > 0) {
+            formattedResponse += parsedCode.explanations.join('\n\n') + '\n\n';
+        }
+
+        // Add code blocks
+        if (parsedCode.html) {
+            formattedResponse += '```html\n' + parsedCode.html + '\n```\n\n';
+        }
+        if (parsedCode.css) {
+            formattedResponse += '```css\n' + parsedCode.css + '\n```\n\n';
+        }
+        if (parsedCode.javascript) {
+            formattedResponse += '```javascript\n' + parsedCode.javascript + '\n```\n\n';
+        }
+
+        return formattedResponse.trim();
+    }
+
+    /**
      * Check if configured
      */
     isConfigured(): boolean {

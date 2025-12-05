@@ -820,6 +820,12 @@ function App() {
           <GeminiCodeAssistant
             currentCode={{ html, css, javascript }}
             onCodeUpdate={handleCodeUpdate}
+            onClearAllCode={() => {
+              codeHistory.saveState({ html, css, javascript }, 'Cleared all code for AI writing');
+              setHtml(defaultHTML);
+              setCss(defaultCSS);
+              setJavascript(defaultJS);
+            }}
             onClose={() => setShowGeminiAssistant(false)}
           />
         </Suspense>

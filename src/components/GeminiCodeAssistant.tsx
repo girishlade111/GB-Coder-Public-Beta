@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { GeminiChatMessage, GeminiCodeBlock, EditorLanguage, Attachment } from '../types';
 import { aiCodeAssistant } from '../services/aiCodeAssistant';
+import { CodeWriteConfirmationModal } from './CodeWriteConfirmationModal';
+import { useCodeWriter } from '../hooks/useCodeWriter';
 
 interface GeminiCodeAssistantProps {
   currentCode: {
@@ -24,12 +26,14 @@ interface GeminiCodeAssistantProps {
     javascript: string;
   };
   onCodeUpdate: (language: EditorLanguage, code: string) => void;
+  onClearAllCode?: () => void;
   onClose?: () => void;
 }
 
 const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   currentCode,
   onCodeUpdate,
+  onClearAllCode,
   onClose
 }) => {
   const [messages, setMessages] = useState<GeminiChatMessage[]>([]);
@@ -64,6 +68,23 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
     originalCode?: string;
     newCode?: string;
   }>({ isActive: false, step: 'lineNumber', language: 'html' });
+
+  // Code writing workflow state
+  const [showCodeConfirmation, setShowCodeConfirmation] = useState(false);
+  const [pendingCode, setPendingCode] = useState<{
+    html?: string;
+    css?: string;
+    javascript?: string;
+    explanations: string[];
+  } | null>(null);
+  const [writingMode, setWritingMode] = useState<'section' | 'chatbot' | null>(null);
+  const [writingProgress, setWritingProgress] = useState({
+    current: '',
+    html: 0,
+    css: 0,
+    js: 0
+  });
+  const { writeCode, isWriting } = useCodeWriter();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -447,7 +468,29 @@ How can I help you today?`,
         }
       }
 
-      setMessages(prev => [...prev, response]);
+      // Detect code in response and show confirmation modal
+      const parsedCode = aiCodeAssistant.detectCodeInResponse(response.content);
+
+      if (parsedCode.hasCode) {
+        // Show confirmation modal
+        setPendingCode(parsedCode);
+        setShowCodeConfirmation(true);
+
+        // Add initial explanation message if present
+        if (parsedCode.explanations.length > 0) {
+          const explanationMessage: GeminiChatMessage = {
+            id: `explanation-${Date.now()}`,
+            type: 'assistant',
+            content: parsedCode.explanations.join('\n\n'),
+            timestamp: new Date().toISOString()
+          };
+          setMessages(prev => [...prev, explanationMessage]);
+        }
+      } else {
+        // No code detected, add response normally
+        setMessages(prev => [...prev, response]);
+      }
+
       setAttachments([]); // Clear attachments after sending
     } catch (error) {
       const errorMessage: GeminiChatMessage = {
@@ -513,6 +556,103 @@ How can I help you today?`,
     const lower = message.toLowerCase();
     return lower.includes('give me') || lower.includes('generate') || lower.includes('create') ||
       lower.includes('make') || lower.includes('build') || lower.includes('write');
+  };
+
+  // Code writing workflow handlers
+  const handleAgreeToSectionMode = async () => {
+    if (!pendingCode) return;
+
+    setWritingMode('section');
+    setShowCodeConfirmation(false);
+
+    // Clear all sections if onClearAllCode is provided
+    if (onClearAllCode) {
+      onClearAllCode();
+    }
+
+    // Start writing progress message
+    const progressMessage: GeminiChatMessage = {
+      id: `progress-${Date.now()}`,
+      type: 'assistant',
+      content: '✍️ **Writing code to sections...**\n\nPlease wait while I write the code to your editor...',
+      timestamp: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, progressMessage]);
+
+    try {
+      // Write HTML
+      if (pendingCode.html) {
+        await animateCodeWriting(pendingCode.html, 'html');
+      }
+
+      // Write CSS
+      if (pendingCode.css) {
+        await animateCodeWriting(pendingCode.css, 'css');
+      }
+
+      // Write JavaScript
+      if (pendingCode.javascript) {
+        await animateCodeWriting(pendingCode.javascript, 'javascript');
+      }
+
+      // Success message
+      const successMessage: GeminiChatMessage = {
+        id: `success-${Date.now()}`,
+        type: 'assistant',
+        content: '✅ **Code Writing Complete!**\n\nAll code has been written to your sections.',
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, successMessage]);
+    } catch (error) {
+      const errorMessage: GeminiChatMessage = {
+        id: `error-${Date.now()}`,
+        type: 'assistant',
+        content: '❌ **Error**: Failed to write code to sections.',
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setPendingCode(null);
+      setWritingMode(null);
+    }
+  };
+
+  const handleDeclineSectionMode = () => {
+    if (!pendingCode) return;
+
+    setWritingMode('chatbot');
+    setShowCodeConfirmation(false);
+
+    // Format and display code in chatbot
+    const formattedResponse = aiCodeAssistant.formatResponseForChatbot(pendingCode);
+    const chatbotMessage: GeminiChatMessage = {
+      id: `chatbot-${Date.now()}`,
+      type: 'assistant',
+      content: formattedResponse,
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, chatbotMessage]);
+    setPendingCode(null);
+    setWritingMode(null);
+  };
+
+  const animateCodeWriting = async (code: string, language: 'html' | 'css' | 'javascript'): Promise<void> => {
+    return new Promise((resolve) => {
+      writeCode(
+        code,
+        (partial, progress) => {
+          onCodeUpdate(language, partial);
+
+          // Update progress
+          setWritingProgress(prev => ({
+            ...prev,
+            [language === 'javascript' ? 'js' : language]: Math.round((progress.writtenChars / progress.totalChars) * 100)
+          }));
+        },
+        15 // chars per frame
+      ).then(resolve);
+    });
   };
 
   const renderMessageContent = (content: string) => {
@@ -986,6 +1126,17 @@ How can I help you today?`,
           }}
         />
       )}
+
+      {/* Code Write Confirmation Modal */}
+      <CodeWriteConfirmationModal
+        isOpen={showCodeConfirmation}
+        onAgree={handleAgreeToSectionMode}
+        onDecline={handleDeclineSectionMode}
+        onClose={() => {
+          setShowCodeConfirmation(false);
+          setPendingCode(null);
+        }}
+      />
     </div>
   );
 };
