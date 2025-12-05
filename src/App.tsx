@@ -28,6 +28,8 @@ import { generateAISuggestions } from './utils/aiSuggestions';
 import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion } from './types';
 import { aiEnhancementService } from './services/aiEnhancementService';
 import { externalLibraryService, ExternalLibrary } from './services/externalLibraryService';
+import { formattingService } from './services/formattingService';
+
 
 type AppView = 'editor' | 'history' | 'about';
 
@@ -71,6 +73,14 @@ function App() {
     css: false,
     javascript: false
   });
+
+  // Format loading states
+  const [formatLoadingStates, setFormatLoadingStates] = useState<Record<EditorLanguage, boolean>>({
+    html: false,
+    css: false,
+    javascript: false
+  });
+
 
   // Code Explanation hooks - useCodeSelection hook removed as it was unused
   const {
@@ -473,6 +483,62 @@ function App() {
     }
   };
 
+  // Format handlers
+  const handleFormatHtml = async () => {
+    setFormatLoadingStates(prev => ({ ...prev, html: true }));
+    try {
+      const result = await formattingService.formatCode(html, 'html');
+      if (result.success && result.formattedCode !== html) {
+        codeHistory.saveState({ html, css, javascript }, 'Formatted HTML');
+        setHtml(result.formattedCode);
+        console.log('HTML formatted successfully');
+      } else if (result.error) {
+        console.error('HTML formatting error:', result.error);
+      }
+    } catch (error) {
+      console.error('Failed to format HTML:', error);
+    } finally {
+      setFormatLoadingStates(prev => ({ ...prev, html: false }));
+    }
+  };
+
+  const handleFormatCss = async () => {
+    setFormatLoadingStates(prev => ({ ...prev, css: true }));
+    try {
+      const result = await formattingService.formatCode(css, 'css');
+      if (result.success && result.formattedCode !== css) {
+        codeHistory.saveState({ html, css, javascript }, 'Formatted CSS');
+        setCss(result.formattedCode);
+        console.log('CSS formatted successfully');
+      } else if (result.error) {
+        console.error('CSS formatting error:', result.error);
+      }
+    } catch (error) {
+      console.error('Failed to format CSS:', error);
+    } finally {
+      setFormatLoadingStates(prev => ({ ...prev, css: false }));
+    }
+  };
+
+  const handleFormatJavascript = async () => {
+    setFormatLoadingStates(prev => ({ ...prev, javascript: true }));
+    try {
+      const result = await formattingService.formatCode(javascript, 'javascript');
+      if (result.success && result.formattedCode !== javascript) {
+        codeHistory.saveState({ html, css, javascript }, 'Formatted JavaScript');
+        setJavascript(result.formattedCode);
+        console.log('JavaScript formatted successfully');
+      } else if (result.error) {
+        console.error('JavaScript formatting error:', result.error);
+      }
+    } catch (error) {
+      console.error('Failed to format JavaScript:', error);
+    } finally {
+      setFormatLoadingStates(prev => ({ ...prev, javascript: false }));
+    }
+  };
+
+
   // Code Explanation Handlers
   // Note: handleExplainCode was removed as it was unused.
   // The actual code explanation is handled by onExplainRequest callback.
@@ -694,6 +760,8 @@ function App() {
               icon={<Code2 className="w-4 h-4 text-orange-400" />}
               onAISuggest={() => handleAISuggest('html')}
               isAILoading={aiLoadingStates.html}
+              onFormat={handleFormatHtml}
+              isFormatLoading={formatLoadingStates.html}
             />
 
             <EditorPanel
@@ -704,6 +772,8 @@ function App() {
               icon={<Code2 className="w-4 h-4 text-blue-400" />}
               onAISuggest={() => handleAISuggest('css')}
               isAILoading={aiLoadingStates.css}
+              onFormat={handleFormatCss}
+              isFormatLoading={formatLoadingStates.css}
             />
 
             <EditorPanel
@@ -714,6 +784,8 @@ function App() {
               icon={<Code2 className="w-4 h-4 text-yellow-400" />}
               onAISuggest={() => handleAISuggest('javascript')}
               isAILoading={aiLoadingStates.javascript}
+              onFormat={handleFormatJavascript}
+              isFormatLoading={formatLoadingStates.javascript}
             />
           </div>
 

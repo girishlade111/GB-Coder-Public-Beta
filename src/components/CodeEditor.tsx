@@ -8,6 +8,7 @@ interface CodeEditorProps {
   onChange: (value: string) => void;
   height?: string;
   onMount?: (editor: any, monaco: any) => void;
+  readOnly?: boolean;
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -15,7 +16,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   value,
   onChange,
   height = '300px',
-  onMount
+  onMount,
+  readOnly = false
 }) => {
   const handleEditorChange = (value: string | undefined) => {
     onChange(value || '');
@@ -53,6 +55,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           automaticLayout: true,
           tabSize: 2,
           insertSpaces: true,
+          readOnly,
         }}
       />
     </div>
