@@ -17,6 +17,8 @@
 
 **GB Coder** is a state-of-the-art, AI-powered code playground designed to revolutionize how developers write, test, and learn code. Built with a modern tech stack, it integrates Google's Gemini AI to provide real-time suggestions, code explanations, and automated enhancements, all within a sleek, dark-matte user interface.
 
+> 📘 **Full Documentation**: Check out [DOCUMENTATION.md](DOCUMENTATION.md) for a detailed guide on all features and functionalities.
+
 ---
 
 ## 🌟 Key Features
