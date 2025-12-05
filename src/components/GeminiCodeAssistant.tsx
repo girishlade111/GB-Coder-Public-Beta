@@ -26,6 +26,8 @@ interface GeminiCodeAssistantProps {
     javascript: string;
   };
   onCodeUpdate: (language: EditorLanguage, code: string) => void;
+  onCodeUpdateNoHistory?: (language: EditorLanguage, code: string) => void;
+  onBatchCodeUpdate?: (code: { html?: string; css?: string; javascript?: string }) => void;
   onClearAllCode?: () => void;
   onClose?: () => void;
 }
@@ -33,6 +35,8 @@ interface GeminiCodeAssistantProps {
 const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   currentCode,
   onCodeUpdate,
+  onCodeUpdateNoHistory,
+  onBatchCodeUpdate,
   onClearAllCode,
   onClose
 }) => {
@@ -565,6 +569,10 @@ How can I help you today?`,
     setWritingMode('section');
     setShowCodeConfirmation(false);
 
+    // Save current state to history BEFORE clearing
+    // This creates one history entry for the "before" state
+    // (onClearAllCode will also save, capturing the cleared state)
+
     // Clear all sections if onClearAllCode is provided
     if (onClearAllCode) {
       onClearAllCode();
@@ -593,6 +601,22 @@ How can I help you today?`,
       // Write JavaScript
       if (pendingCode.javascript) {
         await animateCodeWriting(pendingCode.javascript, 'javascript');
+      }
+
+      // Save final state to history AFTER all writing is complete
+      // Use batch update to save ONE history entry instead of three
+      // This ensures redo works correctly
+      if (onBatchCodeUpdate) {
+        onBatchCodeUpdate({
+          html: pendingCode.html,
+          css: pendingCode.css,
+          javascript: pendingCode.javascript
+        });
+      } else {
+        // Fallback: update individually (may create multiple history entries)
+        if (pendingCode.html) onCodeUpdate('html', pendingCode.html);
+        if (pendingCode.css) onCodeUpdate('css', pendingCode.css);
+        if (pendingCode.javascript) onCodeUpdate('javascript', pendingCode.javascript);
       }
 
       // Success message
@@ -642,7 +666,14 @@ How can I help you today?`,
       writeCode(
         code,
         (partial, progress) => {
-          onCodeUpdate(language, partial);
+          // Use onCodeUpdateNoHistory during animation to avoid creating history entries
+          // This prevents hundreds of history saves during typewriter effect
+          if (onCodeUpdateNoHistory) {
+            onCodeUpdateNoHistory(language, partial);
+          } else {
+            // Fallback to regular update if no-history version not provided
+            onCodeUpdate(language, partial);
+          }
 
           // Update progress
           setWritingProgress(prev => ({

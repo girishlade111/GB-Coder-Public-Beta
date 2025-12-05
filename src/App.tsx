@@ -820,6 +820,30 @@ function App() {
           <GeminiCodeAssistant
             currentCode={{ html, css, javascript }}
             onCodeUpdate={handleCodeUpdate}
+            onCodeUpdateNoHistory={(language, code) => {
+              // Update code WITHOUT saving to history
+              // Used during typewriter animation to avoid hundreds of history entries
+              switch (language) {
+                case 'html':
+                  setHtml(code);
+                  break;
+                case 'css':
+                  setCss(code);
+                  break;
+                case 'javascript':
+                  setJavascript(code);
+                  break;
+              }
+            }}
+            onBatchCodeUpdate={(code) => {
+              // Batch update all languages with ONE history save
+              // This fixes redo by preventing multiple history entries
+              codeHistory.saveState({ html, css, javascript }, 'AI code writing complete');
+
+              if (code.html !== undefined) setHtml(code.html);
+              if (code.css !== undefined) setCss(code.css);
+              if (code.javascript !== undefined) setJavascript(code.javascript);
+            }}
             onClearAllCode={() => {
               codeHistory.saveState({ html, css, javascript }, 'Cleared all code for AI writing');
               setHtml(defaultHTML);
