@@ -17,7 +17,8 @@ import {
   Palette,
   Sun,
   Moon,
-  Settings
+  Settings,
+  History
 } from 'lucide-react';
 import { EditorLanguage } from '../types';
 import ThemeToggle from './ui/ThemeToggle';
@@ -35,6 +36,7 @@ interface NavigationBarProps {
   onAIAssistantToggle: () => void;
   onAISuggestionsToggle: () => void;
   onExternalLibraryManagerToggle: () => void;
+  onHistoryToggle: () => void;
   canUndo: boolean;
   canRedo: boolean;
   autoSaveEnabled: boolean;
@@ -62,6 +64,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   onAIAssistantToggle,
   onAISuggestionsToggle,
   onExternalLibraryManagerToggle,
+  onHistoryToggle,
   canUndo,
   canRedo,
   autoSaveEnabled,
@@ -465,6 +468,20 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                           Settings & Tools
                         </h4>
                         <div className="space-y-1">
+                          <button
+                            onClick={() => {
+                              onHistoryToggle();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
+                              ? 'text-gray-300 hover:bg-gray-700'
+                              : 'text-gray-700 hover:bg-gray-50'
+                              }`}
+                          >
+                            <History className="w-4 h-4" />
+                            History
+                          </button>
+
                           <button
                             onClick={() => {
                               onSnippetsToggle();

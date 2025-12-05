@@ -54,10 +54,12 @@ export const useSelectionOperations = () => {
 
             console.log('[useSelectionOperations] Operation result:', operationResult);
             setResult(operationResult);
+            return operationResult;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to execute operation';
             console.error('[useSelectionOperations] Error:', errorMessage, err);
             setError(errorMessage);
+            return null;
         } finally {
             setIsLoading(false);
             console.log('[useSelectionOperations] executeOperation completed');
@@ -74,6 +76,7 @@ export const useSelectionOperations = () => {
 
     return {
         result,
+        setResult,
         isLoading,
         error,
         executeOperation,

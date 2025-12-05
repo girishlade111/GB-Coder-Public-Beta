@@ -1,21 +1,5 @@
 import { openRouterService } from './openRouterService';
-import { EditorLanguage } from '../types';
-
-export type SelectionOperationType = 'explain' | 'debug' | 'optimize' | 'improveUI';
-
-export interface SelectionOperationResult {
-    operation: SelectionOperationType;
-    hasCodeChanges: boolean;
-    explanation: string;
-    suggestedCode?: string;
-    issues?: Array<{
-        type: string;
-        description: string;
-        severity: 'low' | 'medium' | 'high';
-    }>;
-    improvements?: string[];
-    confidence?: number;
-}
+import { EditorLanguage, SelectionOperationType, SelectionOperationResult } from '../types';
 
 export class SelectionOperationsService {
     /**

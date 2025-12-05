@@ -26,11 +26,11 @@ import { useCodeExplanation } from './hooks/useCodeExplanation';
 import { useCodeSelection } from './hooks/useCodeSelection';
 import { useSelectionOperations } from './hooks/useSelectionOperations';
 import SelectionToolbar from './components/SelectionToolbar';
-import SelectionResultPanel from './components/SelectionResultPanel';
+import SelectionSidebar from './components/SelectionSidebar';
 import { downloadAsZip } from './utils/downloadUtils';
 import { generateAISuggestions } from './utils/aiSuggestions';
 import * as monacoHelper from './utils/monacoSelectionHelper';
-import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion } from './types';
+import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion, HistoryItem } from './types';
 import { aiEnhancementService } from './services/aiEnhancementService';
 import { externalLibraryService, ExternalLibrary } from './services/externalLibraryService';
 import { formattingService } from './services/formattingService';
@@ -57,6 +57,8 @@ function App() {
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLog[]>([]);
   const { theme, isDark, setTheme, toggleTheme } = useTheme();
   const [snippets, setSnippets] = useLocalStorage<CodeSnippet[]>('gb-coder-snippets', []);
+  const [selectionHistory, setSelectionHistory] = useState<HistoryItem[]>([]);
+  const [isSidebarHistoryOpen, setIsSidebarHistoryOpen] = useState(false);
   // DEBUG: Fix missing type annotation
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1024);
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
@@ -574,8 +576,21 @@ function App() {
     console.log('[App] Context length:', context?.length || 0);
 
     try {
-      await selectionOps.executeOperation(operation, selection.code, selection.language, context);
+      const result = await selectionOps.executeOperation(operation, selection.code, selection.language, context);
       console.log('[App] Operation completed successfully');
+
+      // Save to history if successful
+      if (result) {
+        const newItem: HistoryItem = {
+          id: Date.now().toString(),
+          timestamp: Date.now(),
+          operation: operation,
+          language: selection.language,
+          codePreview: selection.code.substring(0, 100) + (selection.code.length > 100 ? '...' : ''),
+          result: result
+        };
+        setSelectionHistory(prev => [newItem, ...prev]);
+      }
     } catch (error) {
       console.error('[App] Operation failed:', error);
     }
@@ -662,6 +677,7 @@ function App() {
           onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
           onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
           onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+          onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -728,6 +744,7 @@ function App() {
           onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
           onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
           onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+          onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -759,7 +776,7 @@ function App() {
               </div>
             </div>
           }>
-            <CodeHistoryPage />
+            <CodeHistoryPage selectionHistory={selectionHistory} />
           </Suspense>
         </div>
         <Footer />
@@ -794,6 +811,7 @@ function App() {
         onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
         onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
         onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+        onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
         canUndo={codeHistory.canUndo}
         canRedo={codeHistory.canRedo}
         autoSaveEnabled={autoSaveEnabled}
@@ -1015,18 +1033,28 @@ function App() {
         />
       )}
 
-      {/* Selection Result Panel - Appears when operation completes */}
-      {selectionOps.result && selection.language && (
-        <SelectionResultPanel
-          result={selectionOps.result}
-          language={selection.language}
-          onClose={handleCloseSelectionResult}
-          onApplyChanges={selectionOps.result.hasCodeChanges ? handleApplySelectionChanges : undefined}
-        />
-      )}
+      {/* Selection Sidebar - Handles Loading, Results, and History */}
+      <SelectionSidebar
+        isOpen={selectionOps.isLoading || !!selectionOps.result || isSidebarHistoryOpen}
+        isLoading={selectionOps.isLoading}
+        result={selectionOps.result}
+        language={selection.language}
+        error={selectionOps.error}
+        onClose={() => {
+          handleCloseSelectionResult();
+          setIsSidebarHistoryOpen(false);
+        }}
+        onApplyChanges={selectionOps.result?.hasCodeChanges ? handleApplySelectionChanges : undefined}
+        history={selectionHistory}
+        onClearHistory={() => setSelectionHistory([])}
+        onSelectHistory={(item) => {
+          selectionOps.setResult(item.result);
+        }}
+        isHistoryOpen={isSidebarHistoryOpen}
+        onHistoryToggle={setIsSidebarHistoryOpen}
+      />
     </div>
   );
 }
 
 export default App;
-

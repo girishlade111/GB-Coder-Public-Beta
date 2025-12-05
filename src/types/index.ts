@@ -197,6 +197,7 @@ export interface ExplanationBlock {
   lineEnd: number;
   codeSnippet: string;
   explanation: string;
+  explanation: string;
 }
 
 export interface ExplanationNote {
@@ -230,4 +231,30 @@ export interface EnhancedConsoleLog extends ConsoleLog {
   columnNumber?: number;
   sourceFile?: string;
   canFix?: boolean;
+}
+
+// Selection Operation Types
+export type SelectionOperationType = 'explain' | 'debug' | 'optimize' | 'improveUI';
+
+export interface SelectionOperationResult {
+  operation: SelectionOperationType;
+  hasCodeChanges: boolean;
+  explanation: string;
+  suggestedCode?: string;
+  issues?: Array<{
+    type: string;
+    description: string;
+    severity: 'low' | 'medium' | 'high';
+  }>;
+  improvements?: string[];
+  confidence?: number;
+}
+
+export interface HistoryItem {
+  id: string;
+  timestamp: number;
+  operation: SelectionOperationType;
+  language: EditorLanguage;
+  codePreview: string;
+  result: SelectionOperationResult;
 }
