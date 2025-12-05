@@ -2,556 +2,188 @@
 
 ![GB Coder Banner](tghjkl.jpeg)
 
-- Node.js (v16 or higher)
-- npm or yarn package manager
+<div align="center">
 
-### Installation
+![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/Google_Gemini-AI-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/girishlade111/GB-Coder-Public-Beta.git
-   ```
+</div>
 
-2. Navigate to the project directory:
-   ```bash
-   cd GB-Coder-Public-Beta
-   ```
+<br />
 
-3. Install dependencies:
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+**GB Coder** is a state-of-the-art, AI-powered code playground designed to revolutionize how developers write, test, and learn code. Built with a modern tech stack, it integrates Google's Gemini AI to provide real-time suggestions, code explanations, and automated enhancements, all within a sleek, dark-matte user interface.
 
-4. Start the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+---
 
-5. Open your browser and visit `http://localhost:5173`
+## 🌟 Key Features
 
-### Building for Production
+### 🤖 **AI Intelligence & Assistance**
+*   **Smart Suggestions**: Context-aware code completions and recommendations powered by Google Gemini Pro.
+*   **Code Explanation**: Instant, detailed explanations for selected code blocks to aid learning and debugging.
+*   **Automated Refactoring**: One-click code enhancement to improve performance, readability, and best practices.
+*   **Interactive Chat**: Built-in AI assistant to answer coding queries without leaving the editor.
 
-To create a production build:
+### 💻 **Advanced Editor Environment**
+*   **Monaco Editor Integration**: Professional-grade editing experience (VS Code engine) with syntax highlighting and IntelliSense.
+*   **Multi-Language Support**: Seamlessly switch between HTML, CSS, and JavaScript panels.
+*   **Live Preview**: Real-time rendering of your code with instant feedback.
+*   **Console & Terminal**: Integrated web console and command terminal for debugging and script execution.
 
-```bash
-npm run build
-# or
-yarn build
-```
+### 🛠️ **Developer Tools**
+*   **External Library Manager**: Effortlessly add libraries like Bootstrap, Tailwind, React, Vue, and more via a searchable GUI.
+*   **History & Persistence**: Robust undo/redo functionality and local storage persistence to save your work automatically.
+*   **Responsive Design Tools**: Test your projects on various screen sizes (Mobile, Tablet, Desktop) directly within the playground.
+*   **File Management**: Upload, download, and manage your project files with ease.
 
-To preview the production build locally:
+---
 
-```bash
-npm run preview
-# or
-yarn preview
-```
+## 📊 Project Stats
+
+| Metric | Count | Details |
+| :--- | :---: | :--- |
+| **Components** | ~50 | UI & Feature Components (`.tsx`) |
+| **Logic Files** | ~48 | Hooks, Services, & Utils (`.ts`) |
+| **Dependencies** | 14 | Key production libraries |
+| **Dev Dependencies** | 17 | Build & tooling libraries |
+| **Styles** | Tailwind | Utility-first CSS architecture |
+| **State Management** | React Hooks | Custom hooks for complex state |
+
+---
 
 ## 🛠️ Technology Stack
 
-### **Frontend Architecture**
-- **⚛️ Framework**: React 18.2+ with TypeScript 5.0+
-- **⚡ Build Tool**: Vite 5.4+ (Lightning-fast HMR)
-- **🎨 Styling**: Tailwind CSS 3.4+ (Utility-first CSS)
-- **📝 Code Editor**: Monaco Editor (VS Code engine)
-- **🎭 UI Components**: Lucide React Icons + Custom Components
+### **Frontend Core**
+*   **Framework**: [React 18](https://react.dev/) - Component-based UI library.
+*   **Language**: [TypeScript](https://www.typescriptlang.org/) - Typed superset of JavaScript for safety.
+*   **Build Tool**: [Vite](https://vitejs.dev/) - Next-generation frontend tooling.
+*   **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Rapid UI development.
 
-### **AI & Intelligence**
-- **🤖 AI Integration**: Google Generative AI (Gemini Pro)
-- **💡 Smart Suggestions**: Real-time contextual code recommendations
-- **🔧 Code Enhancement**: Automated refactoring and optimization
-- **❓ Interactive Assistant**: In-editor AI chat and guidance
+### **Editor & UI**
+*   **Code Editor**: `@monaco-editor/react` - The power of VS Code in the browser.
+*   **Icons**: `lucide-react` - Beautiful, consistent icons.
+*   **Animations**: CSS Transitions & Custom Animations.
 
-### **State & Data Management**
-- **🔄 State Management**: React Hooks + Custom Hooks
-- **💾 Persistence**: LocalStorage with automatic sync
-- **📊 History Tracking**: Advanced undo/redo with snapshot management
-- **🔄 Real-time Updates**: Event-driven architecture
+### **AI & Services**
+*   **AI Model**: Google Generative AI (`@google/generative-ai`) - Gemini Pro.
+*   **Analytics**: `web-vitals`, `react-ga4` - Performance and usage tracking.
 
-### **Security & Performance**
-- **🛡️ Security**: CSP headers, XSS protection, input sanitization
-- **⚡ Performance**: Code splitting, lazy loading, optimized bundles
-- **🌐 CDN Integration**: External library loading from trusted sources
-- **📱 Mobile Optimization**: Responsive design with touch support
+---
 
-### **Development Tools**
-- **🏗️ Build System**: Vite with TypeScript support
-- **🔍 Linting**: ESLint with React/TypeScript rules
-- **🎨 Formatting**: Prettier for consistent code style
-- **📦 Package Manager**: npm 9+ with lockfile v3
+## ⚙️ Configuration & Setup
 
-## 📚 External Library Manager
+### **Prerequisites**
+*   **Node.js**: v16.0.0 or higher
+*   **npm** or **yarn**: Package manager
 
-### 🎯 **NEW FEATURE: One-Click Library Integration**
+### **Installation**
 
-GB Coder now includes a powerful **External Library Manager** that allows you to effortlessly add popular CSS and JavaScript libraries to your projects without manually typing `<script>` or `<link>` tags.
+1.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/girishlade111/GB-Coder-Public-Beta.git
+    cd GB-Coder-Public-Beta
+    ```
 
-### 🔧 **How to Use**
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-1. **Access the Manager**: Click the **Settings (⚙️) button** in the top navigation bar
-2. **Browse Libraries**: Search through 18+ pre-configured popular libraries
-3. **Add Libraries**: Click "Add" next to any library or enter custom URLs
-4. **Live Preview**: Libraries are automatically injected into your live preview
-5. **Manage**: Remove libraries using the delete button in your current libraries list
+### **Environment Setup**
 
-### 📋 **Supported Libraries**
+Create a `.env` file in the root directory. You can use `.env.example` as a template.
 
-#### 🎨 **CSS Frameworks & Libraries**
-- **Bootstrap 5.3.2** - Popular CSS Framework
-- **Tailwind CSS** - Utility-first CSS Framework
-- **Font Awesome 6.5.1** - Icon Library
-- **AOS (Animate On Scroll)** - CSS Animation Library
-- **Materialize CSS** - Modern CSS Framework
-- **Bulma** - Modern CSS Framework
-- **SweetAlert2 CSS** - Beautiful Alert Styling
-
-#### ⚡ **JavaScript Libraries**
-- **jQuery 3.7.1** - JavaScript Library
-- **React 18** - JavaScript Library
-- **Vue.js 3** - Progressive JavaScript Framework
-- **Chart.js** - JavaScript Charting Library
-- **Lodash** - JavaScript Utility Library
-- **Moment.js** - JavaScript Date Library
-- **D3.js v7** - Data Visualization Library
-- **GSAP** - High-performance Animation Library
-- **SweetAlert2** - Beautiful JavaScript Alerts
-- **Materialize JS** - JavaScript Components
-
-### 🚀 **Key Benefits**
-
-- ⚡ **Instant Integration**: Add libraries in seconds, no copy-paste required
-- 🔄 **Real-time Updates**: Changes reflect immediately in live preview
-- 💾 **Persistent Storage**: Your library selections are saved across sessions
-- 🔍 **Smart Search**: Find libraries quickly with built-in search functionality
-- 🛡️ **Secure**: Libraries loaded from trusted CDNs with proper CSP headers
-- 📱 **Responsive**: Works perfectly on desktop and mobile devices
-- 🌙 **Theme Support**: Fully compatible with dark/light mode
-- ➕ **Custom URLs**: Add any library by pasting its CDN URL
-
-### 🛠️ **Technical Implementation**
-
-#### **Security Features**
-- **Content Security Policy**: Updated to allow external library loading
-- **URL Validation**: Input validation for custom library URLs
-- **XSS Protection**: Secure iframe injection with proper sanitization
-- Receive guidance on best practices
-- Ask coding questions directly in the editor
-#### **Environment Variables**
-```env
-# Required for AI features
-VITE_GEMINI_API_KEY=your_google_ai_api_key_here
-
-# Optional: Custom server ports
-VITE_DEV_PORT=5173
-VITE_PREVIEW_PORT=4173
-
-# Optional: Feature flags
-VITE_ENABLE_AI_SUGGESTIONS=true
-VITE_ENABLE_EXTERNAL_LIBRARIES=true
-VITE_ENABLE_TERMINAL=true
-```
-
-#### **Vite Configuration** (`vite.config.ts`)
-```typescript
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-  server: {
-    port: 5173,
-    host: true,
-    open: true,
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-    minify: 'terser',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ai: ['@google/generative-ai'],
-          editor: ['monaco-editor'],
-        },
-      },
-    },
-  },
-})
-```
-
-#### **TypeScript Configuration** (`tsconfig.json`)
-```json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "allowImportingTsExtensions": false,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
-}
-```
-
-#### **Tailwind Configuration** (`tailwind.config.js`)
-```javascript
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          900: '#1e3a8a',
-        },
-      },
-      animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out',
-      },
-    },
-  },
-  plugins: [],
-}
-```
-
-### **🔐 Security Configuration**
-
-#### **Content Security Policy**
-```html
-<meta http-equiv="Content-Security-Policy" 
-      content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:;
-               style-src 'self' 'unsafe-inline' https: http:;
-               img-src 'self' data: https: http:;
-               connect-src 'self' https: http:;
-               object-src 'none';
-               base-uri 'self';">
-```
-
-#### **External Library Security**
-- **✅ Trusted CDNs Only**: jsDelivr, unpkg, cdnjs
-- **🔍 URL Validation**: Regex validation for custom URLs
-- **🛡️ XSS Prevention**: HTML sanitization
-- **🔒 Sandbox Isolation**: Iframe-based preview
-- **⚡ CSP Headers**: Strict security policies
-
-## 🎯 Use Cases & Examples
-
-### **🎓 Learning & Education**
-- **Beginner Web Development**: Perfect introduction to HTML, CSS, and JavaScript
-- **Framework Exploration**: Try React, Vue, or other libraries instantly
-- **CSS Framework Learning**: Experiment with Bootstrap, Tailwind, or Bulma
-- **Algorithm Visualization**: Use D3.js or Chart.js for data visualization
-
-### **🚀 Rapid Prototyping**
-- **UI/UX Mockups**: Quick prototype designs with popular frameworks
-- **Interactive Demos**: Build working prototypes in minutes
-- **API Testing**: Test JavaScript libraries and API interactions
-- **Animation Testing**: Experiment with GSAP or CSS animations
-
-### **💼 Professional Development**
-- **Library Evaluation**: Test libraries before committing to projects
-- **Code Review**: Share snippets with team members for feedback
-- **Technical Interviews**: Demonstrate coding skills with live examples
-- **Documentation**: Create interactive documentation with examples
-
-### **📚 Practical Examples**
-
-#### **Example 1: Bootstrap Quick Start**
-```html
-<!-- User adds Bootstrap via External Library Manager -->
-<!-- Then writes: -->
-<div class="container">
-  <div class="row">
-    <div class="col-md-6">
-      <h1>Hello GB Coder!</h1>
-      <button class="btn btn-primary">Click Me</button>
-    </div>
-  </div>
-</div>
-```
-
-#### **Example 2: Chart.js Data Visualization**
-```javascript
-// User adds Chart.js via External Library Manager
-// Then writes:
-const ctx = document.getElementById('myChart').getContext('2d');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    datasets: [{
-      label: 'My First Dataset',
-      data: [12, 19, 3, 5, 2, 3],
-      backgroundColor: [
-        'rgba(255, 99, 132, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(255, 205, 86, 0.2)',
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(255, 159, 64, 0.2)'
-      ],
-    }]
-  }
-});
-```
-
-#### **Example 3: React Component**
-```javascript
-// User adds React via External Library Manager
-// Then writes:
-function Welcome(props) {
-  return <h1>Hello, {props.name}</h1>;
-}
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<Welcome name="GB Coder" />);
-```
-
-## 📖 Detailed Instructions
-
-### **🚀 Quick Start Guide**
-
-#### **Step 1: Access GB Coder**
-1. Open your browser and navigate to `http://localhost:5175` (or your deployed URL)
-2. No login required - start coding immediately!
-
-#### **Step 2: Basic Coding**
-1. **HTML Panel**: Write your HTML structure
-2. **CSS Panel**: Style your elements
-3. **JavaScript Panel**: Add interactivity
-4. **Live Preview**: See changes instantly on the right
-
-#### **Step 3: Add External Libraries** 🆕
-1. **Click the Settings (⚙️) button** in the top navigation
-2. **Browse Libraries**: Scroll through popular options or use search
-**Bootstrap Setup:**
-1. Click Settings → Search "Bootstrap"
-2. Add Bootstrap CSS library
-3. Write HTML with Bootstrap classes
-4. See instant styling in preview
-
-**jQuery Integration:**
-1. Click Settings → Search "jQuery" 
-2. Add jQuery JavaScript library
-3. Write jQuery code in JavaScript panel
-4. Interact with DOM elements
-
-**React Development:**
-1. Click Settings → Add both React and ReactDOM
-2. Write JSX in HTML panel
-3. Write React components in JavaScript panel
-4. Build interactive UIs
-
-**Data Visualization:**
-1. Click Settings → Add Chart.js or D3.js
-2. Create canvas element in HTML
-3. Write visualization code in JavaScript
-4. Generate interactive charts
-
-#### **Custom Library Addition**
-1. **Get CDN URL**: Find the library's CDN link (e.g., from unpkg.com)
-2. **Open Manager**: Click Settings button
-3. **Select Type**: Choose CSS or JavaScript
-4. **Enter URL**: Paste the complete CDN URL
-5. **Add Library**: Click "Add" button
-6. **Verify**: Check it appears in "Current Libraries"
-
-#### **Best Practices**
-- **Order Matters**: Add CSS libraries before JavaScript dependencies
-- **Version Pinning**: Use specific versions (e.g., @5.3.2) for stability
-- **CDN Choice**: Use trusted CDNs (jsDelivr, unpkg, cdnjs)
-- **Library Size**: Be mindful of large libraries for performance
-- **Conflicts**: Remove duplicate libraries to prevent conflicts
-
-## 🚀 Deployment Guide
-
-### **🌐 Production Build**
-
-#### **Build for Production**
 ```bash
-# Install dependencies
-npm install
-
-# Create production build
-npm run build
-
-# Preview production build locally
-npm run preview
+cp .env.example .env
 ```
 
-#### **Deployment Options**
+**Required Variables:**
 
-**Vercel Deployment:**
-```bash
-# Install Vercel CLI
-npm i -g vercel
+| Variable | Description |
+| :--- | :--- |
+| `VITE_GEMINI_API_KEY` | **Required**. Your Google Gemini API Key. Get it from [Google AI Studio](https://aistudio.google.com/app/apikey). |
 
-# Deploy
-vercel --prod
+**Optional Flags:**
+
+| Variable | Default | Description |
+| :--- | :--- | :--- |
+| `VITE_ENABLE_AI_SUGGESTIONS` | `true` | Toggle AI features. |
+| `VITE_ENABLE_EXTERNAL_LIBRARIES` | `true` | Toggle library manager. |
+| `VITE_DEV_PORT` | `5173` | Custom development port. |
+
+### **Running the Project**
+
+*   **Development Server** (with HMR):
+    ```bash
+    npm run dev
+    ```
+    Visit `http://localhost:5173` to see the app.
+
+*   **Production Build**:
+    ```bash
+    npm run build
+    ```
+
+*   **Preview Production Build**:
+    ```bash
+    npm run preview
+    ```
+
+---
+
+## 📂 Project Structure
+
+```text
+GB-Coder-Public-Beta/
+├── src/
+│   ├── components/        # React Components
+│   │   ├── ui/            # Reusable UI elements (Buttons, Modals, etc.)
+│   │   ├── pages/         # Route pages (About, Contact, etc.)
+│   │   └── ...            # Feature-specific components
+│   ├── hooks/             # Custom React Hooks (useAutoSave, useTheme, etc.)
+│   ├── services/          # Business logic & API services (AI, File System)
+│   ├── utils/             # Helper functions & constants
+│   ├── App.tsx            # Main Application Component
+│   └── main.tsx           # Entry Point
+├── public/                # Static assets
+├── .env.example           # Environment variables template
+├── package.json           # Dependencies & Scripts
+├── tailwind.config.js     # Tailwind CSS Configuration
+├── tsconfig.json          # TypeScript Configuration
+└── vite.config.ts         # Vite Configuration
 ```
 
-**Netlify Deployment:**
-```bash
-# Install Netlify CLI
-npm i -g netlify-cli
-
-# Build and deploy
-npm run build
-netlify deploy --prod --dir=dist
-```
-
-**GitHub Pages:**
-```bash
-# Add to package.json scripts
-"deploy": "npm run build && npx gh-pages -d dist"
-
-# Deploy
-npm run deploy
-```
-
-**Docker Deployment:**
-```dockerfile
-FROM node:18-alpine as builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### **🔧 Environment Configuration**
-
-#### **Production Environment Variables**
-```env
-# Production API keys (use secure key management)
-VITE_GEMINI_API_KEY=your_production_api_key
-
-# Feature flags
-VITE_ENABLE_AI_SUGGESTIONS=true
-VITE_ENABLE_EXTERNAL_LIBRARIES=true
-VITE_ENABLE_TERMINAL=true
-
-# Analytics (optional)
-VITE_GOOGLE_ANALYTICS_ID=GA_MEASUREMENT_ID
-VITE_SENTRY_DSN=your_sentry_dsn
-
-# Performance monitoring
-VITE_ENABLE_PERFORMANCE_MONITORING=true
-```
-
-#### **Build Optimization**
-```json
-{
-  "scripts": {
-    "build:analyze": "npm run build && npx vite-bundle-analyzer",
-    "build:prod": "NODE_ENV=production npm run build",
-    "build:staging": "NODE_ENV=staging npm run build"
-  }
-}
-```
-
-## 🌐 Browser Support
-
-GB Coder works on all modern browsers:
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
-
-## 📱 Responsive Design
-
-The editor is fully responsive and works on:
-- Desktop computers
-- Laptops
-| **Firefox** | 85+ | ✅ | Full feature support |
-| **Safari** | 14+ | ✅ | WebKit optimized |
-| **Edge** | 88+ | ✅ | Chromium-based |
-| **Opera** | 74+ | ✅ | Chromium-based |
-| **Mobile Chrome** | 88+ | ✅ | Responsive design |
-| **Mobile Safari** | 14+ | ✅ | Touch optimized |
-
-### **Performance Requirements**
-
-#### **Minimum System Requirements**
-- **RAM**: 2GB available memory
-- **CPU**: Dual-core processor (1.5GHz+)
-- **Storage**: 500MB available space
-- **Network**: Broadband connection for AI features
-
-#### **Recommended System**
-- **RAM**: 4GB+ available memory
-- **CPU**: Quad-core processor (2.0GHz+)
-- **Storage**: 1GB+ available space
-- **Network**: High-speed internet for optimal AI response
-
-#### **Network Requirements**
-- **Development**: 1Mbps+ for hot reloading
-- **AI Features**: 5Mbps+ for optimal AI response
-- **Library Loading**: 10Mbps+ for fast external library loading
-- **Offline Support**: Core features work offline (except AI)
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can contribute:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1.  Fork the project.
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4.  Push to the branch (`git push origin feature/AmazingFeature`).
+5.  Open a Pull Request.
 
-Please ensure your code follows the existing style and includes appropriate tests.
+---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📞 Contact
-
-Girish Lade - [@girish_lade_](https://www.instagram.com/girish_lade_/) - girishlade111@gmail.com
-
-Project Link: [https://github.com/girishlade111/GB-Coder-Public-Beta](https://github.com/girishlade111/GB-Coder-Public-Beta)
-
-## 🙏 Acknowledgments
-
-- [React](https://reactjs.org/)
-- [Vite](https://vitejs.dev/)
-- [Monaco Editor](https://microsoft.github.io/monaco-editor/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Google Generative AI](https://ai.google/)
-- [Lucide Icons](https://lucide.dev/)
-
 ---
+
+## 📞 Contact & Credits
+
+**Created by:** Girish Lade
+*   **Instagram**: [@girish_lade_](https://www.instagram.com/girish_lade_/)
+*   **Email**: girishlade111@gmail.com
+*   **GitHub**: [girishlade111](https://github.com/girishlade111)
 
 <p align="center">
   Made with ❤️ by <a href="https://ladestack.in" target="_blank">Girish Lade</a>
