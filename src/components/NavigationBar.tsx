@@ -288,7 +288,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               setIsDropdownOpen(false);
                             }}
                             className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${aiAssistantOpen
-                              ? 'bg-blue-600 text-blue-100'
+                              ? (isDark ? 'bg-white text-black' : 'bg-black text-white')
                               : isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
@@ -297,7 +297,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                             <Sparkles className="w-4 h-4" />
                             Code Buddy
                             {aiAssistantOpen && (
-                              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white text-blue-600">
+                              <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${isDark ? 'bg-black text-white' : 'bg-white text-black'}`}>
                                 Active
                               </span>
                             )}
@@ -309,7 +309,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               setIsDropdownOpen(false);
                             }}
                             className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${aiSuggestionsOpen
-                              ? 'bg-purple-600 text-purple-100'
+                              ? (isDark ? 'bg-white text-black' : 'bg-black text-white')
                               : isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
@@ -318,7 +318,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                             <Lightbulb className="w-4 h-4" />
                             AI Suggestions
                             {aiSuggestionsOpen && (
-                              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white text-purple-600">
+                              <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${isDark ? 'bg-black text-white' : 'bg-white text-black'}`}>
                                 Active
                               </span>
                             )}
@@ -355,7 +355,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                               setIsDropdownOpen(false);
                             }}
                             className={`px-3 py-2.5 text-sm flex items-center gap-2 transition-colors rounded-lg ${autoSaveEnabled
-                              ? 'bg-green-600 text-green-100'
+                              ? (isDark ? 'bg-white text-black' : 'bg-black text-white')
                               : isDark
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-50'
@@ -364,7 +364,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                             <Save className="w-4 h-4" />
                             Save
                             <span className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${autoSaveEnabled
-                              ? 'bg-white text-green-600'
+                              ? (isDark ? 'bg-black text-white' : 'bg-white text-black')
                               : isDark
                                 ? 'bg-gray-600 text-gray-300'
                                 : 'bg-gray-200 text-gray-600'
