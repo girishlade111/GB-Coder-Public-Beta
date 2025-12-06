@@ -19,6 +19,7 @@ const AboutPage = lazy(() => import('./components/pages/AboutPage'));
 const ProjectBar = lazy(() => import('./components/ProjectBar'));
 const ExtensionsMarketplace = lazy(() => import('./components/ExtensionsMarketplace'));
 const SettingsModal = lazy(() => import('./components/SettingsModal'));
+const HistoryPanel = lazy(() => import('./components/HistoryPanel'));
 
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useCodeHistory } from './hooks/useCodeHistory';
@@ -64,7 +65,7 @@ function App() {
   const { theme, isDark, setTheme, toggleTheme } = useTheme();
   const [snippets, setSnippets] = useLocalStorage<CodeSnippet[]>('gb-coder-snippets', []);
   const [selectionHistory, setSelectionHistory] = useState<HistoryItem[]>([]);
-  const [isSidebarHistoryOpen, setIsSidebarHistoryOpen] = useState(false);
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
   // DEBUG: Fix missing type annotation
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 1024);
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
@@ -582,6 +583,22 @@ function App() {
     }
   };
 
+  // History Panel Handlers
+  const handleJumpToSnapshot = (snapshotId: string) => {
+    const state = codeHistory.jumpToSnapshot(snapshotId);
+    if (state) {
+      setHtml(state.html);
+      setCss(state.css);
+      setJavascript(state.javascript);
+      console.log('Jumped to snapshot');
+    }
+  };
+
+  const handleCreateSnapshot = () => {
+    codeHistory.createSnapshot();
+    console.log('Created manual snapshot');
+  };
+
   const handleCodeUpdate = (language: EditorLanguage, code: string) => {
     codeHistory.saveState({ html, css, javascript }, `AI updated ${language}`);
 
@@ -789,7 +806,7 @@ function App() {
           onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
           onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
           onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
-          onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
+          onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
           onExtensionsToggle={handleExtensionsToggle}
           onSettingsToggle={handleSettingsToggle}
           canUndo={codeHistory.canUndo}
@@ -858,7 +875,7 @@ function App() {
           onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
           onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
           onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
-          onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
+          onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
           onExtensionsToggle={handleExtensionsToggle}
           onSettingsToggle={handleSettingsToggle}
           canUndo={codeHistory.canUndo}
@@ -927,7 +944,7 @@ function App() {
         onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
         onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
         onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
-        onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
+        onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
         onExtensionsToggle={handleExtensionsToggle}
         onSettingsToggle={handleSettingsToggle}
         canUndo={codeHistory.canUndo}
@@ -1175,6 +1192,20 @@ function App() {
       )}
 
 
+
+      {/* History Panel */}
+      <Suspense fallback={null}>
+        <HistoryPanel
+          isOpen={isHistoryPanelOpen}
+          onClose={() => setIsHistoryPanelOpen(false)}
+          history={codeHistory.allHistory}
+          currentIndex={codeHistory.currentIndex}
+          onJumpToSnapshot={handleJumpToSnapshot}
+          onCreateSnapshot={handleCreateSnapshot}
+          getDiffPreview={codeHistory.getDiffPreview}
+        />
+      </Suspense>
+
       {/* Selection Toolbar - Appears when code is selected */}
       {hasSelection && selection.position && (
         <SelectionToolbar
@@ -1188,14 +1219,14 @@ function App() {
 
       {/* Selection Sidebar - Handles Loading, Results, and History */}
       <SelectionSidebar
-        isOpen={selectionOps.isLoading || !!selectionOps.result || isSidebarHistoryOpen}
+        isOpen={selectionOps.isLoading || !!selectionOps.result || isHistoryPanelOpen}
         isLoading={selectionOps.isLoading}
         result={selectionOps.result}
         language={selection.language}
         error={selectionOps.error}
         onClose={() => {
           handleCloseSelectionResult();
-          setIsSidebarHistoryOpen(false);
+          setIsHistoryPanelOpen(false);
         }}
         onApplyChanges={selectionOps.result?.hasCodeChanges ? handleApplySelectionChanges : undefined}
         history={selectionHistory}
@@ -1203,8 +1234,8 @@ function App() {
         onSelectHistory={(item) => {
           selectionOps.setResult(item.result);
         }}
-        isHistoryOpen={isSidebarHistoryOpen}
-        onHistoryToggle={setIsSidebarHistoryOpen}
+        onHistoryToggle={setIsHistoryPanelOpen}
+        isHistoryOpen={isHistoryPanelOpen}
       />
     </div>
   );
