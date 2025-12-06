@@ -18,6 +18,7 @@ const CodeHistoryPage = lazy(() => import('./components/history/CodeHistoryPage'
 const AboutPage = lazy(() => import('./components/pages/AboutPage'));
 const ProjectBar = lazy(() => import('./components/ProjectBar'));
 const ExtensionsMarketplace = lazy(() => import('./components/ExtensionsMarketplace'));
+const SettingsModal = lazy(() => import('./components/SettingsModal'));
 
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useCodeHistory } from './hooks/useCodeHistory';
@@ -28,6 +29,7 @@ import { useCodeExplanation } from './hooks/useCodeExplanation';
 import { useCodeSelection } from './hooks/useCodeSelection';
 import { useSelectionOperations } from './hooks/useSelectionOperations';
 import { useProject } from './hooks/useProject';
+import { useSettings } from './hooks/useSettings';
 import SelectionToolbar from './components/SelectionToolbar';
 import SelectionSidebar from './components/SelectionSidebar';
 import { downloadAsZip } from './utils/downloadUtils';
@@ -76,6 +78,10 @@ function App() {
   const [showExternalLibraryManager, setShowExternalLibraryManager] = useState<boolean>(false);
   const [externalLibraries, setExternalLibraries] = useState<ExternalLibrary[]>([]);
   const [showExtensionsMarketplace, setShowExtensionsMarketplace] = useState<boolean>(false);
+  const [showSettings, setShowSettings] = useState<boolean>(false);
+
+  // Settings
+  const { settings, updateSettings, getFontFamilyCSS } = useSettings();
 
   // Project Management
   const project = useProject(html, css, javascript, externalLibraries);
@@ -293,6 +299,10 @@ function App() {
 
   const handleExtensionsToggle = () => {
     setShowExtensionsMarketplace(!showExtensionsMarketplace);
+  };
+
+  const handleSettingsToggle = () => {
+    setShowSettings(!showSettings);
   };
 
   const handleExternalLibrariesChange = (libraries: ExternalLibrary[]) => {
@@ -781,6 +791,7 @@ function App() {
           onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
           onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
           onExtensionsToggle={handleExtensionsToggle}
+          onSettingsToggle={handleSettingsToggle}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -849,6 +860,7 @@ function App() {
           onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
           onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
           onExtensionsToggle={handleExtensionsToggle}
+          onSettingsToggle={handleSettingsToggle}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -917,6 +929,7 @@ function App() {
         onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
         onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
         onExtensionsToggle={handleExtensionsToggle}
+        onSettingsToggle={handleSettingsToggle}
         canUndo={codeHistory.canUndo}
         canRedo={codeHistory.canRedo}
         autoSaveEnabled={autoSaveEnabled}
@@ -966,6 +979,8 @@ function App() {
               isFormatLoading={formatLoadingStates.html}
               editorRef={htmlEditorRef}
               onSelectionChange={(editor) => handleSelectionChange(editor, 'html')}
+              fontFamily={getFontFamilyCSS(settings.editorFontFamily)}
+              fontSize={settings.editorFontSize}
             />
 
             <EditorPanel
@@ -980,6 +995,8 @@ function App() {
               isFormatLoading={formatLoadingStates.css}
               editorRef={cssEditorRef}
               onSelectionChange={(editor) => handleSelectionChange(editor, 'css')}
+              fontFamily={getFontFamilyCSS(settings.editorFontFamily)}
+              fontSize={settings.editorFontSize}
             />
 
             <EditorPanel
@@ -994,6 +1011,8 @@ function App() {
               isFormatLoading={formatLoadingStates.javascript}
               editorRef={jsEditorRef}
               onSelectionChange={(editor) => handleSelectionChange(editor, 'javascript')}
+              fontFamily={getFontFamilyCSS(settings.editorFontFamily)}
+              fontSize={settings.editorFontSize}
             />
           </div>
 
@@ -1004,6 +1023,8 @@ function App() {
               css={css}
               javascript={javascript}
               onConsoleLog={handleConsoleLog}
+              autoRunJS={settings.autoRunJS}
+              previewDelay={settings.previewDelay}
             />
 
             <Suspense fallback={
@@ -1083,6 +1104,14 @@ function App() {
           onClose={() => setShowExternalLibraryManager(false)}
           libraries={externalLibraries}
           onLibrariesChange={handleExternalLibrariesChange}
+        />
+      </Suspense>
+
+      {/* Settings Modal */}
+      <Suspense fallback={null}>
+        <SettingsModal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
         />
       </Suspense>
 

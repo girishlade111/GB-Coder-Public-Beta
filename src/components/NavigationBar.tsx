@@ -39,6 +39,7 @@ interface NavigationBarProps {
   onExternalLibraryManagerToggle: () => void;
   onHistoryToggle: () => void;
   onExtensionsToggle: () => void;
+  onSettingsToggle: () => void;
   canUndo: boolean;
   canRedo: boolean;
   autoSaveEnabled: boolean;
@@ -68,6 +69,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   onExternalLibraryManagerToggle,
   onHistoryToggle,
   onExtensionsToggle,
+  onSettingsToggle,
   canUndo,
   canRedo,
   autoSaveEnabled,
@@ -241,13 +243,13 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
               {/* Settings Button */}
               <button
-                onClick={onExternalLibraryManagerToggle}
+                onClick={onSettingsToggle}
                 className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${isDark
                   ? 'text-bright-white hover:bg-dark-gray'
                   : 'text-gray-600 hover:bg-gray-100'
                   }`}
-                title="External Library Manager"
-                aria-label="External Library Manager"
+                title="Settings"
+                aria-label="Settings"
               >
                 <Settings className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
               </button>

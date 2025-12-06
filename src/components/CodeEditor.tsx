@@ -11,6 +11,8 @@ interface CodeEditorProps {
   readOnly?: boolean;
   editorRef?: React.MutableRefObject<any>;
   onSelectionChange?: (editor: any) => void;
+  fontFamily?: string;
+  fontSize?: number;
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -22,6 +24,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   readOnly = false,
   editorRef,
   onSelectionChange,
+  fontFamily = 'JetBrains Mono, Monaco, Consolas, monospace',
+  fontSize = 14,
 }) => {
   const internalEditorRef = useRef<any>(null);
 
@@ -80,8 +84,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         theme="vs-dark"
         options={{
           minimap: { enabled: false },
-          fontSize: 14,
-          fontFamily: 'JetBrains Mono, Monaco, Consolas, monospace',
+          fontSize: fontSize,
+          fontFamily: fontFamily,
           lineNumbers: 'on',
           roundedSelection: false,
           scrollBeyondLastLine: false,

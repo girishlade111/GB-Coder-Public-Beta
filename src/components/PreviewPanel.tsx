@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { RefreshCw, ExternalLink, Monitor, Tablet, Smartphone, Maximize2, X } from 'lucide-react';
+import { RefreshCw, ExternalLink, Monitor, Tablet, Smartphone, Maximize2, X, Play } from 'lucide-react';
 import { ConsoleLog } from '../types';
 import { externalLibraryService } from '../services/externalLibraryService';
 
@@ -10,17 +10,22 @@ interface PreviewPanelProps {
   css: string;
   javascript: string;
   onConsoleLog: (log: ConsoleLog) => void;
+  autoRunJS?: boolean;
+  previewDelay?: number;
 }
 
 const PreviewPanel: React.FC<PreviewPanelProps> = ({
   html,
   css,
   javascript,
-  onConsoleLog
+  onConsoleLog,
+  autoRunJS = true,
+  previewDelay = 300,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('desktop');
+  const [manualRunTrigger, setManualRunTrigger] = useState(0);
 
   // Sanitize code input to prevent XSS attacks
   const sanitizeCode = (code: string, language: string): string => {
@@ -182,9 +187,13 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
     }
   };
 
+  // Refresh preview with debounce - HTML/CSS always update, JS only if autoRunJS is true
   useEffect(() => {
-    refreshPreview();
-  }, [html, css, javascript]);
+    const timeoutId = setTimeout(() => {
+      refreshPreview();
+    }, previewDelay);
+    return () => clearTimeout(timeoutId);
+  }, [html, css, autoRunJS ? javascript : '', previewDelay, manualRunTrigger]);
 
   // Refresh preview when external libraries change
   useEffect(() => {
@@ -269,8 +278,8 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
             <button
               onClick={() => handleViewModeChange('mobile')}
               className={`p-1.5 rounded transition-all ${viewMode === 'mobile'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
                 }`}
               title="Mobile View (375px)"
             >
@@ -279,8 +288,8 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
             <button
               onClick={() => handleViewModeChange('tablet')}
               className={`p-1.5 rounded transition-all ${viewMode === 'tablet'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
                 }`}
               title="Tablet View (768px)"
             >
@@ -289,8 +298,8 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
             <button
               onClick={() => handleViewModeChange('desktop')}
               className={`p-1.5 rounded transition-all ${viewMode === 'desktop'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
                 }`}
               title="Desktop View (Full Width)"
             >
@@ -319,6 +328,16 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
+            {/* Manual Run JS Button - only shown when auto-run is disabled */}
+            {!autoRunJS && (
+              <button
+                onClick={() => setManualRunTrigger(prev => prev + 1)}
+                className="p-1.5 hover:bg-gray-700 rounded text-green-400 hover:text-green-300 transition-colors"
+                title="Run JavaScript"
+              >
+                <Play className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={openInNewTab}
               className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
