@@ -7,14 +7,16 @@ interface UseAutoSaveProps {
   javascript: string;
   interval?: number;
   enabled?: boolean;
+  projectId?: string; // Optional project ID for project-scoped storage
 }
 
-export const useAutoSave = ({ 
-  html, 
-  css, 
-  javascript, 
+export const useAutoSave = ({
+  html,
+  css,
+  javascript,
   interval = 30000, // 30 seconds
-  enabled = true 
+  enabled = true,
+  projectId // Optional project ID
 }: UseAutoSaveProps) => {
   const [lastSaveTime, setLastSaveTime] = useLocalStorage<string | null>('gb-coder-last-save', null);
   const [isSaving, setIsSaving] = useState(false);
@@ -30,16 +32,21 @@ export const useAutoSave = ({
     if (!enabled) return;
 
     const currentHash = createContentHash(html, css, javascript);
-    
+
     // Only save if content has changed
     if (currentHash === lastContentRef.current) return;
 
     setIsSaving(true);
     try {
       const timestamp = new Date().toISOString();
-      
+
+      // Use project-scoped key if projectId is available, otherwise use global key
+      const storageKey = projectId
+        ? `gb-coder-project-autosave-${projectId}`
+        : 'gb-coder-autosave';
+
       // Save to local storage
-      localStorage.setItem('gb-coder-autosave', JSON.stringify({
+      localStorage.setItem(storageKey, JSON.stringify({
         html,
         css,
         javascript,
@@ -48,10 +55,10 @@ export const useAutoSave = ({
 
       lastContentRef.current = currentHash;
       setLastSaveTime(timestamp);
-      
+
       // Dispatch custom event for UI feedback
-      window.dispatchEvent(new CustomEvent('autosave', { 
-        detail: { timestamp } 
+      window.dispatchEvent(new CustomEvent('autosave', {
+        detail: { timestamp, projectId }
       }));
     } catch (error) {
       console.error('Auto-save failed:', error);
@@ -78,14 +85,14 @@ export const useAutoSave = ({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [html, css, javascript, interval, enabled]);
+  }, [html, css, javascript, interval, enabled, projectId]);
 
   // Manual save function
   const manualSave = async (title?: string) => {
     setIsSaving(true);
     try {
       const timestamp = new Date().toISOString();
-      
+
       // Save to local storage
       localStorage.setItem('gb-coder-manual-save', JSON.stringify({
         html,

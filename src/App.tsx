@@ -16,6 +16,7 @@ const CodeExplanationPopup = lazy(() => import('./components/CodeExplanationPopu
 const ExternalLibraryManager = lazy(() => import('./components/ExternalLibraryManager'));
 const CodeHistoryPage = lazy(() => import('./components/history/CodeHistoryPage'));
 const AboutPage = lazy(() => import('./components/pages/AboutPage'));
+const ProjectBar = lazy(() => import('./components/ProjectBar'));
 
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useCodeHistory } from './hooks/useCodeHistory';
@@ -25,6 +26,7 @@ import { useTheme } from './hooks/useTheme';
 import { useCodeExplanation } from './hooks/useCodeExplanation';
 import { useCodeSelection } from './hooks/useCodeSelection';
 import { useSelectionOperations } from './hooks/useSelectionOperations';
+import { useProject } from './hooks/useProject';
 import SelectionToolbar from './components/SelectionToolbar';
 import SelectionSidebar from './components/SelectionSidebar';
 import { downloadAsZip } from './utils/downloadUtils';
@@ -72,6 +74,9 @@ function App() {
   const [showExternalLibraryManager, setShowExternalLibraryManager] = useState<boolean>(false);
   const [externalLibraries, setExternalLibraries] = useState<ExternalLibrary[]>([]);
 
+  // Project Management
+  const project = useProject(html, css, javascript, externalLibraries);
+
   // AI Enhancement states
   const [aiPopupOpen, setAiPopupOpen] = useState<boolean>(false);
   const [aiPopupLanguage, setAiPopupLanguage] = useState<EditorLanguage>('html');
@@ -111,14 +116,16 @@ function App() {
   // Code history for undo/redo functionality
   const codeHistory = useCodeHistory({ html, css, javascript });
 
-  // Auto-save functionality (local storage only)
+  // Auto-save functionality (project-aware)
   const autoSave = useAutoSave({
     html,
     css,
     javascript,
     interval: 30000, // 30 seconds
     enabled: autoSaveEnabled,
+    projectId: project.currentProject?.id, // Make auto-save project-aware
   });
+
 
   // File upload functionality
   const fileUpload = useFileUpload({
@@ -238,6 +245,33 @@ function App() {
     }
   }, []);
 
+  // Sync project code when html/css/javascript changes
+  useEffect(() => {
+    if (project.currentProject) {
+      project.updateProjectCode(html, css, javascript);
+    }
+  }, [html, css, javascript]);
+
+  // Sync external libraries with project
+  useEffect(() => {
+    if (project.currentProject) {
+      project.updateExternalLibraries(externalLibraries);
+    }
+  }, [externalLibraries]);
+
+  // Load project code when project changes
+  useEffect(() => {
+    if (project.currentProject && !project.isLoading) {
+      const proj = project.currentProject;
+      if (proj.html !== html || proj.css !== css || proj.javascript !== javascript) {
+        setHtml(proj.html);
+        setCss(proj.css);
+        setJavascript(proj.javascript);
+        setExternalLibraries(proj.externalLibraries);
+      }
+    }
+  }, [project.currentProject?.id]);
+
   // External Library Manager handlers
   const handleExternalLibraryManagerToggle = () => {
     setShowExternalLibraryManager(!showExternalLibraryManager);
@@ -250,6 +284,18 @@ function App() {
     window.dispatchEvent(new CustomEvent('external-libraries-updated'));
 
     console.log(`External libraries updated: ${libraries.length} libraries loaded`);
+  };
+
+  // Project handlers
+  const handleNewProject = () => {
+    const name = prompt('Enter project name:', 'New Project');
+    if (name) {
+      project.createNewProject(name);
+    }
+  };
+
+  const handleSwitchProject = (id: string) => {
+    project.switchProject(id);
   };
 
   const handleConsoleLog = useCallback((log: ConsoleLog) => {
@@ -831,12 +877,6 @@ function App() {
         aiSuggestionsOpen={showAISuggestions}
         customActions={
           <div className="flex items-center gap-4">
-            <SaveStatusIndicator
-              lastSaveTime={autoSave.lastSaveTime}
-              isSaving={autoSave.isSaving}
-              onManualSave={handleManualSave}
-              autoSaveEnabled={autoSaveEnabled}
-            />
             <button
               onClick={() => setCurrentView('history')}
               className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
@@ -846,6 +886,21 @@ function App() {
           </div>
         }
       />
+
+      {/* Project Bar */}
+      <Suspense fallback={null}>
+        <ProjectBar
+          currentProject={project.currentProject}
+          projectList={project.projectList}
+          isSaving={project.isSaving}
+          onSave={project.saveCurrentProject}
+          onDuplicate={project.duplicateCurrentProject}
+          onNewProject={handleNewProject}
+          onSwitchProject={handleSwitchProject}
+          onUpdateName={project.updateProjectName}
+        />
+      </Suspense>
+
 
       {/* Main Content */}
       <div className="flex-1 px-2 sm:px-4 lg:px-6 py-6">

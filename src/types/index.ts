@@ -258,3 +258,5 @@ export interface HistoryItem {
   codePreview: string;
   result: SelectionOperationResult;
 }
+// Project Management Types
+export * from './project';
