@@ -419,14 +419,20 @@ function App() {
     setSnippets(prev => prev.filter(s => s.id !== id));
   };
 
-  const resetCode = () => {
+  const resetCode = async () => {
     codeHistory.saveState({ html, css, javascript }, 'Reset to default');
 
+    // Reset code to defaults
     setHtml(defaultHTML);
     setCss(defaultCSS);
     setJavascript(defaultJS);
     setConsoleLogs([]);
     setDismissedSuggestions(new Set());
+
+    // Reset project name to default
+    if (project.currentProject) {
+      await project.updateProjectName('Untitled Project');
+    }
   };
 
   const handleApplySuggestion = (suggestion: AISuggestion) => {
