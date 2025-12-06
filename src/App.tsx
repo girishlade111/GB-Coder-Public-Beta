@@ -1104,7 +1104,7 @@ function App() {
         />
       </Suspense>
 
-      {/* Code Buddy - Floating AI Assistant */}
+      {/* Code Buddy - Sidebar AI Assistant */}
       {showGeminiAssistant && (
         <Suspense fallback={null}>
           <GeminiCodeAssistant

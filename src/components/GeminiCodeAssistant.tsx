@@ -8,8 +8,6 @@ import {
   AlertCircle,
   Code,
   X,
-  Maximize2,
-  Minimize2,
   Paperclip,
   FileText,
   Plus
@@ -43,17 +41,7 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   const [messages, setMessages] = useState<GeminiChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
-
-  // Window position and size state - Bottom Right Corner
-  const [position, setPosition] = useState({ x: window.innerWidth - 424, y: window.innerHeight - 520 });
-  const [size, setSize] = useState({ width: 400, height: 500 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
   // Attachments state
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -92,7 +80,6 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const windowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setApiKeyConfigured(aiCodeAssistant.isConfigured());
@@ -155,66 +142,8 @@ How can I help you today?`,
     scrollToBottom();
   }, [messages]);
 
-  // Handle mouse move for dragging
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y
-        });
-      } else if (isResizing) {
-        const deltaX = e.clientX - resizeStart.x;
-        const deltaY = e.clientY - resizeStart.y;
-
-        setSize({
-          width: Math.max(320, resizeStart.width + deltaX),
-          height: Math.max(400, resizeStart.height + deltaY)
-        });
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      setIsResizing(false);
-    };
-
-    if (isDragging || isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, isResizing, dragOffset, resizeStart]);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.drag-handle')) {
-      setIsDragging(true);
-      const rect = windowRef.current?.getBoundingClientRect();
-      if (rect) {
-        setDragOffset({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        });
-      }
-    }
-  };
-
-  const handleResizeMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsResizing(true);
-    setResizeStart({
-      x: e.clientX,
-      y: e.clientY,
-      width: size.width,
-      height: size.height
-    });
   };
 
   // File handling
@@ -786,389 +715,268 @@ How can I help you today?`,
 
   if (!apiKeyConfigured) {
     return (
-      <div
-        ref={windowRef}
-        className="fixed bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          width: `${size.width}px`
-        }}
-      >
+      <>
+        {/* Backdrop */}
         <div
-          className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 cursor-move drag-handle"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-          onMouseDown={handleMouseDown}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
-            <Sparkles className="w-5 h-5 text-white" style={{ flexShrink: 0 }} />
-            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Code Buddy</h3>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px', flexShrink: 0 }}>
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+          onClick={onClose}
+        />
+
+        {/* Sidebar */}
+        <div className="fixed right-0 top-0 h-full w-full md:w-[400px] bg-matte-black border-l border-gray-800 shadow-2xl z-50 flex flex-col animate-slideIn">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-matte-black">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gray-800 rounded-lg">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-white">Code Buddy</h2>
+                <p className="text-xs text-gray-400">AI Code Assistant</p>
+              </div>
+            </div>
             <button
               onClick={onClose}
-              style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(239,68,68,0.3)', borderRadius: '8px', border: 'none', cursor: 'pointer' }}
-              title="Close"
+              className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors"
             >
-              <X style={{ width: '16px', height: '16px', color: 'white' }} />
+              <X className="w-5 h-5" />
             </button>
-          </div>
-        </div>
-        <div className="p-6 text-center">
-          <Sparkles className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-200 mb-2">Gemini API Key Required</h3>
-          <p className="text-gray-400 mb-4">
-            To use Code Buddy, please add your API key to the environment variables.
-          </p>
-          <div className="bg-gray-800 rounded-lg p-4 text-left">
-            <p className="text-sm text-gray-300 mb-2">Add to your .env file:</p>
-            <code className="text-green-400 text-sm">VITE_GEMINI_API_KEY=your_api_key_here</code>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Minimized view
-  if (isMinimized) {
-    return (
-      <div
-        ref={windowRef}
-        className="fixed bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50 cursor-move"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          width: '280px'
-        }}
-        onMouseDown={handleMouseDown}
-      >
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 drag-handle">
-          {/* Row 1: Title */}
-          <div style={{ padding: '12px 16px 8px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Sparkles style={{ width: '20px', height: '20px', color: 'white' }} />
-            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'white', margin: 0 }}>Code Buddy</h3>
           </div>
 
-          {/* Row 2: Action Buttons */}
-          <div style={{ padding: '0 16px 12px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button
-              onClick={() => setIsMinimized(false)}
-              style={{
-                padding: '6px 12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                borderRadius: '6px',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'white',
-                fontSize: '12px'
-              }}
-              title="Restore"
-            >
-              <Maximize2 style={{ width: '14px', height: '14px' }} />
-              Restore
-            </button>
-            <button
-              onClick={onClose}
-              style={{
-                padding: '6px 12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                backgroundColor: 'rgba(239,68,68,0.4)',
-                borderRadius: '6px',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'white',
-                fontSize: '12px'
-              }}
-              title="Close"
-            >
-              <X style={{ width: '14px', height: '14px' }} />
-              Close
-            </button>
+          {/* Content */}
+          <div className="flex-1 flex items-center justify-center p-6 text-center">
+            <div>
+              <Sparkles className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-200 mb-2">Gemini API Key Required</h3>
+              <p className="text-gray-400 mb-4">
+                To use Code Buddy, please add your API key to the environment variables.
+              </p>
+              <div className="bg-gray-800 rounded-lg p-4 text-left max-w-md mx-auto">
+                <p className="text-sm text-gray-300 mb-2">Add to your .env file:</p>
+                <code className="text-green-400 text-sm">VITE_GEMINI_API_KEY=your_api_key_here</code>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+
+        <style>{`
+          @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+          }
+          .animate-slideIn {
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+        `}</style>
+      </>
     );
   }
 
   return (
-    <div
-      ref={windowRef}
-      className={`fixed bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50 ${isExpanded ? 'inset-4' : ''
-        }`}
-      style={!isExpanded ? {
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: `${size.width}px`,
-        height: `${size.height}px`
-      } : {}}
-    >
-      {/* Header - Two Row Layout */}
+    <>
+      {/* Backdrop */}
       <div
-        className="bg-gradient-to-r from-blue-600 to-purple-600 cursor-move drag-handle"
-        onMouseDown={handleMouseDown}
-      >
-        {/* Row 1: Title */}
-        <div style={{ padding: '12px 16px 8px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Sparkles style={{ width: '20px', height: '20px', color: 'white' }} />
-          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'white', margin: 0 }}>Code Buddy</h3>
-        </div>
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+        onClick={onClose}
+      />
 
-        {/* Row 2: Action Buttons */}
-        <div style={{ padding: '0 16px 12px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button
-            onClick={handleNewChat}
-            style={{
-              padding: '6px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'white',
-              fontSize: '12px'
-            }}
-            title="New Chat"
-          >
-            <Plus style={{ width: '14px', height: '14px' }} />
-            New
-          </button>
-          <button
-            onClick={() => setIsMinimized(true)}
-            style={{
-              padding: '6px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'white',
-              fontSize: '12px'
-            }}
-            title="Minimize"
-          >
-            <Minimize2 style={{ width: '14px', height: '14px' }} />
-            Min
-          </button>
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            style={{
-              padding: '6px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'white',
-              fontSize: '12px'
-            }}
-            title={isExpanded ? "Restore" : "Maximize"}
-          >
-            {isExpanded ? <Minimize2 style={{ width: '14px', height: '14px' }} /> : <Maximize2 style={{ width: '14px', height: '14px' }} />}
-            {isExpanded ? 'Restore' : 'Max'}
-          </button>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '6px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              backgroundColor: 'rgba(239,68,68,0.4)',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'white',
-              fontSize: '12px'
-            }}
-            title="Close"
-          >
-            <X style={{ width: '14px', height: '14px' }} />
-            Close
-          </button>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className={`overflow-y-auto p-4 space-y-4 ${isExpanded ? 'h-[calc(100vh-200px)]' : 'flex-1'
-        }`}
-        style={!isExpanded ? { height: `calc(${size.height}px - 140px)` } : {}}
-      >
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${message.type === 'user'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-tr-sm'
-                : 'bg-gray-700/50 text-gray-100 rounded-tl-sm backdrop-blur-sm'
-                }`}
+      {/* Sidebar */}
+      <div className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-matte-black border-l border-gray-800 shadow-2xl z-50 flex flex-col animate-slideIn">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-matte-black">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gray-800 rounded-lg">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-white">Code Buddy</h2>
+              <p className="text-xs text-gray-400">AI Code Assistant</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleNewChat}
+              className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors"
+              title="New Chat"
             >
-              <div className="prose prose-sm max-w-none">
-                {renderMessageContent(message.content)}
-              </div>
-
-              <div className="text-xs opacity-70 mt-2">
-                {new Date(message.timestamp).toLocaleTimeString()}
-              </div>
-            </div>
+              <Plus className="w-5 h-5" />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        ))}
+        </div>
 
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-700/50 rounded-2xl rounded-tl-sm p-4 flex items-center gap-3 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 animate-pulse text-blue-400" />
-              <span className="text-gray-300 text-sm font-medium">Thinking...</span>
-            </div>
-          </div>
-        )}
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-matte-black">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[85%] rounded-lg p-4 ${message.type === 'user'
+                  ? 'bg-white text-matte-black border border-gray-700'
+                  : 'bg-gray-800 text-gray-100 border border-gray-700'
+                  }`}
+              >
+                <div className="prose prose-sm max-w-none">
+                  {renderMessageContent(message.content)}
+                </div>
 
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div
-        className={`bg-gray-800/95 backdrop-blur border-t border-gray-700/50 p-4 transition-colors ${isDragOver ? 'bg-blue-900/50 border-blue-500' : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        {/* Mention Popup */}
-        {showMentionPopup && (
-          <div className="absolute bottom-full left-4 mb-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 animate-in slide-in-from-bottom-2 duration-200">
-            <div className="p-2 border-b border-gray-700 text-xs font-medium text-gray-400">
-              Mention file
-            </div>
-            <div className="max-h-48 overflow-y-auto">
-              {['html', 'css', 'javascript'].filter(t => t.includes(mentionFilter)).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => handleMentionSelect(type as any)}
-                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition-colors"
-                >
-                  <Code className="w-4 h-4" />
-                  <span>Current {type.toUpperCase()}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Attachments Preview */}
-        {attachments.length > 0 && (
-          <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
-            {attachments.map(att => (
-              <div key={att.id} className="relative group flex-shrink-0">
-                <div className="bg-gray-700/80 rounded-lg p-2 flex items-center gap-2 border border-gray-600">
-                  {att.type === 'image' ? (
-                    <div className="w-8 h-8 rounded overflow-hidden bg-gray-800">
-                      <img src={att.content} alt={att.name} className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <FileText className="w-8 h-8 text-blue-400 p-1" />
-                  )}
-                  <span className="text-xs text-gray-300 max-w-[100px] truncate">{att.name}</span>
-                  <button
-                    onClick={() => removeAttachment(att.id)}
-                    className="absolute -top-1.5 -right-1.5 bg-gray-600 rounded-full p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-500"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
+                <div className="text-xs opacity-70 mt-2">
+                  {new Date(message.timestamp).toLocaleTimeString()}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-
-        {isDragOver && (
-          <div className="absolute inset-0 bg-blue-900/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
-            <div className="text-center">
-              <Paperclip className="w-8 h-8 text-blue-300 mx-auto mb-2 animate-bounce" />
-              <p className="text-blue-200 font-medium">Drop files to attach</p>
             </div>
-          </div>
-        )}
+          ))}
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-            title="Attach files"
-          >
-            <Paperclip className="w-5 h-5" />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            className="hidden"
-            onChange={handleFileSelect}
-          />
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputMessage}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            placeholder={
-              modificationState.isActive
-                ? `${modificationState.step === 'lineNumber' ? 'Enter line number...' :
-                  modificationState.step === 'action' ? 'Select action (1 or 2)...' :
-                    'Confirm changes (Y/N)...'}`
-                : "Ask me anything about your code..."
-            }
-            className="flex-1 bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-            disabled={isLoading}
-          />
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 flex items-center gap-3">
+                <Sparkles className="w-4 h-4 animate-pulse text-white" />
+                <span className="text-gray-300 text-sm font-medium">Thinking...</span>
+              </div>
+            </div>
+          )}
 
-          <button
-            onClick={handleSendMessage}
-            disabled={isLoading || !inputMessage.trim()}
-            className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-          >
-            <Send className="w-4 h-4" />
-          </button>
+          <div ref={messagesEndRef} />
         </div>
 
-        <div className="mt-2 text-xs text-gray-500">
-          💡 Try: "Create a responsive navbar", "Generate CSS grid", "Modify line 15", "Fix my JavaScript"
-        </div>
-      </div>
-
-      {/* Resize Handle */}
-      {!isExpanded && (
+        {/* Input */}
         <div
-          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-gray-700 hover:bg-gray-600"
-          onMouseDown={handleResizeMouseDown}
-          style={{
-            clipPath: 'polygon(100% 0, 100% 100%, 0 100%)'
+          className={`bg-gray-900 border-t border-gray-800 p-4 transition-colors ${isDragOver ? 'bg-blue-900/50 border-blue-500' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          {/* Mention Popup */}
+          {showMentionPopup && (
+            <div className="absolute bottom-full left-4 mb-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 animate-in slide-in-from-bottom-2 duration-200">
+              <div className="p-2 border-b border-gray-700 text-xs font-medium text-gray-400">
+                Mention file
+              </div>
+              <div className="max-h-48 overflow-y-auto">
+                {['html', 'css', 'javascript'].filter(t => t.includes(mentionFilter)).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => handleMentionSelect(type as any)}
+                    className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white flex items-center gap-2 transition-colors"
+                  >
+                    <Code className="w-4 h-4" />
+                    <span>Current {type.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Attachments Preview */}
+          {attachments.length > 0 && (
+            <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
+              {attachments.map(att => (
+                <div key={att.id} className="relative group flex-shrink-0">
+                  <div className="bg-gray-700/80 rounded-lg p-2 flex items-center gap-2 border border-gray-600">
+                    {att.type === 'image' ? (
+                      <div className="w-8 h-8 rounded overflow-hidden bg-gray-800">
+                        <img src={att.content} alt={att.name} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <FileText className="w-8 h-8 text-blue-400 p-1" />
+                    )}
+                    <span className="text-xs text-gray-300 max-w-[100px] truncate">{att.name}</span>
+                    <button
+                      onClick={() => removeAttachment(att.id)}
+                      className="absolute -top-1.5 -right-1.5 bg-gray-600 rounded-full p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-500"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {isDragOver && (
+            <div className="absolute inset-0 bg-blue-900/80 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
+              <div className="text-center">
+                <Paperclip className="w-8 h-8 text-blue-300 mx-auto mb-2 animate-bounce" />
+                <p className="text-blue-200 font-medium">Drop files to attach</p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+              title="Attach files"
+            >
+              <Paperclip className="w-5 h-5" />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputMessage}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              placeholder={
+                modificationState.isActive
+                  ? `${modificationState.step === 'lineNumber' ? 'Enter line number...' :
+                    modificationState.step === 'action' ? 'Select action (1 or 2)...' :
+                      'Confirm changes (Y/N)...'}`
+                  : "Ask me anything about your code..."
+              }
+              className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              disabled={isLoading}
+            />
+
+            <button
+              onClick={handleSendMessage}
+              disabled={isLoading || !inputMessage.trim()}
+              className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="mt-2 text-xs text-gray-500">
+            💡 Try: "Create a responsive navbar", "Generate CSS grid", "Modify line 15", "Fix my JavaScript"
+          </div>
+        </div>
+
+        {/* Code Write Confirmation Modal */}
+        <CodeWriteConfirmationModal
+          isOpen={showCodeConfirmation}
+          onAgree={handleAgreeToSectionMode}
+          onDecline={handleDeclineSectionMode}
+          onClose={() => {
+            setShowCodeConfirmation(false);
+            setPendingCode(null);
           }}
         />
-      )}
+      </div>
 
-      {/* Code Write Confirmation Modal */}
-      <CodeWriteConfirmationModal
-        isOpen={showCodeConfirmation}
-        onAgree={handleAgreeToSectionMode}
-        onDecline={handleDeclineSectionMode}
-        onClose={() => {
-          setShowCodeConfirmation(false);
-          setPendingCode(null);
-        }}
-      />
-    </div>
+      <style>{`
+        @keyframes slideIn {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+        .animate-slideIn {
+          animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      `}</style>
+    </>
   );
 };
 
