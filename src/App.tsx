@@ -8,7 +8,7 @@ import Footer from './components/ui/Footer';
 
 // Lazy load heavy components
 const EnhancedConsole = lazy(() => import('./components/EnhancedConsole'));
-const SnippetManager = lazy(() => import('./components/SnippetManager'));
+const SnippetsSidebar = lazy(() => import('./components/SnippetsSidebar'));
 const AISuggestionPanel = lazy(() => import('./components/AISuggestionPanel'));
 const GeminiCodeAssistant = lazy(() => import('./components/GeminiCodeAssistant'));
 const AIEnhancementPopup = lazy(() => import('./components/AIEnhancementPopup'));
@@ -424,7 +424,7 @@ function App() {
   // NEW: Insert snippet (append to editors)
   const insertSnippet = (snippet: CodeSnippet) => {
     codeHistory.saveState({ html, css, javascript }, `Inserted snippet: ${snippet.name}`);
-    
+
     // Insert based on snippet type
     const snippetType = snippet.type || 'full';
     switch (snippetType) {
@@ -444,7 +444,7 @@ function App() {
         if (snippet.javascript) setJavascript(prev => prev + '\n' + snippet.javascript);
         break;
     }
-    
+
     setConsoleLogs([]);
   };
   const deleteSnippet = (id: string) => {
@@ -1025,20 +1025,20 @@ function App() {
               </Suspense>
             )}
 
-            {/* Snippets Panel */}
-            {showSnippets && (
-              <Suspense fallback={null}>
-                <SnippetManager
-                  snippets={snippets}
-                  onSave={saveSnippet}
-                  onLoad={loadSnippet}
-                  onInsert={insertSnippet}
-                  onDelete={deleteSnippet}
-                  onUpdate={updateSnippet}
-                  currentCode={{ html, css, javascript }}
-                />
-              </Suspense>
-            )}
+            {/* Snippets Sidebar */}
+            <Suspense fallback={null}>
+              <SnippetsSidebar
+                isOpen={showSnippets}
+                onClose={() => setShowSnippets(false)}
+                snippets={snippets}
+                onSave={saveSnippet}
+                onLoad={loadSnippet}
+                onInsert={insertSnippet}
+                onDelete={deleteSnippet}
+                onUpdate={updateSnippet}
+                currentCode={{ html, css, javascript }}
+              />
+            </Suspense>
           </div>
         </div>
       </div>
