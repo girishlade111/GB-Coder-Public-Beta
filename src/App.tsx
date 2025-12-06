@@ -16,6 +16,7 @@ const CodeExplanationPopup = lazy(() => import('./components/CodeExplanationPopu
 const ExternalLibraryManager = lazy(() => import('./components/ExternalLibraryManager'));
 const CodeHistoryPage = lazy(() => import('./components/history/CodeHistoryPage'));
 const AboutPage = lazy(() => import('./components/pages/AboutPage'));
+const DocumentationPage = lazy(() => import('./components/pages/DocumentationPage'));
 const ProjectBar = lazy(() => import('./components/ProjectBar'));
 const ExtensionsMarketplace = lazy(() => import('./components/ExtensionsMarketplace'));
 const SettingsModal = lazy(() => import('./components/SettingsModal'));
@@ -44,7 +45,7 @@ import { formattingService } from './services/formattingService';
 import { SelectionOperationType } from './services/selectionOperationsService';
 
 
-type AppView = 'editor' | 'history' | 'about';
+type AppView = 'editor' | 'history' | 'about' | 'documentation';
 
 const defaultHTML = `<div class="container">
 </div>`;
@@ -197,12 +198,19 @@ function App() {
       setCurrentView('about');
     };
 
+    const handleNavigateToDocumentation = () => {
+      console.log('[DEBUG] Navigation event: navigate-to-documentation');
+      setCurrentView('documentation');
+    };
+
     window.addEventListener('navigate-to-about', handleNavigateToAbout);
-    console.log('[DEBUG] Navigation event listener added');
+    window.addEventListener('navigate-to-documentation', handleNavigateToDocumentation);
+    console.log('[DEBUG] Navigation event listeners added');
 
     return () => {
       window.removeEventListener('navigate-to-about', handleNavigateToAbout);
-      console.log('[DEBUG] Navigation event listener removed');
+      window.removeEventListener('navigate-to-documentation', handleNavigateToDocumentation);
+      console.log('[DEBUG] Navigation event listeners removed');
     };
   }, []);
 
@@ -374,6 +382,11 @@ function App() {
       case 'about':
         setCurrentView('about');
         console.log('Switched to about page');
+        break;
+      case 'documentation':
+      case 'docs':
+        setCurrentView('documentation');
+        console.log('Switched to documentation page');
         break;
       case 'ai':
         if (args[0] === 'toggle') {
@@ -849,6 +862,76 @@ function App() {
         <Suspense fallback={null}>
           <ExternalLibraryManager
             isOpen={showExternalLibraryManager}
+            onClose={() => setShowExternalLibraryManager(false)}
+            libraries={externalLibraries}
+            onLibrariesChange={handleExternalLibrariesChange}
+          />
+        </Suspense>
+      </div>
+    );
+  }
+
+  // Render documentation page
+  if (currentView === 'documentation') {
+    return (
+      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'
+        }`}>
+        <NavigationBar
+          onAutoSaveToggle={() => setAutoSaveEnabled(!autoSaveEnabled)}
+          onSnippetsToggle={() => setShowSnippets(!showSnippets)}
+          onRun={() => handleCommand('run')}
+          onReset={resetCode}
+          onImport={fileUpload.uploadFiles}
+          onExport={() => downloadAsZip(html, css, javascript)}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
+          onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+          onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
+          onExtensionsToggle={handleExtensionsToggle}
+          onSettingsToggle={handleSettingsToggle}
+          canUndo={codeHistory.canUndo}
+          canRedo={codeHistory.canRedo}
+          autoSaveEnabled={autoSaveEnabled}
+          aiAssistantOpen={showGeminiAssistant}
+          aiSuggestionsOpen={showAISuggestions}
+          customActions={
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCurrentView('editor')}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                Back to Editor
+              </button>
+              <button
+                onClick={() => setCurrentView('about')}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                About
+              </button>
+            </div>
+          }
+        />
+        <div className="flex-1">
+          <Suspense fallback={
+            <div className="flex items-center justify-center p-12">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-gray-400">Loading Documentation...
+                </p>
+              </div>
+            </div>
+          }>
+            <DocumentationPage />
+          </Suspense>
+        </div>
+        <Footer />
+
+        {/* External Library Manager for Documentation page */}
+        <Suspense fallback={null}>
+          <ExternalLibraryManager
+            open={showExternalLibraryManager}
             onClose={() => setShowExternalLibraryManager(false)}
             libraries={externalLibraries}
             onLibrariesChange={handleExternalLibrariesChange}
