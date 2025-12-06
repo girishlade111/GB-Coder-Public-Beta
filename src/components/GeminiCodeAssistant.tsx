@@ -1070,9 +1070,30 @@ How can I help you today?`,
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 flex items-center gap-3">
-                  <Bot className="w-4 h-4 animate-pulse text-white" />
-                  <span className="text-gray-300 text-sm font-medium">Thinking...</span>
+                <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    {/* Code brackets animation */}
+                    <div className="flex items-center gap-1 text-blue-400 font-mono text-lg">
+                      <span className="animate-pulse">{'{'}</span>
+                      <div className="flex gap-1">
+                        <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+                        <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+                      </div>
+                      <span className="animate-pulse">{'}'}</span>
+                    </div>
+
+                    {/* Rotating code symbol */}
+                    <div className="flex gap-2 text-gray-400 font-mono">
+                      <span className="inline-block animate-spin">⟳</span>
+                    </div>
+
+                    {/* Text with cursor */}
+                    <div className="flex items-center gap-1">
+                      <span className="text-gray-300 text-sm font-medium">Processing</span>
+                      <span className="text-gray-300 text-sm font-medium animate-pulse">|</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
