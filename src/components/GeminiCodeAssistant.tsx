@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Sparkles,
+  Bot,
   Send,
   Copy,
   Download,
@@ -10,7 +10,10 @@ import {
   X,
   Paperclip,
   FileText,
-  Plus
+  Plus,
+  History,
+  Trash2,
+  MessageSquare
 } from 'lucide-react';
 import { GeminiChatMessage, GeminiCodeBlock, EditorLanguage, Attachment } from '../types';
 import { aiCodeAssistant } from '../services/aiCodeAssistant';
@@ -42,6 +45,14 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [chatSessions, setChatSessions] = useState<Array<{
+    id: string;
+    timestamp: number;
+    messages: GeminiChatMessage[];
+    preview: string;
+  }>>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
   // Attachments state
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -84,7 +95,18 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   useEffect(() => {
     setApiKeyConfigured(aiCodeAssistant.isConfigured());
 
-    // Load history from localStorage
+    // Load all chat sessions from localStorage
+    const savedSessions = localStorage.getItem('codeBuddyChatSessions');
+    if (savedSessions) {
+      try {
+        const parsed = JSON.parse(savedSessions);
+        setChatSessions(parsed);
+      } catch (e) {
+        console.error('Failed to parse chat sessions', e);
+      }
+    }
+
+    // Load current session
     const savedHistory = localStorage.getItem('codeBuddyHistory');
     if (savedHistory) {
       try {
@@ -107,8 +129,55 @@ const GeminiCodeAssistant: React.FC<GeminiCodeAssistantProps> = ({
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem('codeBuddyHistory', JSON.stringify(messages));
+
+      // Auto-save current session to sessions list
+      if (messages.length > 1) { // Only save if there are actual messages beyond welcome
+        saveCurrentSession();
+      }
     }
   }, [messages]);
+
+  const saveCurrentSession = () => {
+    if (messages.length <= 1) return; // Don't save if only welcome message
+
+    const sessionId = currentSessionId || Date.now().toString();
+    if (!currentSessionId) {
+      setCurrentSessionId(sessionId);
+    }
+
+    const preview = messages[1]?.content.substring(0, 50) || 'New Chat';
+    const session = {
+      id: sessionId,
+      timestamp: Date.now(),
+      messages: messages,
+      preview: preview + (messages[1]?.content.length > 50 ? '...' : '')
+    };
+
+    setChatSessions(prev => {
+      const filtered = prev.filter(s => s.id !== sessionId);
+      const updated = [session, ...filtered].slice(0, 20); // Keep max 20 sessions
+      localStorage.setItem('codeBuddyChatSessions', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const loadChatSession = (sessionId: string) => {
+    const session = chatSessions.find(s => s.id === sessionId);
+    if (session) {
+      setMessages(session.messages);
+      setCurrentSessionId(sessionId);
+      setShowHistory(false);
+      localStorage.setItem('codeBuddyHistory', JSON.stringify(session.messages));
+    }
+  };
+
+  const deleteChatSession = (sessionId: string) => {
+    setChatSessions(prev => {
+      const updated = prev.filter(s => s.id !== sessionId);
+      localStorage.setItem('codeBuddyChatSessions', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const getWelcomeMessage = (): GeminiChatMessage => ({
     id: 'welcome',
@@ -133,9 +202,16 @@ How can I help you today?`,
   });
 
   const handleNewChat = () => {
+    // Save current session before starting new one
+    if (messages.length > 1) {
+      saveCurrentSession();
+    }
+
     aiCodeAssistant.clearHistory();
     localStorage.removeItem('codeBuddyHistory');
     setMessages([getWelcomeMessage()]);
+    setCurrentSessionId(null);
+    setShowHistory(false);
   };
 
   useEffect(() => {
@@ -728,7 +804,7 @@ How can I help you today?`,
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-matte-black">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gray-800 rounded-lg">
-                <Sparkles className="w-5 h-5 text-white" />
+                <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-white">Code Buddy</h2>
@@ -746,7 +822,7 @@ How can I help you today?`,
           {/* Content */}
           <div className="flex-1 flex items-center justify-center p-6 text-center">
             <div>
-              <Sparkles className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+              <Bot className="w-16 h-16 text-white mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-200 mb-2">Gemini API Key Required</h3>
               <p className="text-gray-400 mb-4">
                 To use Code Buddy, please add your API key to the environment variables.
@@ -786,7 +862,7 @@ How can I help you today?`,
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-matte-black">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gray-800 rounded-lg">
-              <Sparkles className="w-5 h-5 text-white" />
+              <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white">Code Buddy</h2>
@@ -794,6 +870,16 @@ How can I help you today?`,
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className={`p-2 rounded-lg transition-colors ${showHistory
+                  ? 'bg-gray-800 text-white'
+                  : 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                }`}
+              title="Chat History"
+            >
+              <History className="w-5 h-5" />
+            </button>
             <button
               onClick={handleNewChat}
               className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors"
@@ -810,41 +896,86 @@ How can I help you today?`,
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-matte-black">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
+        {/* Messages or History View */}
+        {showHistory ? (
+          <div className="flex-1 overflow-y-auto p-4 bg-matte-black">
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Recent Chats</h3>
+            </div>
+
+            {chatSessions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <MessageSquare className="w-12 h-12 text-gray-600 mb-3" />
+                <p className="text-gray-400 text-sm">No chat history yet</p>
+                <p className="text-gray-500 text-xs mt-1">Start a new conversation to see it here</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {chatSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="group relative bg-gray-800 border border-gray-700 rounded-lg p-3 hover:border-gray-600 transition-colors cursor-pointer"
+                    onClick={() => loadChatSession(session.id)}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-200 truncate mb-1">{session.preview}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(session.timestamp).toLocaleString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteChatSession(session.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-all"
+                        title="Delete chat"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-matte-black">
+            {messages.map((message) => (
               <div
-                className={`max-w-[85%] rounded-lg p-4 ${message.type === 'user'
-                  ? 'bg-white text-matte-black border border-gray-700'
-                  : 'bg-gray-800 text-gray-100 border border-gray-700'
-                  }`}
+                key={message.id}
+                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className="prose prose-sm max-w-none">
-                  {renderMessageContent(message.content)}
-                </div>
+                <div
+                  className={`max-w-[85%] rounded-lg p-4 ${message.type === 'user'
+                    ? 'bg-white text-matte-black border border-gray-700'
+                    : 'bg-gray-800 text-gray-100 border border-gray-700'
+                    }`}
+                >
+                  <div className="prose prose-sm max-w-none">
+                    {renderMessageContent(message.content)}
+                  </div>
 
-                <div className="text-xs opacity-70 mt-2">
-                  {new Date(message.timestamp).toLocaleTimeString()}
+                  <div className="text-xs opacity-70 mt-2">
+                    {new Date(message.timestamp).toLocaleTimeString()}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 flex items-center gap-3">
-                <Sparkles className="w-4 h-4 animate-pulse text-white" />
-                <span className="text-gray-300 text-sm font-medium">Thinking...</span>
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 flex items-center gap-3">
+                  <Bot className="w-4 h-4 animate-pulse text-white" />
+                  <span className="text-gray-300 text-sm font-medium">Thinking...</span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div ref={messagesEndRef} />
-        </div>
+            <div ref={messagesEndRef} />
+          </div>
+        )}
 
         {/* Input */}
         <div
