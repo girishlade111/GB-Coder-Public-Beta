@@ -32,7 +32,8 @@ import SelectionSidebar from './components/SelectionSidebar';
 import { downloadAsZip } from './utils/downloadUtils';
 import { generateAISuggestions } from './utils/aiSuggestions';
 import * as monacoHelper from './utils/monacoSelectionHelper';
-import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion, HistoryItem } from './types';
+import { CodeSnippet, ConsoleLog, AISuggestion, EditorLanguage, AICodeSuggestion, HistoryItem, SnippetType, SnippetScope } from './types';
+import { migrateSnippets } from './utils/snippetUtils';
 import { aiEnhancementService } from './services/aiEnhancementService';
 import { externalLibraryService, ExternalLibrary } from './services/externalLibraryService';
 import { formattingService } from './services/formattingService';
@@ -245,6 +246,17 @@ function App() {
     }
   }, []);
 
+
+  // Migrate snippets to new format with type and scope
+  useEffect(() => {
+    const migratedSnippets = migrateSnippets(snippets);
+    // Only update if migration changed anything
+    if (JSON.stringify(migratedSnippets) !== JSON.stringify(snippets)) {
+      setSnippets(migratedSnippets);
+      console.log('Migrated snippets to new format');
+    }
+  }, []); // Run once on mount
+
   // Sync project code when html/css/javascript changes
   useEffect(() => {
     if (project.currentProject) {
@@ -371,15 +383,7 @@ function App() {
     }
   };
 
-  const saveSnippet = (
-    name: string,
-    htmlCode: string,
-    cssCode: string,
-    jsCode: string,
-    description?: string,
-    tags?: string[],
-    category?: string
-  ) => {
+  const saveSnippet = (name: string, htmlCode: string, cssCode: string, jsCode: string, description?: string, tags?: string[], category?: string, type?: SnippetType, scope?: SnippetScope) => {
     const snippet: CodeSnippet = {
       id: Date.now().toString(),
       name,
@@ -390,6 +394,8 @@ function App() {
       createdAt: new Date().toISOString(),
       tags,
       category,
+      type: type || 'full',
+      scope: scope || 'private',
     };
     setSnippets(prev => [...prev, snippet]);
   };
@@ -415,6 +421,32 @@ function App() {
 
 
 
+  // NEW: Insert snippet (append to editors)
+  const insertSnippet = (snippet: CodeSnippet) => {
+    codeHistory.saveState({ html, css, javascript }, `Inserted snippet: ${snippet.name}`);
+    
+    // Insert based on snippet type
+    const snippetType = snippet.type || 'full';
+    switch (snippetType) {
+      case 'html':
+        setHtml(prev => prev + '\n' + snippet.html);
+        break;
+      case 'css':
+        setCss(prev => prev + '\n' + snippet.css);
+        break;
+      case 'javascript':
+        setJavascript(prev => prev + '\n' + snippet.javascript);
+        break;
+      case 'full':
+        // For full snippets, append all non-empty sections
+        if (snippet.html) setHtml(prev => prev + '\n' + snippet.html);
+        if (snippet.css) setCss(prev => prev + '\n' + snippet.css);
+        if (snippet.javascript) setJavascript(prev => prev + '\n' + snippet.javascript);
+        break;
+    }
+    
+    setConsoleLogs([]);
+  };
   const deleteSnippet = (id: string) => {
     setSnippets(prev => prev.filter(s => s.id !== id));
   };
@@ -1000,6 +1032,7 @@ function App() {
                   snippets={snippets}
                   onSave={saveSnippet}
                   onLoad={loadSnippet}
+                  onInsert={insertSnippet}
                   onDelete={deleteSnippet}
                   onUpdate={updateSnippet}
                   currentCode={{ html, css, javascript }}
@@ -1132,3 +1165,7 @@ function App() {
 }
 
 export default App;
+
+
+
+

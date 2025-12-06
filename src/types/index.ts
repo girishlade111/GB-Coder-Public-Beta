@@ -1,3 +1,6 @@
+export type SnippetType = 'full' | 'html' | 'css' | 'javascript';
+export type SnippetScope = 'private' | 'public';
+
 export interface CodeSnippet {
   id: string;
   name: string;
@@ -9,6 +12,10 @@ export interface CodeSnippet {
   updatedAt?: string;
   tags?: string[];
   category?: string;
+
+  // Enhanced fields
+  type?: SnippetType;  // Optional for backward compatibility
+  scope?: SnippetScope; // Optional for backward compatibility, defaults to 'private'
 }
 
 export interface ConsoleLog {
