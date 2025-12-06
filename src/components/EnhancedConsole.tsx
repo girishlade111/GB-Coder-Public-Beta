@@ -1080,17 +1080,17 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
       {/* Filter Bar (Basic Console mode) */}
       {activeMode === 'console' && (
-        <div className="bg-dark-gray border-b border-gray-700 p-2">
+        <div className="bg-dark-gray border-b border-gray-700 p-3">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-400">Filter:</span>
+            <span className="text-sm text-gray-400 mr-1">Filter:</span>
             {(['all', 'log', 'info', 'warn', 'error'] as const).map((filter) => (
               <button
                 key={filter}
                 onClick={() => setBasicFilter(filter)}
-                className={`px-2 py-1 rounded text-xs ${basicFilter === filter
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${basicFilter === filter
+                    ? 'bg-blue-600 text-white shadow-md border border-blue-500'
+                    : 'bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600 hover:border-gray-500'
                   }`}
               >
                 {filter === 'all' ? 'All' : filter.toUpperCase()}

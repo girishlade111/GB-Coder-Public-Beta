@@ -84,11 +84,11 @@ const AISuggestionPanel: React.FC<AISuggestionPanelProps> = ({
       </div>
 
       {!isCollapsed && (
-        <div className="max-h-80 overflow-y-auto">
+        <div className="max-h-96 overflow-y-auto">
           {suggestions.length === 0 ? (
-            <div className="p-8 text-center">
-              <Lightbulb className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <h4 className="text-sm font-medium text-gray-400 mb-2">No Suggestions Available</h4>
+            <div className="p-6 text-center">
+              <Lightbulb className="w-12 h-12 text-gray-600 mx-auto mb-2" />
+              <h4 className="text-sm font-medium text-gray-400 mb-1.5">No Suggestions Available</h4>
               <p className="text-xs text-gray-500">
                 Start coding and AI will analyze your code for improvements, best practices, and optimizations.
               </p>

@@ -980,10 +980,10 @@ function App() {
 
 
       {/* Main Content */}
-      <div className="flex-1 px-2 sm:px-4 lg:px-6 py-6">
-        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} h-full`}>
+      <div className="flex-1 px-2 sm:px-4 lg:px-6 py-4">
+        <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} h-full`}>
           {/* Left Panel - Editors */}
-          <div className="flex flex-col space-y-4 w-full">
+          <div className="flex flex-col space-y-3 w-full">
             <EditorPanel
               title="HTML"
               language="html"
@@ -1034,7 +1034,7 @@ function App() {
           </div>
 
           {/* Right Panel - Preview, Console, and Gemini Assistant */}
-          <div className="flex flex-col space-y-4 w-full">
+          <div className="flex flex-col space-y-3 w-full">
             <PreviewPanel
               html={html}
               css={css}
