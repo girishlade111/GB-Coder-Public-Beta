@@ -553,6 +553,18 @@ function App() {
     }
   };
 
+  // AI Error Fix handler
+  const handleApplyErrorFix = (fixedHtml: string, fixedCss: string, fixedJavascript: string) => {
+    codeHistory.saveState({ html, css, javascript }, 'AI fixed runtime error');
+
+    setHtml(fixedHtml);
+    setCss(fixedCss);
+    setJavascript(fixedJavascript);
+    setConsoleLogs([]);
+
+    console.log('Applied AI error fix successfully');
+  };
+
 
   // Selection Operation Handlers
   const handleSelectionChange = useCallback((editor: any, language: EditorLanguage) => {
@@ -905,6 +917,7 @@ function App() {
                 css={css}
                 javascript={javascript}
                 onCommand={handleCommand}
+                onApplyErrorFix={handleApplyErrorFix}
               />
             </Suspense>
 

@@ -3,7 +3,7 @@ import {
   Terminal, X, Plus, Search, Settings, Download, Copy, Maximize2, Minimize2,
   Filter, Trash2, Pin, AlertCircle, Info,
   AlertTriangle, Bug, Zap, CheckCircle, Eye, EyeOff, Terminal as TerminalIcon,
-  Cpu, HardDrive, XCircle, Play
+  Cpu, HardDrive, XCircle, Play, Sparkles
 } from 'lucide-react';
 import {
   ConsoleLogEntry, ConsoleTab, ConsoleFilter, LogLevel, ConsoleTheme,
@@ -17,6 +17,9 @@ import { commandHistoryService } from '../services/commandHistoryService';
 import { performanceAnalyticsService } from '../services/performanceAnalyticsService';
 import { securityService } from '../services/securityService';
 import { sessionDataService } from '../services/sessionDataService';
+import { aiErrorFixService } from '../services/aiErrorFixService';
+import AIErrorFixModal from './ui/AIErrorFixModal';
+import { ErrorFixResponse } from '../types';
 
 interface EnhancedConsoleProps {
   // Basic props (from current ConsolePanel)
@@ -30,6 +33,7 @@ interface EnhancedConsoleProps {
 
   // Optional advanced features
   onCommand?: (command: string) => Promise<void>;
+  onApplyErrorFix?: (fixedHtml: string, fixedCss: string, fixedJavascript: string) => void;
   className?: string;
 }
 
@@ -51,6 +55,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   css,
   javascript,
   onCommand,
+  onApplyErrorFix,
   className = '',
 }) => {
   // Core state
@@ -93,6 +98,12 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
     executionTime: 0
   });
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // AI Error Fix state
+  const [fixModalOpen, setFixModalOpen] = useState(false);
+  const [selectedError, setSelectedError] = useState<ConsoleLog | null>(null);
+  const [fixResponse, setFixResponse] = useState<ErrorFixResponse | null>(null);
+  const [isFixLoading, setIsFixLoading] = useState(false);
 
   // Common refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -854,6 +865,30 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
     });
   };
 
+  // Handle AI error fix
+  const handleFixError = async (log: ConsoleLog) => {
+    try {
+      setIsFixLoading(true);
+      setSelectedError(log);
+      setFixModalOpen(true);
+
+      const response = await aiErrorFixService.fixError(
+        log.message,
+        html,
+        css,
+        javascript
+      );
+
+      setFixResponse(response);
+    } catch (error) {
+      console.error('Failed to get AI fix suggestion:', error);
+      setFixModalOpen(false);
+      setIsFixLoading(false);
+    } finally {
+      setIsFixLoading(false);
+    }
+  };
+
   return (
     <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
       } ${className}`}>
@@ -1124,6 +1159,16 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
                       <pre className={`flex-1 whitespace-pre-wrap ${getLogColor(log.type)}`}>
                         {log.message}
                       </pre>
+                      {log.type === 'error' && (
+                        <button
+                          onClick={() => handleFixError(log)}
+                          className="flex-shrink-0 px-2 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs flex items-center gap-1 transition-colors"
+                          title="Fix with AI"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          Fix with AI
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1327,6 +1372,24 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
           </div>
         )}
       </div>
+
+      {/* AI Error Fix Modal */}
+      <AIErrorFixModal
+        isOpen={fixModalOpen}
+        onClose={() => {
+          setFixModalOpen(false);
+          setIsFixLoading(false);
+        }}
+        fixResponse={fixResponse}
+        originalCode={{ html, css, javascript }}
+        onApplyFix={(fixedHtml, fixedCss, fixedJavascript) => {
+          if (onApplyErrorFix) {
+            onApplyErrorFix(fixedHtml, fixedCss, fixedJavascript);
+          }
+          setFixModalOpen(false);
+        }}
+        isLoading={isFixLoading}
+      />
     </div>
   );
 };
