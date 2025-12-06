@@ -1053,7 +1053,7 @@ How can I help you today?`,
               >
                 <div
                   className={`max-w-[85%] rounded-lg p-4 ${message.type === 'user'
-                    ? 'bg-white text-matte-black border border-gray-700'
+                    ? 'bg-gray-900 text-gray-100 border border-blue-600'
                     : 'bg-gray-800 text-gray-100 border border-gray-700'
                     }`}
                 >
