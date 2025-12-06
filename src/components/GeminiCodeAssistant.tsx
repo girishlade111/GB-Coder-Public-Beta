@@ -695,6 +695,7 @@ How can I help you today?`,
     const parts = content.split(/(```(?:[\w-]+)?\n[\s\S]*?```)/g);
 
     return parts.map((part, index) => {
+      // Handle code blocks
       if (part.startsWith('```')) {
         const match = part.match(/```([\w-]+)?\n([\s\S]*?)```/);
         if (match) {
@@ -719,9 +720,112 @@ How can I help you today?`,
 
       if (!part.trim()) return null;
 
+      // Parse markdown formatting
+      const lines = part.split('\n');
+      const elements: JSX.Element[] = [];
+      let listItems: string[] = [];
+      let listType: 'ul' | 'ol' | null = null;
+
+      const flushList = () => {
+        if (listItems.length > 0 && listType) {
+          const ListTag = listType;
+          elements.push(
+            <ListTag key={`list-${elements.length}`} className={`my-2 space-y-1 ${listType === 'ul' ? 'list-disc' : 'list-decimal'} list-inside text-gray-200`}>
+              {listItems.map((item, i) => (
+                <li key={i} className="ml-2">{parseInlineMarkdown(item)}</li>
+              ))}
+            </ListTag>
+          );
+          listItems = [];
+          listType = null;
+        }
+      };
+
+      const parseInlineMarkdown = (text: string) => {
+        // Handle inline code
+        text = text.replace(/`([^`]+)`/g, (_, code) => {
+          return `<code class="px-1.5 py-0.5 bg-gray-700 text-gray-100 rounded text-sm font-mono">${code}</code>`;
+        });
+
+        // Handle bold
+        text = text.replace(/\*\*([^*]+)\*\*/g, (_, bold) => {
+          return `<strong class="font-semibold text-white">${bold}</strong>`;
+        });
+
+        // Handle italic
+        text = text.replace(/\*([^*]+)\*/g, (_, italic) => {
+          return `<em class="italic text-gray-300">${italic}</em>`;
+        });
+
+        return <span dangerouslySetInnerHTML={{ __html: text }} />;
+      };
+
+      lines.forEach((line, lineIndex) => {
+        // Handle headings
+        if (line.startsWith('### ')) {
+          flushList();
+          elements.push(
+            <h3 key={`h3-${elements.length}`} className="text-base font-semibold text-white mt-4 mb-2">
+              {parseInlineMarkdown(line.substring(4))}
+            </h3>
+          );
+        } else if (line.startsWith('## ')) {
+          flushList();
+          elements.push(
+            <h2 key={`h2-${elements.length}`} className="text-lg font-semibold text-white mt-4 mb-2">
+              {parseInlineMarkdown(line.substring(3))}
+            </h2>
+          );
+        } else if (line.startsWith('# ')) {
+          flushList();
+          elements.push(
+            <h1 key={`h1-${elements.length}`} className="text-xl font-bold text-white mt-4 mb-3">
+              {parseInlineMarkdown(line.substring(2))}
+            </h1>
+          );
+        }
+        // Handle unordered lists
+        else if (line.match(/^[\-\*\•]\s+(.+)/)) {
+          const match = line.match(/^[\-\*\•]\s+(.+)/);
+          if (match) {
+            if (listType !== 'ul') {
+              flushList();
+              listType = 'ul';
+            }
+            listItems.push(match[1]);
+          }
+        }
+        // Handle numbered lists
+        else if (line.match(/^\d+\.\s+(.+)/)) {
+          const match = line.match(/^\d+\.\s+(.+)/);
+          if (match) {
+            if (listType !== 'ol') {
+              flushList();
+              listType = 'ol';
+            }
+            listItems.push(match[1]);
+          }
+        }
+        // Handle regular paragraphs
+        else if (line.trim()) {
+          flushList();
+          elements.push(
+            <p key={`p-${elements.length}`} className="text-gray-200 leading-relaxed my-2">
+              {parseInlineMarkdown(line)}
+            </p>
+          );
+        }
+        // Handle empty lines
+        else if (lineIndex < lines.length - 1) {
+          flushList();
+        }
+      });
+
+      flushList();
+
       return (
-        <div key={index} className="whitespace-pre-wrap">
-          {part}
+        <div key={index} className="space-y-1">
+          {elements}
         </div>
       );
     });
@@ -873,8 +977,8 @@ How can I help you today?`,
             <button
               onClick={() => setShowHistory(!showHistory)}
               className={`p-2 rounded-lg transition-colors ${showHistory
-                  ? 'bg-gray-800 text-white'
-                  : 'hover:bg-gray-800 text-gray-400 hover:text-white'
+                ? 'bg-gray-800 text-white'
+                : 'hover:bg-gray-800 text-gray-400 hover:text-white'
                 }`}
               title="Chat History"
             >
