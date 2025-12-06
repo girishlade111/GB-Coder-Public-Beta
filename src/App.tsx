@@ -17,6 +17,7 @@ const ExternalLibraryManager = lazy(() => import('./components/ExternalLibraryMa
 const CodeHistoryPage = lazy(() => import('./components/history/CodeHistoryPage'));
 const AboutPage = lazy(() => import('./components/pages/AboutPage'));
 const ProjectBar = lazy(() => import('./components/ProjectBar'));
+const ExtensionsMarketplace = lazy(() => import('./components/ExtensionsMarketplace'));
 
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useCodeHistory } from './hooks/useCodeHistory';
@@ -74,6 +75,7 @@ function App() {
   const [currentView, setCurrentView] = useState<AppView>('editor');
   const [showExternalLibraryManager, setShowExternalLibraryManager] = useState<boolean>(false);
   const [externalLibraries, setExternalLibraries] = useState<ExternalLibrary[]>([]);
+  const [showExtensionsMarketplace, setShowExtensionsMarketplace] = useState<boolean>(false);
 
   // Project Management
   const project = useProject(html, css, javascript, externalLibraries);
@@ -287,6 +289,10 @@ function App() {
   // External Library Manager handlers
   const handleExternalLibraryManagerToggle = () => {
     setShowExternalLibraryManager(!showExternalLibraryManager);
+  };
+
+  const handleExtensionsToggle = () => {
+    setShowExtensionsMarketplace(!showExtensionsMarketplace);
   };
 
   const handleExternalLibrariesChange = (libraries: ExternalLibrary[]) => {
@@ -774,6 +780,7 @@ function App() {
           onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
           onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
           onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
+          onExtensionsToggle={handleExtensionsToggle}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -841,6 +848,7 @@ function App() {
           onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
           onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
           onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
+          onExtensionsToggle={handleExtensionsToggle}
           canUndo={codeHistory.canUndo}
           canRedo={codeHistory.canRedo}
           autoSaveEnabled={autoSaveEnabled}
@@ -908,6 +916,7 @@ function App() {
         onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
         onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
         onHistoryToggle={() => setIsSidebarHistoryOpen(!isSidebarHistoryOpen)}
+        onExtensionsToggle={handleExtensionsToggle}
         canUndo={codeHistory.canUndo}
         canRedo={codeHistory.canRedo}
         autoSaveEnabled={autoSaveEnabled}
@@ -1037,6 +1046,14 @@ function App() {
                 onDelete={deleteSnippet}
                 onUpdate={updateSnippet}
                 currentCode={{ html, css, javascript }}
+              />
+            </Suspense>
+
+            {/* Extensions Marketplace */}
+            <Suspense fallback={null}>
+              <ExtensionsMarketplace
+                isOpen={showExtensionsMarketplace}
+                onClose={() => setShowExtensionsMarketplace(false)}
               />
             </Suspense>
           </div>

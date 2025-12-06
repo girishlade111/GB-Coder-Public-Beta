@@ -18,7 +18,8 @@ import {
   Sun,
   Moon,
   Settings,
-  History
+  History,
+  Puzzle
 } from 'lucide-react';
 import { EditorLanguage } from '../types';
 import ThemeToggle from './ui/ThemeToggle';
@@ -37,6 +38,7 @@ interface NavigationBarProps {
   onAISuggestionsToggle: () => void;
   onExternalLibraryManagerToggle: () => void;
   onHistoryToggle: () => void;
+  onExtensionsToggle: () => void;
   canUndo: boolean;
   canRedo: boolean;
   autoSaveEnabled: boolean;
@@ -65,6 +67,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   onAISuggestionsToggle,
   onExternalLibraryManagerToggle,
   onHistoryToggle,
+  onExtensionsToggle,
   canUndo,
   canRedo,
   autoSaveEnabled,
@@ -494,6 +497,20 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                           >
                             <FolderOpen className="w-4 h-4" />
                             Snippets
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              onExtensionsToggle();
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
+                              ? 'text-gray-300 hover:bg-gray-700'
+                              : 'text-gray-700 hover:bg-gray-50'
+                              }`}
+                          >
+                            <Puzzle className="w-4 h-4" />
+                            Extensions
                           </button>
 
                           <button
