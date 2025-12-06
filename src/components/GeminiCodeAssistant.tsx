@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Bot,
   Send,
   Copy,
   Download,
@@ -908,7 +907,7 @@ How can I help you today?`,
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-matte-black">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gray-800 rounded-lg">
-                <Bot className="w-5 h-5 text-white" />
+                <img src="/src/logo/codebuddy.png" alt="Code Buddy" className="w-5 h-5" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-white">Code Buddy</h2>
@@ -926,7 +925,7 @@ How can I help you today?`,
           {/* Content */}
           <div className="flex-1 flex items-center justify-center p-6 text-center">
             <div>
-              <Bot className="w-16 h-16 text-white mx-auto mb-4" />
+              <img src="/src/logo/codebuddy.png" alt="Code Buddy" className="w-16 h-16 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-200 mb-2">Gemini API Key Required</h3>
               <p className="text-gray-400 mb-4">
                 To use Code Buddy, please add your API key to the environment variables.
@@ -966,7 +965,7 @@ How can I help you today?`,
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-matte-black">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gray-800 rounded-lg">
-              <Bot className="w-5 h-5 text-white" />
+              <img src="/src/logo/codebuddy.png" alt="Code Buddy" className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white">Code Buddy</h2>
