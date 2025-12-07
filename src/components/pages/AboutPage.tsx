@@ -183,9 +183,8 @@ const AboutPage: React.FC = () => {
   ];
 
   return (
-    <div className={`min-h-screen transition-colors ${
-      isDark ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'
-    }`}>
+    <div className={`min-h-screen transition-colors ${isDark ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'
+      }`}>
       {/* SEO Meta Tags */}
       <div style={{ display: 'none' }}>
         <script type="application/ld+json">
@@ -210,28 +209,26 @@ const AboutPage: React.FC = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-            About Us – Your Smart Online Code Editor & Compiler with AI Suggestions
+            GB Coder – AI-Powered Online Code Playground for Modern Web Developers
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
-            Welcome to Girish Lade's AI Code Compiler & Editor – your ultimate online code editor, 
-            free compiler, and AI-integrated IDE for writing, editing, and running code in real-time.
-          </p>
+          <h2 className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed font-semibold">
+            Write, preview, debug, and enhance HTML, CSS, and JavaScript instantly using AI-driven automation.
+          </h2>
         </div>
 
         {/* Key Benefits Section */}
         <section className="mb-16">
-          <div className={`rounded-2xl p-8 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          } shadow-lg`}>
+          <div className={`rounded-2xl p-8 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } shadow-lg`}>
             <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
               <Star className="w-8 h-8 text-yellow-500" />
               Why Choose GB Coder?
             </h2>
             <p className="text-lg leading-relaxed mb-6">
-              Our platform offers a comprehensive set of features designed to make your coding experience 
+              Our platform offers a comprehensive set of features designed to make your coding experience
               as smooth and productive as possible:
             </p>
-            
+
             <div className="grid md:grid-cols-2 gap-4">
               {keyBenefits.map((benefit, index) => (
                 <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700">
@@ -245,32 +242,30 @@ const AboutPage: React.FC = () => {
 
         {/* Who We Are Section */}
         <section className="mb-16">
-          <div className={`rounded-2xl p-8 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          } shadow-lg`}>
+          <div className={`rounded-2xl p-8 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } shadow-lg`}>
             <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
               <Users className="w-8 h-8 text-blue-500" />
               Who We Are
             </h2>
             <p className="text-lg leading-relaxed mb-6">
-              We are a forward-thinking team of developers led by <strong>Girish Lade</strong>, an experienced programmer, 
-              AI tools maker, and UI/UX engineer. Our mission is to make coding faster, smarter, and more accessible 
+              We are a forward-thinking team of developers led by <strong>Girish Lade</strong>, an experienced programmer,
+              AI tools maker, and UI/UX engineer. Our mission is to make coding faster, smarter, and more accessible
               using the power of artificial intelligence.
             </p>
             <p className="text-lg leading-relaxed mb-6">
-              Our tool is not just another online compiler. It's a full-featured AI-powered code editor, built for 
-              modern developers who want to write, edit, preview, and optimize their HTML, CSS, and JavaScript code 
+              Our tool is not just another online compiler. It's a full-featured AI-powered code editor, built for
+              modern developers who want to write, edit, preview, and optimize their HTML, CSS, and JavaScript code
               with the help of smart AI.
             </p>
             {/* Professional Backlink to Main Website */}
-            <div className={`p-4 rounded-lg border-l-4 ${
-              isDark ? 'bg-gray-700 border-blue-500' : 'bg-blue-50 border-blue-500'
-            }`}>
+            <div className={`p-4 rounded-lg border-l-4 ${isDark ? 'bg-gray-700 border-blue-500' : 'bg-blue-50 border-blue-500'
+              }`}>
               <p className="text-lg mb-2">
                 <span className="font-semibold">Visit our main website:</span>{' '}
-                <a 
-                  href="https://ladestack.in" 
-                  target="_blank" 
+                <a
+                  href="https://ladestack.in"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline"
                 >
@@ -287,18 +282,17 @@ const AboutPage: React.FC = () => {
 
         {/* Social Media Section */}
         <section className="mb-16">
-          <div className={`rounded-2xl p-8 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          } shadow-lg`}>
+          <div className={`rounded-2xl p-8 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } shadow-lg`}>
             <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
               <Users className="w-8 h-8 text-purple-500" />
               Connect With Us
             </h2>
             <p className="text-lg leading-relaxed mb-6">
-              Follow our journey and stay updated with the latest developments in AI-powered coding tools. 
+              Follow our journey and stay updated with the latest developments in AI-powered coding tools.
               Connect with us on social media:
             </p>
-            
+
             <div className="flex flex-wrap gap-4">
               {socialMedia.map((social, index) => (
                 <a
@@ -306,11 +300,10 @@ const AboutPage: React.FC = () => {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                    isDark 
-                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${isDark
+                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                  }`}
+                    }`}
                 >
                   {social.icon}
                   <span className="font-medium">{social.name}</span>
@@ -323,20 +316,18 @@ const AboutPage: React.FC = () => {
         {/* AI Features Section */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center">Powerful AI Features</h2>
-          <div className={`rounded-2xl p-8 mb-8 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          } shadow-lg`}>
+          <div className={`rounded-2xl p-8 mb-8 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } shadow-lg`}>
             <p className="text-lg leading-relaxed mb-8">
-              Our AI-powered code editor leverages cutting-edge artificial intelligence to help you write better code faster. 
-              With advanced machine learning algorithms, our tool provides intelligent suggestions, automated enhancements, 
+              Our AI-powered code editor leverages cutting-edge artificial intelligence to help you write better code faster.
+              With advanced machine learning algorithms, our tool provides intelligent suggestions, automated enhancements,
               and comprehensive code reviews.
             </p>
-            
+
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               {aiFeatures.map((feature, index) => (
-                <div key={index} className={`p-6 rounded-xl ${
-                  isDark ? 'bg-gray-700 border border-gray-600' : 'bg-gray-50 border border-gray-200'
-                }`}>
+                <div key={index} className={`p-6 rounded-xl ${isDark ? 'bg-gray-700 border border-gray-600' : 'bg-gray-50 border border-gray-200'
+                  }`}>
                   <div className="flex items-center gap-4 mb-4">
                     {feature.icon}
                     <h3 className="text-xl font-bold">{feature.title}</h3>
@@ -348,9 +339,8 @@ const AboutPage: React.FC = () => {
               ))}
             </div>
 
-            <div className={`p-6 rounded-lg ${
-              isDark ? 'bg-gray-700' : 'bg-blue-50'
-            } border-l-4 border-blue-500`}>
+            <div className={`p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-blue-50'
+              } border-l-4 border-blue-500`}>
               <h3 className="text-xl font-bold mb-3">How Our AI Works</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 Our AI analyzes your code in real-time, identifying opportunities for improvement in:
@@ -391,17 +381,16 @@ const AboutPage: React.FC = () => {
         {/* What We Offer Section */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center">What We Offer</h2>
-          <div className={`rounded-2xl p-8 mb-8 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          } shadow-lg`}>
+          <div className={`rounded-2xl p-8 mb-8 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } shadow-lg`}>
             <p className="text-lg leading-relaxed mb-8">
-              Our platform is a smart online code editor and compiler created in 2024, built with performance, 
+              Our platform is a smart online code editor and compiler created in 2024, built with performance,
               simplicity, and productivity in mind.
             </p>
             <p className="text-lg font-semibold mb-6">
               Here's what makes our online compiler and code editor different:
             </p>
-            
+
             <div className="grid md:grid-cols-2 gap-4 mb-8">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700">
@@ -413,12 +402,11 @@ const AboutPage: React.FC = () => {
               ))}
             </div>
 
-            <div className={`p-6 rounded-lg ${
-              isDark ? 'bg-gray-700' : 'bg-blue-50'
-            } border-l-4 border-blue-500`}>
+            <div className={`p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-blue-50'
+              } border-l-4 border-blue-500`}>
               <p className="text-lg font-medium mb-2">✅ No setup required – 100% browser-based</p>
               <p className="text-gray-600 dark:text-gray-300">
-                Whether you're looking for a free code editor online, an online JavaScript code runner, 
+                Whether you're looking for a free code editor online, an online JavaScript code runner,
                 or an online HTML/CSS/JS editor with live preview, we've got you covered.
               </p>
             </div>
@@ -430,9 +418,8 @@ const AboutPage: React.FC = () => {
           <h2 className="text-3xl font-bold mb-8 text-center">Why Choose Us?</h2>
           <div className="grid md:grid-cols-2 gap-8">
             {whyChooseUs.map((item, index) => (
-              <div key={index} className={`p-6 rounded-xl ${
-                isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-              } shadow-lg hover:shadow-xl transition-shadow`}>
+              <div key={index} className={`p-6 rounded-xl ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+                } shadow-lg hover:shadow-xl transition-shadow`}>
                 <div className="flex items-center gap-4 mb-4">
                   {item.icon}
                   <h3 className="text-xl font-bold">{item.title}</h3>
@@ -447,9 +434,8 @@ const AboutPage: React.FC = () => {
 
         {/* SEO Optimization Section */}
         <section className="mb-16">
-          <div className={`rounded-2xl p-8 ${
-            isDark ? 'bg-gradient-to-r from-purple-900 to-indigo-900' : 'bg-gradient-to-r from-purple-50 to-indigo-50'
-          } border border-purple-200 dark:border-purple-700`}>
+          <div className={`rounded-2xl p-8 ${isDark ? 'bg-gradient-to-r from-purple-900 to-indigo-900' : 'bg-gradient-to-r from-purple-50 to-indigo-50'
+            } border border-purple-200 dark:border-purple-700`}>
             <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
               <TrendingUp className="w-8 h-8 text-purple-500" />
               Optimized for SEO and High Google Rankings
@@ -465,15 +451,13 @@ const AboutPage: React.FC = () => {
                 </li>
               ))}
             </ul>
-            <div className={`p-4 rounded-lg ${
-              isDark ? 'bg-purple-800' : 'bg-purple-100'
-            }`}>
+            <div className={`p-4 rounded-lg ${isDark ? 'bg-purple-800' : 'bg-purple-100'
+              }`}>
               <h3 className="font-bold mb-2">Additional Target Keywords:</h3>
               <div className="flex flex-wrap gap-2">
                 {keywords.map((keyword, index) => (
-                  <span key={index} className={`px-3 py-1 rounded-full text-sm ${
-                    isDark ? 'bg-purple-900 text-purple-200' : 'bg-purple-200 text-purple-800'
-                  }`}>
+                  <span key={index} className={`px-3 py-1 rounded-full text-sm ${isDark ? 'bg-purple-900 text-purple-200' : 'bg-purple-200 text-purple-800'
+                    }`}>
                     {keyword}
                   </span>
                 ))}
@@ -484,20 +468,19 @@ const AboutPage: React.FC = () => {
 
         {/* Our Vision Section */}
         <section className="mb-16">
-          <div className={`rounded-2xl p-8 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          } shadow-lg`}>
+          <div className={`rounded-2xl p-8 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } shadow-lg`}>
             <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
               <Sparkles className="w-8 h-8 text-yellow-500" />
               Our Vision
             </h2>
             <p className="text-lg leading-relaxed mb-4">
-              We envision a future where AI and coding tools merge to help every developer become more efficient. 
+              We envision a future where AI and coding tools merge to help every developer become more efficient.
               Our AI code editor helps beginners and professionals alike to learn, improve, and ship better code faster.
             </p>
             <p className="text-lg leading-relaxed">
-              By integrating artificial intelligence directly into the development workflow, we're creating tools that 
-              not only help you write code but also teach you to become a better developer. Our platform is designed to 
+              By integrating artificial intelligence directly into the development workflow, we're creating tools that
+              not only help you write code but also teach you to become a better developer. Our platform is designed to
               be an educational resource as much as it is a productivity tool.
             </p>
           </div>
@@ -506,9 +489,8 @@ const AboutPage: React.FC = () => {
         {/* Search-Optimized Features */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center">Search-Optimized Features</h2>
-          <div className={`rounded-2xl p-8 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          } shadow-lg`}>
+          <div className={`rounded-2xl p-8 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+            } shadow-lg`}>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-xl font-bold mb-4">Technical SEO</h3>
@@ -539,9 +521,8 @@ const AboutPage: React.FC = () => {
                 <h3 className="text-xl font-bold mb-4">Target Keywords</h3>
                 <div className="flex flex-wrap gap-2">
                   {keywords.map((keyword, index) => (
-                    <span key={index} className={`px-3 py-1 rounded-full text-sm ${
-                      isDark ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
-                    }`}>
+                    <span key={index} className={`px-3 py-1 rounded-full text-sm ${isDark ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
+                      }`}>
                       {keyword}
                     </span>
                   ))}
@@ -553,13 +534,12 @@ const AboutPage: React.FC = () => {
 
         {/* Call to Action */}
         <section className="mb-16">
-          <div className={`rounded-2xl p-8 text-center ${
-            isDark ? 'bg-gradient-to-r from-blue-900 to-purple-900' : 'bg-gradient-to-r from-blue-50 to-purple-50'
-          } border border-blue-200 dark:border-blue-700`}>
+          <div className={`rounded-2xl p-8 text-center ${isDark ? 'bg-gradient-to-r from-blue-900 to-purple-900' : 'bg-gradient-to-r from-blue-50 to-purple-50'
+            } border border-blue-200 dark:border-blue-700`}>
             <h2 className="text-3xl font-bold mb-6">Join the Future of Coding Today</h2>
             <p className="text-lg mb-8 max-w-3xl mx-auto">
-              We invite you to try our free online code editor and compiler. Discover how AI can take your 
-              coding skills to the next level. Experience the smartest way to edit HTML/CSS/JS online with 
+              We invite you to try our free online code editor and compiler. Discover how AI can take your
+              coding skills to the next level. Experience the smartest way to edit HTML/CSS/JS online with
               live preview and code improvement suggestions.
             </p>
             <p className="text-lg font-medium">
@@ -570,12 +550,11 @@ const AboutPage: React.FC = () => {
 
         {/* Legal Info */}
         <section className="text-center">
-          <div className={`rounded-lg p-6 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
-          }`}>
+          <div className={`rounded-lg p-6 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
+            }`}>
             <h3 className="text-xl font-bold mb-4">Legal Info</h3>
             <p className="text-gray-600 dark:text-gray-300">
-              © 2024 - All rights reserved. Built and maintained by Girish Lade. 
+              © 2024 - All rights reserved. Built and maintained by Girish Lade.
               Unauthorized use or duplication of content is prohibited.
             </p>
           </div>
