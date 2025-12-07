@@ -17,7 +17,10 @@ import {
   ChevronDown,
   Sparkles,
   Plus,
-  Search
+  Search,
+  Grid,
+  List,
+  Zap
 } from 'lucide-react';
 import { CodeSnippet, SnippetType, SnippetScope } from '../types';
 import {
@@ -70,6 +73,8 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<SnippetType | 'all'>('all');
   const [showRecommended, setShowRecommended] = useState(false);
+  const [viewLayout, setViewLayout] = useState<'list' | 'grid'>('list');
+  const [selectedTag, setSelectedTag] = useState<string>('all');
 
   // Form states
   const [snippetName, setSnippetName] = useState('');
@@ -91,6 +96,13 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
   // Get recommended snippets
   const recommendedSnippets = useMemo(() => getRecommendedSnippets(), []);
 
+  // Get all unique tags
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    snippets.forEach(s => s.tags?.forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [snippets]);
+
   // Filter and sort snippets
   const filteredSnippets = useMemo(() => {
     let filtered = searchSnippets(snippets, searchQuery);
@@ -99,10 +111,14 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
       filtered = filtered.filter(snippet => snippet.category === selectedCategory);
     }
 
+    if (selectedTag !== 'all') {
+      filtered = filtered.filter(snippet => snippet.tags?.includes(selectedTag));
+    }
+
     filtered = filterByType(filtered, typeFilter);
 
     return sortSnippets(filtered, sortBy);
-  }, [snippets, searchQuery, selectedCategory, sortBy, typeFilter]);
+  }, [snippets, searchQuery, selectedCategory, selectedTag, sortBy, typeFilter]);
 
   // Get unique categories
   const categories = useMemo(() => {
@@ -342,51 +358,128 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
     <div className="space-y-4 p-4">
       {/* Search and Filter */}
       <div className="space-y-3 sticky top-0 bg-matte-black z-10 pb-2">
+        {/* Enhanced Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search snippets..."
+            placeholder="Search snippets by name, tags, or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-9 pr-10 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition-colors"
+              title="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as SnippetType | 'all')}
-            className="bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-blue-500"
-          >
-            <option value="all">All Types</option>
-            <option value="full">Full Page</option>
-            <option value="html">HTML</option>
-            <option value="css">CSS</option>
-            <option value="javascript">JavaScript</option>
-          </select>
+        {/* Category Tag Filters */}
+        {allTags.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Filter by Tag</span>
+              {selectedTag !== 'all' && (
+                <button
+                  onClick={() => setSelectedTag('all')}
+                  className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedTag('all')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${selectedTag === 'all'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                    : 'bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-600 hover:text-gray-300'
+                  }`}
+              >
+                All Tags
+              </button>
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(tag)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${selectedTag === tag
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                      : 'bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-600 hover:text-gray-300'
+                    }`}
+                >
+                  #{tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-blue-500"
-          >
-            {categories.map(cat => (
-              <option key={cat} value={cat}>
-                {cat === 'all' ? 'All Categories' : cat}
-              </option>
-            ))}
-          </select>
+        {/* Filters and View Toggle */}
+        <div className="flex gap-2 items-center">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as SnippetType | 'all')}
+              className="bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-blue-500"
+            >
+              <option value="all">All Types</option>
+              <option value="full">Full Page</option>
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+              <option value="javascript">JavaScript</option>
+            </select>
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-blue-500"
-          >
-            <option value="updated">Recent</option>
-            <option value="date">Newest</option>
-            <option value="name">Name</option>
-          </select>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-blue-500"
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat}>
+                  {cat === 'all' ? 'All Categories' : cat}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              className="bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-blue-500"
+            >
+              <option value="updated">Recent</option>
+              <option value="date">Newest</option>
+              <option value="name">Name</option>
+            </select>
+          </div>
+
+          {/* View Toggle */}
+          <div className="flex gap-1 bg-gray-800 border border-gray-700 rounded p-1">
+            <button
+              onClick={() => setViewLayout('list')}
+              className={`p-1.5 rounded transition-colors ${viewLayout === 'list'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-400 hover:text-white'
+                }`}
+              title="List view"
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewLayout('grid')}
+              className={`p-1.5 rounded transition-colors ${viewLayout === 'grid'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-400 hover:text-white'
+                }`}
+              title="Grid view"
+            >
+              <Grid className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Recommended Toggle */}
@@ -403,56 +496,69 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
       {showRecommended && (
         <div className="space-y-3 mb-6">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1">Recommended</h3>
-          {recommendedSnippets.map((snippet) => (
-            <div key={snippet.id} className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 hover:border-blue-500/50 transition-colors group">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="p-1.5 bg-blue-900/20 rounded text-blue-400">
-                    <Sparkles className="w-3 h-3" />
-                  </span>
-                  <div>
-                    <h4 className="font-medium text-white text-sm">{snippet.name}</h4>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-300">
-                        {snippet.type}
-                      </span>
+          <div className={viewLayout === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
+            {recommendedSnippets.map((snippet) => (
+              <div key={snippet.id} className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 hover:border-blue-500/50 transition-colors group">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 bg-blue-900/20 rounded text-blue-400">
+                      <Sparkles className="w-3 h-3" />
+                    </span>
+                    <div>
+                      <h4 className="font-medium text-white text-sm">{snippet.name}</h4>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-300">
+                          {snippet.type}
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  <button
+                    onClick={() => {
+                      onSave(
+                        snippet.name,
+                        snippet.html,
+                        snippet.css,
+                        snippet.javascript,
+                        snippet.description,
+                        snippet.tags,
+                        snippet.category,
+                        snippet.type,
+                        snippet.scope
+                      );
+                      setShowRecommended(false);
+                    }}
+                    className="p-1.5 hover:bg-blue-600 rounded text-gray-400 hover:text-white transition-colors"
+                    title="Add to My Snippets"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    onSave(
-                      snippet.name,
-                      snippet.html,
-                      snippet.css,
-                      snippet.javascript,
-                      snippet.description,
-                      snippet.tags,
-                      snippet.category,
-                      snippet.type,
-                      snippet.scope
-                    );
-                    setShowRecommended(false);
-                  }}
-                  className="p-1.5 hover:bg-blue-600 rounded text-gray-400 hover:text-white transition-colors"
-                  title="Add to My Snippets"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
+                {snippet.description && (
+                  <p className="text-xs text-gray-400 line-clamp-2 mb-2">{snippet.description}</p>
+                )}
               </div>
-              {snippet.description && (
-                <p className="text-xs text-gray-400 line-clamp-2 mb-2">{snippet.description}</p>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
       {/* Snippet List */}
-      <div className="space-y-3">
+      <div className={viewLayout === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-3' : 'space-y-3'}>
         {filteredSnippets.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-500 col-span-full">
             <p>No snippets found</p>
+            {(searchQuery || selectedTag !== 'all') && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedTag('all');
+                }}
+                className="mt-2 text-sm text-blue-400 hover:text-blue-300"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         ) : (
           filteredSnippets.map((snippet) => (
@@ -562,19 +668,21 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
               )}
 
               {snippet.tags && snippet.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1 mb-2">
                   {snippet.tags.map((tag, index) => (
-                    <span
+                    <button
                       key={index}
-                      className="text-[10px] px-1.5 py-0.5 bg-gray-700/50 text-gray-400 rounded"
+                      onClick={() => setSelectedTag(tag)}
+                      className="text-[10px] px-1.5 py-0.5 bg-gray-700/50 text-gray-400 rounded hover:bg-gray-700 hover:text-white transition-colors"
+                      title={`Filter by #${tag}`}
                     >
                       #{tag}
-                    </span>
+                    </button>
                   ))}
                 </div>
               )}
 
-              {/* Quick Actions */}
+              {/* Quick Actions with Quick Insert Button */}
               <div className="mt-3 flex gap-2">
                 <button
                   onClick={() => onLoad(snippet)}
@@ -584,9 +692,11 @@ const SnippetManager: React.FC<SnippetManagerProps> = ({
                 </button>
                 <button
                   onClick={() => onInsert(snippet)}
-                  className="flex-1 py-1.5 text-xs bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 rounded transition-colors"
+                  className="flex-1 py-1.5 px-2 text-xs bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium flex items-center justify-center gap-1 shadow-lg shadow-green-600/20"
+                  title="Quick insert snippet code"
                 >
-                  Insert
+                  <Zap className="w-3 h-3" />
+                  Quick Insert
                 </button>
               </div>
             </div>

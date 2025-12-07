@@ -139,10 +139,10 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
     }
   }, []);
 
-  // Auto-scroll to bottom
+  // Auto-scroll to top to show newest responses
   useEffect(() => {
     if (outputRef.current) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight;
+      outputRef.current.scrollTop = 0;
     }
   }, [logs, previewMessages, tabs, activeTabId]);
 
