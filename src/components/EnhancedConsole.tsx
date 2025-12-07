@@ -1137,7 +1137,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       )}
 
       {/* Content Area */}
-      <div className="flex" style={{ height: isExpanded ? 'calc(100vh - 200px)' : '300px' }}>
+      <div className="flex flex-1 overflow-hidden">
         {/* Main Content */}
         <div className={`flex-1 overflow-auto ${activeMode === 'preview' && showPreview ? 'w-1/2' : 'w-full'}`}>
 
