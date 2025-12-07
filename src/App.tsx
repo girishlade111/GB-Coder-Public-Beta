@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
-import { Code2 } from 'lucide-react';
+import { Code2, Eye } from 'lucide-react';
 import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
 import TabbedRightPanel from './components/TabbedRightPanel';
@@ -32,6 +32,7 @@ import { useCodeSelection } from './hooks/useCodeSelection';
 import { useSelectionOperations } from './hooks/useSelectionOperations';
 import { useProject } from './hooks/useProject';
 import { useSettings } from './hooks/useSettings';
+import { useFocusMode } from './hooks/useFocusMode';
 import SelectionToolbar from './components/SelectionToolbar';
 import SelectionSidebar from './components/SelectionSidebar';
 import { downloadAsZip } from './utils/downloadUtils';
@@ -84,6 +85,9 @@ function App() {
 
   // Settings
   const { settings, updateSettings, getFontFamilyCSS } = useSettings();
+
+  // Focus Mode
+  const { focusMode, toggleFocusMode } = useFocusMode();
 
   // Project Management
   const project = useProject(html, css, javascript, externalLibraries);
@@ -856,7 +860,7 @@ function App() {
             <AboutPage />
           </Suspense>
         </div>
-        <Footer />
+        <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
 
         {/* External Library Manager for About page */}
         <Suspense fallback={null}>
@@ -926,7 +930,7 @@ function App() {
             <DocumentationPage />
           </Suspense>
         </div>
-        <Footer />
+        <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
 
         {/* External Library Manager for Documentation page */}
         <Suspense fallback={null}>
@@ -995,7 +999,7 @@ function App() {
             <CodeHistoryPage selectionHistory={selectionHistory} />
           </Suspense>
         </div>
-        <Footer />
+        <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
 
         {/* External Library Manager for History page */}
         <Suspense fallback={null}>
@@ -1167,7 +1171,7 @@ function App() {
       </div>
 
       {/* Footer */}
-      <Footer />
+      <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
 
       {/* AI Enhancement Popup */}
       <Suspense fallback={null}>
@@ -1305,6 +1309,21 @@ function App() {
         onHistoryToggle={setIsHistoryPanelOpen}
         isHistoryOpen={isHistoryPanelOpen}
       />
+
+      {/* Floating button to disable Focus Mode */}
+      {focusMode && (
+        <button
+          onClick={toggleFocusMode}
+          className={`fixed bottom-4 right-4 z-50 p-3 rounded-full shadow-lg transition-colors ${isDark
+              ? 'bg-gray-800 hover:bg-gray-700 text-bright-white'
+              : 'bg-gray-700 hover:bg-gray-600 text-white'
+            }`}
+          title="Show Footer (Exit Focus Mode)"
+          aria-label="Show Footer"
+        >
+          <Eye className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
