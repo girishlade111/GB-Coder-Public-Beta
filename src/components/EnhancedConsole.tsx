@@ -1178,7 +1178,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
           {/* ADVANCED CONSOLE MODE */}
           {activeMode === 'advanced' && (
-            <div className="h-full flex flex-col">
+            <div className="h-full flex flex-col overflow-hidden">
               {/* Settings Panel */}
               {showSettings && (
                 <div className="bg-dark-gray border-b border-gray-700 p-3">
@@ -1249,7 +1249,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               {/* Output Area */}
               <div
                 ref={outputRef}
-                className={`bg-matte-black p-4 font-mono overflow-y-auto flex-1 text-sm cursor-text`}
+                className={`bg-matte-black p-4 font-mono overflow-y-auto flex-1 min-h-0 text-sm cursor-text`}
                 onClick={() => inputRef.current?.focus()}
               >
                 {filteredAdvancedLogs.length === 0 ? (
@@ -1260,7 +1260,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    {filteredAdvancedLogs.map((log) => (
+                    {[...filteredAdvancedLogs].reverse().map((log) => (
                       <div key={log.id} className="flex items-start gap-2 py-1">
                         <span className="text-gray-500 text-xs mt-0.5 flex-shrink-0">
                           {new Date(log.timestamp).toLocaleTimeString()}
