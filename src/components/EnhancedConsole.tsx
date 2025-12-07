@@ -1205,7 +1205,8 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
               {/* Output Area */}
               <div
                 ref={outputRef}
-                className={`bg-matte-black p-4 font-mono overflow-y-auto flex-1 text-sm`}
+                className={`bg-matte-black p-4 font-mono overflow-y-auto flex-1 text-sm cursor-text`}
+                onClick={() => inputRef.current?.focus()}
               >
                 {filteredAdvancedLogs.length === 0 ? (
                   <div className="text-gray-500 italic text-center py-8">
@@ -1228,50 +1229,53 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
                     ))}
                   </div>
                 )}
+
+
+                {/* Input Area - Moved inside output stream */}
+                <form onSubmit={handleAdvancedSubmit} className="mt-1 relative">
+                  {/* Auto-complete dropdown */}
+                  {showAutoComplete && autoCompleteItems.length > 0 && (
+                    <div className="absolute bottom-full left-0 right-0 bg-dark-gray border border-gray-700 rounded-t-lg max-h-48 overflow-y-auto z-10 mb-1">
+                      {autoCompleteItems.map((item, index) => (
+                        <div
+                          key={item.value}
+                          className={`px-3 py-2 cursor-pointer flex items-center justify-between ${index === selectedAutoCompleteIndex ? 'bg-gray-700' : 'hover:bg-gray-700'
+                            }`}
+                          onClick={() => {
+                            setCommand(item.value);
+                            setShowAutoComplete(false);
+                            inputRef.current?.focus();
+                          }}
+                        >
+                          <div>
+                            <span className="text-gray-200">{item.value}</span>
+                            {item.description && (
+                              <span className="text-gray-500 text-xs ml-2">{item.description}</span>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-500">{item.type}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400 font-mono text-sm flex-shrink-0">$</span>
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={command}
+                      onChange={handleAdvancedInputChange}
+                      onKeyDown={handleAdvancedKeyDown}
+                      placeholder=""
+                      className="flex-1 bg-transparent text-gray-200 outline-none font-mono text-sm border-none p-0 focus:ring-0"
+                      autoFocus
+                      autoComplete="off"
+                    />
+                  </div>
+                </form>
               </div>
 
-              {/* Input Area */}
-              <form onSubmit={handleAdvancedSubmit} className="bg-dark-gray border-t border-gray-700 p-3 relative">
-                {/* Auto-complete dropdown */}
-                {showAutoComplete && autoCompleteItems.length > 0 && (
-                  <div className="absolute bottom-full left-0 right-0 bg-dark-gray border border-gray-700 rounded-t-lg max-h-48 overflow-y-auto">
-                    {autoCompleteItems.map((item, index) => (
-                      <div
-                        key={item.value}
-                        className={`px-3 py-2 cursor-pointer flex items-center justify-between ${index === selectedAutoCompleteIndex ? 'bg-gray-700' : 'hover:bg-gray-700'
-                          }`}
-                        onClick={() => {
-                          setCommand(item.value);
-                          setShowAutoComplete(false);
-                          inputRef.current?.focus();
-                        }}
-                      >
-                        <div>
-                          <span className="text-gray-200">{item.value}</span>
-                          {item.description && (
-                            <span className="text-gray-500 text-xs ml-2">{item.description}</span>
-                          )}
-                        </div>
-                        <span className="text-xs text-gray-500">{item.type}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2">
-                  <span className="text-green-400 font-mono text-sm flex-shrink-0">$</span>
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={command}
-                    onChange={handleAdvancedInputChange}
-                    onKeyDown={handleAdvancedKeyDown}
-                    placeholder="Enter command... (Tab for autocomplete, ↑↓ for history)"
-                    className="flex-1 bg-transparent text-gray-200 placeholder-gray-500 outline-none font-mono text-sm"
-                    autoFocus
-                  />
-                </div>
-              </form>
             </div>
           )}
 
