@@ -19,7 +19,8 @@ import {
   Moon,
   Settings,
   History,
-  Puzzle
+  Puzzle,
+  Keyboard
 } from 'lucide-react';
 import { EditorLanguage } from '../types';
 import ThemeToggle from './ui/ThemeToggle';

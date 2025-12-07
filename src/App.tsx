@@ -21,6 +21,7 @@ const ProjectBar = lazy(() => import('./components/ProjectBar'));
 const ExtensionsMarketplace = lazy(() => import('./components/ExtensionsMarketplace'));
 const SettingsModal = lazy(() => import('./components/SettingsModal'));
 const HistoryPanel = lazy(() => import('./components/HistoryPanel'));
+const KeyboardShortcutsHelp = lazy(() => import('./components/KeyboardShortcutsHelp'));
 
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useCodeHistory } from './hooks/useCodeHistory';
@@ -82,6 +83,7 @@ function App() {
   const [externalLibraries, setExternalLibraries] = useState<ExternalLibrary[]>([]);
   const [showExtensionsMarketplace, setShowExtensionsMarketplace] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState<boolean>(false);
 
   // Settings
   const { settings, updateSettings, getFontFamilyCSS } = useSettings();
@@ -207,13 +209,20 @@ function App() {
       setCurrentView('documentation');
     };
 
+    const handleOpenKeyboardShortcuts = () => {
+      console.log('[DEBUG] Opening keyboard shortcuts modal');
+      setShowKeyboardShortcuts(true);
+    };
+
     window.addEventListener('navigate-to-about', handleNavigateToAbout);
     window.addEventListener('navigate-to-documentation', handleNavigateToDocumentation);
+    window.addEventListener('open-keyboard-shortcuts', handleOpenKeyboardShortcuts);
     console.log('[DEBUG] Navigation event listeners added');
 
     return () => {
       window.removeEventListener('navigate-to-about', handleNavigateToAbout);
       window.removeEventListener('navigate-to-documentation', handleNavigateToDocumentation);
+      window.removeEventListener('open-keyboard-shortcuts', handleOpenKeyboardShortcuts);
       console.log('[DEBUG] Navigation event listeners removed');
     };
   }, []);
@@ -316,6 +325,10 @@ function App() {
 
   const handleSettingsToggle = () => {
     setShowSettings(!showSettings);
+  };
+
+  const handleKeyboardShortcutsToggle = () => {
+    setShowKeyboardShortcuts(!showKeyboardShortcuts);
   };
 
   const handleExternalLibrariesChange = (libraries: ExternalLibrary[]) => {
@@ -1201,6 +1214,14 @@ function App() {
         <SettingsModal
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
+        />
+      </Suspense>
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <Suspense fallback={null}>
+        <KeyboardShortcutsHelp
+          isOpen={showKeyboardShortcuts}
+          onClose={() => setShowKeyboardShortcuts(false)}
         />
       </Suspense>
 

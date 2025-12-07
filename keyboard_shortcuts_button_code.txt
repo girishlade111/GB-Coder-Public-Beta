@@ -1,0 +1,17 @@
+// Add this button code to NavigationBar.tsx after line 533 (after the theme toggle button)
+// Insert it before the "About Us" button
+
+                          <button
+                            onClick={() => {
+                              window.dispatchEvent(new CustomEvent('open-keyboard-shortcuts'));
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`w-full px-3 py-2.5 text-left text-sm flex items-center gap-3 transition-colors rounded-lg ${isDark
+                              ? 'text-gray-300 hover:bg-gray-700'
+                              : 'text-gray-700 hover:bg-gray-50'
+                              }`}
+                          >
+                            <Keyboard className="w-4 h-4" />
+                            Keyboard Shortcuts
+                          </button>
+
