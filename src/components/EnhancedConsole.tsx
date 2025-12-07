@@ -890,7 +890,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   };
 
   return (
-    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 flex flex-col min-h-0 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
+    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 flex flex-col h-full min-h-0 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
       } ${className}`}>
       {/* Header */}
       <div className="bg-dark-gray px-4 py-2 border-b border-gray-700 flex items-center justify-between">
@@ -972,10 +972,19 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
           <button
             onClick={() => {
               switch (activeMode) {
-                case 'console': onClear(); break;
-                case 'advanced': clearAdvancedLogs(); break;
-                case 'validator': setValidationResults([]); break;
-                case 'preview': clearPreviewMessages(); break;
+                case 'console':
+                  onClear();
+                  break;
+                case 'advanced':
+                  clearAdvancedLogs();
+                  commandHistoryService.clear();
+                  break;
+                case 'validator':
+                  setValidationResults([]);
+                  break;
+                case 'preview':
+                  clearPreviewMessages();
+                  break;
               }
             }}
             className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-gray-200 transition-colors"
@@ -1137,7 +1146,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
       )}
 
       {/* Content Area */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         {/* Main Content */}
         <div className={`flex-1 overflow-auto ${activeMode === 'preview' && showPreview ? 'w-1/2' : 'w-full'}`}>
 

@@ -111,16 +111,18 @@ const TabbedRightPanel: React.FC<TabbedRightPanelProps> = ({
                             <p className="text-gray-400 text-sm">Loading Console...</p>
                         </div>
                     }>
-                        <EnhancedConsole
-                            logs={consoleLogs}
-                            onClear={onClearConsole}
-                            html={html}
-                            css={css}
-                            javascript={javascript}
-                            onCommand={onCommand}
-                            onApplyErrorFix={onApplyErrorFix}
-                            className="h-full"
-                        />
+                        <div className="h-full min-h-0 flex flex-col">
+                            <EnhancedConsole
+                                logs={consoleLogs}
+                                onClear={onClearConsole}
+                                html={html}
+                                css={css}
+                                javascript={javascript}
+                                onCommand={onCommand}
+                                onApplyErrorFix={onApplyErrorFix}
+                                className="flex-1"
+                            />
+                        </div>
                     </Suspense>
                 );
             case 'suggestions':

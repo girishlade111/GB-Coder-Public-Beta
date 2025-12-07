@@ -1066,7 +1066,7 @@ function App() {
       <div className="flex-1 px-2 sm:px-4 lg:px-6 py-4">
         <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} h-full`}>
           {/* Left Panel - Editors */}
-          <div className="flex flex-col space-y-3 w-full">
+          <div className="flex flex-col space-y-3 w-full min-h-0">
             <EditorPanel
               title="HTML"
               language="html"
@@ -1117,7 +1117,7 @@ function App() {
           </div>
 
           {/* Right Panel - Tabbed Interface for Preview, Console, and AI Suggestions */}
-          <div className="flex flex-col w-full h-full min-h-[600px]">
+          <div className="flex flex-col w-full h-full min-h-0">
             <TabbedRightPanel
               errorCount={consoleLogs.filter(log => log.type === 'error').length}
               suggestionCount={aiSuggestions.length}
