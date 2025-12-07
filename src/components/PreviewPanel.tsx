@@ -377,7 +377,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
     <>
       {/* Normal Preview Panel */}
       {viewMode !== 'fullscreen' && (
-        <div className="w-full h-96 bg-dark-gray rounded-lg overflow-hidden border border-gray-700">
+        <div className="w-full h-full bg-dark-gray rounded-lg overflow-hidden border border-gray-700 flex flex-col">
           {renderPreviewContent()}
         </div>
       )}

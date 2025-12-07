@@ -890,7 +890,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   };
 
   return (
-    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
+    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 flex flex-col ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
       } ${className}`}>
       {/* Header */}
       <div className="bg-dark-gray px-4 py-2 border-b border-gray-700 flex items-center justify-between">
@@ -1089,8 +1089,8 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
                 key={filter}
                 onClick={() => setBasicFilter(filter)}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${basicFilter === filter
-                    ? 'bg-blue-600 text-white shadow-md border border-blue-500'
-                    : 'bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600 hover:border-gray-500'
+                  ? 'bg-blue-600 text-white shadow-md border border-blue-500'
+                  : 'bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600 hover:border-gray-500'
                   }`}
               >
                 {filter === 'all' ? 'All' : filter.toUpperCase()}

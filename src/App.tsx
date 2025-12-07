@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
 import { Code2 } from 'lucide-react';
 import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
-import PreviewPanel from './components/PreviewPanel';
+import TabbedRightPanel from './components/TabbedRightPanel';
 import SaveStatusIndicator from './components/ui/SaveStatusIndicator';
 import Footer from './components/ui/Footer';
 
@@ -1116,44 +1116,29 @@ function App() {
             />
           </div>
 
-          {/* Right Panel - Preview, Console, and Gemini Assistant */}
-          <div className="flex flex-col space-y-3 w-full">
-            <PreviewPanel
+          {/* Right Panel - Tabbed Interface for Preview, Console, and AI Suggestions */}
+          <div className="flex flex-col w-full h-full min-h-[600px]">
+            <TabbedRightPanel
+              errorCount={consoleLogs.filter(log => log.type === 'error').length}
+              suggestionCount={aiSuggestions.length}
+              showAISuggestions={showAISuggestions}
+              // Preview props
               html={html}
               css={css}
               javascript={javascript}
               onConsoleLog={handleConsoleLog}
               autoRunJS={settings.autoRunJS}
               previewDelay={settings.previewDelay}
+              // Console props
+              consoleLogs={consoleLogs}
+              onClearConsole={clearConsoleLogs}
+              onCommand={handleCommand}
+              onApplyErrorFix={handleApplyErrorFix}
+              // AI Suggestions props
+              aiSuggestions={aiSuggestions}
+              onApplySuggestion={handleApplySuggestion}
+              onDismissSuggestion={handleDismissSuggestion}
             />
-
-            <Suspense fallback={
-              <div className="bg-matte-black border border-gray-700 rounded-lg p-4 text-center">
-                <div className="w-6 h-6 border-3 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-gray-400 text-sm">Loading Console...</p>
-              </div>
-            }>
-              <EnhancedConsole
-                logs={consoleLogs}
-                onClear={clearConsoleLogs}
-                html={html}
-                css={css}
-                javascript={javascript}
-                onCommand={handleCommand}
-                onApplyErrorFix={handleApplyErrorFix}
-              />
-            </Suspense>
-
-            {/* AI Suggestions Panel */}
-            {showAISuggestions && (
-              <Suspense fallback={null}>
-                <AISuggestionPanel
-                  suggestions={aiSuggestions}
-                  onApplySuggestion={handleApplySuggestion}
-                  onDismiss={handleDismissSuggestion}
-                />
-              </Suspense>
-            )}
 
             {/* Snippets Sidebar */}
             <Suspense fallback={null}>

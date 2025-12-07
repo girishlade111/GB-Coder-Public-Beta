@@ -64,7 +64,7 @@ const AISuggestionPanel: React.FC<AISuggestionPanelProps> = ({
   };
 
   return (
-    <div className="bg-matte-black border border-gray-700 rounded-lg overflow-hidden">
+    <div className="bg-matte-black border border-gray-700 rounded-lg overflow-hidden h-full flex flex-col">
       <div
         className="bg-dark-gray px-4 py-3 border-b border-gray-700 flex items-center justify-between cursor-pointer hover:bg-gray-750 transition-colors"
         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -84,7 +84,7 @@ const AISuggestionPanel: React.FC<AISuggestionPanelProps> = ({
       </div>
 
       {!isCollapsed && (
-        <div className="max-h-96 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           {suggestions.length === 0 ? (
             <div className="p-6 text-center">
               <Lightbulb className="w-12 h-12 text-gray-600 mx-auto mb-2" />
