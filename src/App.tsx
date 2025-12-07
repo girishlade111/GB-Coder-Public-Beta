@@ -1,15 +1,18 @@
 import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
 import { Code2, Eye } from 'lucide-react';
+// Phase 1: Critical components - loaded immediately (not lazy)
 import NavigationBar from './components/NavigationBar';
 import EditorPanel from './components/EditorPanel';
 import TabbedRightPanel from './components/TabbedRightPanel';
 import SaveStatusIndicator from './components/ui/SaveStatusIndicator';
 import Footer from './components/ui/Footer';
 
-// Lazy load heavy components
+// Phase 2: High priority - lazy loaded after initial render
 const EnhancedConsole = lazy(() => import('./components/EnhancedConsole'));
-const SnippetsSidebar = lazy(() => import('./components/SnippetsSidebar'));
 const AISuggestionPanel = lazy(() => import('./components/AISuggestionPanel'));
+
+// Phase 3: Deferred - lazy loaded after high priority components
+const SnippetsSidebar = lazy(() => import('./components/SnippetsSidebar'));
 const GeminiCodeAssistant = lazy(() => import('./components/GeminiCodeAssistant'));
 const AIEnhancementPopup = lazy(() => import('./components/AIEnhancementPopup'));
 const CodeExplanationPopup = lazy(() => import('./components/CodeExplanationPopup'));
@@ -34,6 +37,7 @@ import { useSelectionOperations } from './hooks/useSelectionOperations';
 import { useProject } from './hooks/useProject';
 import { useSettings } from './hooks/useSettings';
 import { useFocusMode } from './hooks/useFocusMode';
+import { useProgressiveLoad } from './hooks/useProgressiveLoad';
 import SelectionToolbar from './components/SelectionToolbar';
 import SelectionSidebar from './components/SelectionSidebar';
 import { downloadAsZip } from './utils/downloadUtils';
@@ -60,6 +64,9 @@ const defaultJS = ``;
 function App() {
   // DEBUG: Log component mount
   console.log('[DEBUG] App component mounting');
+
+  // Progressive loading phases
+  const { isPhase1Ready, isPhase2Ready, isPhase3Ready } = useProgressiveLoad();
 
   const [html, setHtml] = useState(defaultHTML);
   const [css, setCss] = useState(defaultCSS);
@@ -227,8 +234,11 @@ function App() {
     };
   }, []);
 
-  // Generate AI suggestions when code changes
+  // Generate AI suggestions when code changes (deferred to Phase 2)
   useEffect(() => {
+    // Don't generate suggestions until Phase 2 is ready
+    if (!isPhase2Ready) return;
+
     const generateSuggestions = () => {
       try {
         console.log('[DEBUG] Generating AI suggestions...');
@@ -254,10 +264,13 @@ function App() {
     // Debounce suggestion generation
     const timeoutId = setTimeout(generateSuggestions, 1000);
     return () => clearTimeout(timeoutId);
-  }, [html, css, javascript, dismissedSuggestions]);
+  }, [html, css, javascript, dismissedSuggestions, isPhase2Ready]);
 
-  // Load external libraries on component mount
+  // Load external libraries on component mount (deferred to Phase 3)
   useEffect(() => {
+    // Don't load libraries until Phase 3 is ready
+    if (!isPhase3Ready) return;
+
     try {
       console.log('[DEBUG] Loading external libraries...');
 
@@ -274,18 +287,21 @@ function App() {
       // Set empty array as fallback to prevent crashes
       setExternalLibraries([]);
     }
-  }, []);
+  }, [isPhase3Ready]);
 
 
-  // Migrate snippets to new format with type and scope
+  // Migrate snippets to new format with type and scope (deferred to Phase 3)
   useEffect(() => {
+    // Don't migrate snippets until Phase 3 is ready
+    if (!isPhase3Ready) return;
+
     const migratedSnippets = migrateSnippets(snippets);
     // Only update if migration changed anything
     if (JSON.stringify(migratedSnippets) !== JSON.stringify(snippets)) {
       setSnippets(migratedSnippets);
       console.log('Migrated snippets to new format');
     }
-  }, []); // Run once on mount
+  }, [isPhase3Ready]); // Run when Phase 3 is ready
 
   // Sync project code when html/css/javascript changes
   useEffect(() => {
@@ -875,15 +891,17 @@ function App() {
         </div>
         <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
 
-        {/* External Library Manager for About page */}
-        <Suspense fallback={null}>
-          <ExternalLibraryManager
-            isOpen={showExternalLibraryManager}
-            onClose={() => setShowExternalLibraryManager(false)}
-            libraries={externalLibraries}
-            onLibrariesChange={handleExternalLibrariesChange}
-          />
-        </Suspense>
+        {/* External Library Manager for About page - Phase 3 */}
+        {isPhase3Ready && (
+          <Suspense fallback={null}>
+            <ExternalLibraryManager
+              isOpen={showExternalLibraryManager}
+              onClose={() => setShowExternalLibraryManager(false)}
+              libraries={externalLibraries}
+              onLibrariesChange={handleExternalLibrariesChange}
+            />
+          </Suspense>
+        )}
       </div>
     );
   }
@@ -945,15 +963,17 @@ function App() {
         </div>
         <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
 
-        {/* External Library Manager for Documentation page */}
-        <Suspense fallback={null}>
-          <ExternalLibraryManager
-            open={showExternalLibraryManager}
-            onClose={() => setShowExternalLibraryManager(false)}
-            libraries={externalLibraries}
-            onLibrariesChange={handleExternalLibrariesChange}
-          />
-        </Suspense>
+        {/* External Library Manager for Documentation page - Phase 3 */}
+        {isPhase3Ready && (
+          <Suspense fallback={null}>
+            <ExternalLibraryManager
+              isOpen={showExternalLibraryManager}
+              onClose={() => setShowExternalLibraryManager(false)}
+              libraries={externalLibraries}
+              onLibrariesChange={handleExternalLibrariesChange}
+            />
+          </Suspense>
+        )}
       </div>
     );
   }
@@ -1014,15 +1034,17 @@ function App() {
         </div>
         <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
 
-        {/* External Library Manager for History page */}
-        <Suspense fallback={null}>
-          <ExternalLibraryManager
-            isOpen={showExternalLibraryManager}
-            onClose={() => setShowExternalLibraryManager(false)}
-            libraries={externalLibraries}
-            onLibrariesChange={handleExternalLibrariesChange}
-          />
-        </Suspense>
+        {/* External Library Manager for History page - Phase 3 */}
+        {isPhase3Ready && (
+          <Suspense fallback={null}>
+            <ExternalLibraryManager
+              isOpen={showExternalLibraryManager}
+              onClose={() => setShowExternalLibraryManager(false)}
+              libraries={externalLibraries}
+              onLibrariesChange={handleExternalLibrariesChange}
+            />
+          </Suspense>
+        )}
       </div>
     );
   }
@@ -1064,19 +1086,21 @@ function App() {
         }
       />
 
-      {/* Project Bar */}
-      <Suspense fallback={null}>
-        <ProjectBar
-          currentProject={project.currentProject}
-          projectList={project.projectList}
-          isSaving={project.isSaving}
-          onSave={project.saveCurrentProject}
-          onDuplicate={project.duplicateCurrentProject}
-          onNewProject={handleNewProject}
-          onSwitchProject={handleSwitchProject}
-          onUpdateName={project.updateProjectName}
-        />
-      </Suspense>
+      {/* Project Bar - Only load in Phase 3 */}
+      {isPhase3Ready && (
+        <Suspense fallback={null}>
+          <ProjectBar
+            currentProject={project.currentProject}
+            projectList={project.projectList}
+            isSaving={project.isSaving}
+            onSave={project.saveCurrentProject}
+            onDuplicate={project.duplicateCurrentProject}
+            onNewProject={handleNewProject}
+            onSwitchProject={handleSwitchProject}
+            onUpdateName={project.updateProjectName}
+          />
+        </Suspense>
+      )}
 
 
       {/* Main Content */}
@@ -1157,28 +1181,32 @@ function App() {
               onDismissSuggestion={handleDismissSuggestion}
             />
 
-            {/* Snippets Sidebar */}
-            <Suspense fallback={null}>
-              <SnippetsSidebar
-                isOpen={showSnippets}
-                onClose={() => setShowSnippets(false)}
-                snippets={snippets}
-                onSave={saveSnippet}
-                onLoad={loadSnippet}
-                onInsert={insertSnippet}
-                onDelete={deleteSnippet}
-                onUpdate={updateSnippet}
-                currentCode={{ html, css, javascript }}
-              />
-            </Suspense>
+            {/* Snippets Sidebar - Phase 3 */}
+            {isPhase3Ready && (
+              <Suspense fallback={null}>
+                <SnippetsSidebar
+                  isOpen={showSnippets}
+                  onClose={() => setShowSnippets(false)}
+                  snippets={snippets}
+                  onSave={saveSnippet}
+                  onLoad={loadSnippet}
+                  onInsert={insertSnippet}
+                  onDelete={deleteSnippet}
+                  onUpdate={updateSnippet}
+                  currentCode={{ html, css, javascript }}
+                />
+              </Suspense>
+            )}
 
-            {/* Extensions Marketplace */}
-            <Suspense fallback={null}>
-              <ExtensionsMarketplace
-                isOpen={showExtensionsMarketplace}
-                onClose={() => setShowExtensionsMarketplace(false)}
-              />
-            </Suspense>
+            {/* Extensions Marketplace - Phase 3 */}
+            {isPhase3Ready && (
+              <Suspense fallback={null}>
+                <ExtensionsMarketplace
+                  isOpen={showExtensionsMarketplace}
+                  onClose={() => setShowExtensionsMarketplace(false)}
+                />
+              </Suspense>
+            )}
           </div>
         </div>
       </div>
@@ -1186,65 +1214,75 @@ function App() {
       {/* Footer */}
       <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
 
-      {/* AI Enhancement Popup */}
-      <Suspense fallback={null}>
-        <AIEnhancementPopup
-          isOpen={aiPopupOpen}
-          onClose={handleAIPopupClose}
-          code={aiPopupCode}
-          language={aiPopupLanguage}
-          onApplyChanges={handleAIEnhancementApply}
-          onApplyPartial={handleAIPartialApply}
-          onUndo={codeHistory.canUndo ? handleUndo : undefined}
-        />
-      </Suspense>
+      {/* AI Enhancement Popup - Phase 3 */}
+      {isPhase3Ready && (
+        <Suspense fallback={null}>
+          <AIEnhancementPopup
+            isOpen={aiPopupOpen}
+            onClose={handleAIPopupClose}
+            code={aiPopupCode}
+            language={aiPopupLanguage}
+            onApplyChanges={handleAIEnhancementApply}
+            onApplyPartial={handleAIPartialApply}
+            onUndo={codeHistory.canUndo ? handleUndo : undefined}
+          />
+        </Suspense>
+      )}
 
-      {/* External Library Manager */}
-      <Suspense fallback={null}>
-        <ExternalLibraryManager
-          isOpen={showExternalLibraryManager}
-          onClose={() => setShowExternalLibraryManager(false)}
-          libraries={externalLibraries}
-          onLibrariesChange={handleExternalLibrariesChange}
-        />
-      </Suspense>
+      {/* External Library Manager - Phase 3 */}
+      {isPhase3Ready && (
+        <Suspense fallback={null}>
+          <ExternalLibraryManager
+            isOpen={showExternalLibraryManager}
+            onClose={() => setShowExternalLibraryManager(false)}
+            libraries={externalLibraries}
+            onLibrariesChange={handleExternalLibrariesChange}
+          />
+        </Suspense>
+      )}
 
-      {/* Settings Modal */}
-      <Suspense fallback={null}>
-        <SettingsModal
-          isOpen={showSettings}
-          onClose={() => setShowSettings(false)}
-        />
-      </Suspense>
+      {/* Settings Modal - Phase 3 */}
+      {isPhase3Ready && (
+        <Suspense fallback={null}>
+          <SettingsModal
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+          />
+        </Suspense>
+      )}
 
-      {/* Keyboard Shortcuts Help Modal */}
-      <Suspense fallback={null}>
-        <KeyboardShortcutsHelp
-          isOpen={showKeyboardShortcuts}
-          onClose={() => setShowKeyboardShortcuts(false)}
-        />
-      </Suspense>
+      {/* Keyboard Shortcuts Help Modal - Phase 3 */}
+      {isPhase3Ready && (
+        <Suspense fallback={null}>
+          <KeyboardShortcutsHelp
+            isOpen={showKeyboardShortcuts}
+            onClose={() => setShowKeyboardShortcuts(false)}
+          />
+        </Suspense>
+      )}
 
-      {/* Code Explanation Popup */}
-      <Suspense fallback={null}>
-        <CodeExplanationPopup
-          isOpen={showExplanationPopup}
-          onClose={() => {
-            setShowExplanationPopup(false);
-            clearExplanation(); // Clear explanation state when popup is closed
-          }}
-          explanation={explanation}
-          isLoading={isExplanationLoading}
-          position={popupPosition}
-          onUserLevelChange={(level) => explanation && explainCode(explanation.code, explanation.language, level)}
-          onShowSimplified={getSimplifiedExplanation}
-          onShowAnnotated={getAnnotatedCode}
-          onAddComments={handleAddComments}
-        />
-      </Suspense>
+      {/* Code Explanation Popup - Phase 3 */}
+      {isPhase3Ready && (
+        <Suspense fallback={null}>
+          <CodeExplanationPopup
+            isOpen={showExplanationPopup}
+            onClose={() => {
+              setShowExplanationPopup(false);
+              clearExplanation(); // Clear explanation state when popup is closed
+            }}
+            explanation={explanation}
+            isLoading={isExplanationLoading}
+            position={popupPosition}
+            onUserLevelChange={(level) => explanation && explainCode(explanation.code, explanation.language, level)}
+            onShowSimplified={getSimplifiedExplanation}
+            onShowAnnotated={getAnnotatedCode}
+            onAddComments={handleAddComments}
+          />
+        </Suspense>
+      )}
 
-      {/* Code Buddy - Sidebar AI Assistant */}
-      {showGeminiAssistant && (
+      {/* Code Buddy - Sidebar AI Assistant - Phase 3 */}
+      {showGeminiAssistant && isPhase3Ready && (
         <Suspense fallback={null}>
           <GeminiCodeAssistant
             currentCode={{ html, css, javascript }}
@@ -1286,18 +1324,20 @@ function App() {
 
 
 
-      {/* History Panel */}
-      <Suspense fallback={null}>
-        <HistoryPanel
-          isOpen={isHistoryPanelOpen}
-          onClose={() => setIsHistoryPanelOpen(false)}
-          history={codeHistory.allHistory}
-          currentIndex={codeHistory.currentIndex}
-          onJumpToSnapshot={handleJumpToSnapshot}
-          onCreateSnapshot={handleCreateSnapshot}
-          getDiffPreview={codeHistory.getDiffPreview}
-        />
-      </Suspense>
+      {/* History Panel - Phase 3 */}
+      {isPhase3Ready && (
+        <Suspense fallback={null}>
+          <HistoryPanel
+            isOpen={isHistoryPanelOpen}
+            onClose={() => setIsHistoryPanelOpen(false)}
+            history={codeHistory.allHistory}
+            currentIndex={codeHistory.currentIndex}
+            onJumpToSnapshot={handleJumpToSnapshot}
+            onCreateSnapshot={handleCreateSnapshot}
+            getDiffPreview={codeHistory.getDiffPreview}
+          />
+        </Suspense>
+      )}
 
       {/* Selection Toolbar - Appears when code is selected */}
       {hasSelection && selection.position && (

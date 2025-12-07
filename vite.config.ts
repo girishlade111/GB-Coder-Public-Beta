@@ -54,11 +54,46 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'monaco-editor': ['@monaco-editor/react'],
-          'ai-vendor': ['@google/generative-ai'],
-          'ui-vendor': ['lucide-react'],
+        manualChunks: (id) => {
+          // Vendor splitting
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@monaco-editor')) {
+              return 'monaco-editor';
+            }
+            if (id.includes('@google/generative-ai')) {
+              return 'ai-vendor';
+            }
+            if (id.includes('lucide-react')) {
+              return 'ui-vendor';
+            }
+            return 'vendor';
+          }
+
+          // Phase 2: High priority components (Preview, Console, AI Suggestions)
+          if (id.includes('/components/TabbedRightPanel') ||
+            id.includes('/components/PreviewPanel') ||
+            id.includes('/components/EnhancedConsole') ||
+            id.includes('/components/AISuggestionPanel')) {
+            return 'phase2-critical';
+          }
+
+          // Phase 3: Deferred components (AI features, settings, etc.)
+          if (id.includes('/components/GeminiCodeAssistant') ||
+            id.includes('/components/SnippetsSidebar') ||
+            id.includes('/components/SettingsModal') ||
+            id.includes('/components/HistoryPanel') ||
+            id.includes('/components/ExtensionsMarketplace') ||
+            id.includes('/components/ExternalLibraryManager') ||
+            id.includes('/components/AIEnhancementPopup') ||
+            id.includes('/components/CodeExplanationPopup') ||
+            id.includes('/components/KeyboardShortcutsHelp') ||
+            id.includes('/components/ProjectBar') ||
+            id.includes('/components/pages/')) {
+            return 'phase3-deferred';
+          }
         },
       },
     },
