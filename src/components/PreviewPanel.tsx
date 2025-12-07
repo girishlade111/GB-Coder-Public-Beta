@@ -271,7 +271,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const renderPreviewContent = () => (
     <>
       <div className={`${viewMode === 'fullscreen' ? 'bg-gray-800' : 'bg-gray-900'} px-4 py-2 border-b border-gray-700 flex items-center justify-between`}>
-        <h3 className="text-sm font-medium text-gray-300">Live Preview</h3>
+        <h2 className="text-sm font-medium text-gray-300">Live Preview</h2>
         <div className="flex items-center gap-3">
           {/* View Mode Toggles */}
           <div className="flex items-center gap-1 border border-gray-700 rounded bg-gray-800 p-1">

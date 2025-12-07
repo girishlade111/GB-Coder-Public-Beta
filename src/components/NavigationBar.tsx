@@ -229,10 +229,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                   alt="GB Coder Logo"
                   className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl object-contain"
                 />
-                <span className={`text-sm sm:text-lg lg:text-xl xl:text-2xl font-bold truncate ${isDark ? 'text-bright-white' : 'text-gray-900'
+                <h1 className={`text-sm sm:text-lg lg:text-xl xl:text-2xl font-bold truncate ${isDark ? 'text-bright-white' : 'text-gray-900'
                   }`}>
                   <span className="block sm:inline">GB Coder</span>
-                </span>
+                </h1>
               </div>
             </div>
 

@@ -890,13 +890,13 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   };
 
   return (
-    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 flex flex-col ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
+    <div className={`bg-gray-900 border border-gray-700 rounded-lg overflow-hidden transition-all duration-300 flex flex-col min-h-0 ${isExpanded ? 'fixed inset-4 z-50' : 'relative'
       } ${className}`}>
       {/* Header */}
       <div className="bg-dark-gray px-4 py-2 border-b border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Terminal className="w-4 h-4 text-green-400" />
-          <h3 className="text-sm font-medium text-gray-300">GB Console</h3>
+          <h2 className="text-sm font-medium text-gray-300">GB Console</h2>
           <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">
             {activeMode === 'console' ? filteredBasicLogs.length :
               activeMode === 'advanced' ? filteredAdvancedLogs.length :
@@ -1178,7 +1178,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
           {/* ADVANCED CONSOLE MODE */}
           {activeMode === 'advanced' && (
-            <div className="h-full flex flex-col overflow-hidden">
+            <div className="h-full flex flex-col min-h-0 overflow-hidden">
               {/* Settings Panel */}
               {showSettings && (
                 <div className="bg-dark-gray border-b border-gray-700 p-3">
