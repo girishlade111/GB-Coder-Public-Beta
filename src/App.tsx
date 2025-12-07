@@ -1314,14 +1314,14 @@ function App() {
       {focusMode && (
         <button
           onClick={toggleFocusMode}
-          className={`fixed bottom-4 right-4 z-50 p-3 rounded-full shadow-lg transition-colors ${isDark
-              ? 'bg-gray-800 hover:bg-gray-700 text-bright-white'
-              : 'bg-gray-700 hover:bg-gray-600 text-white'
+          className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300 animate-pulse hover:scale-110 ${isDark
+            ? 'bg-blue-600 hover:bg-blue-500 text-white'
+            : 'bg-blue-600 hover:bg-blue-500 text-white'
             }`}
-          title="Show Footer (Exit Focus Mode)"
+          title="Click to Show Footer (Exit Focus Mode)"
           aria-label="Show Footer"
         >
-          <Eye className="w-5 h-5" />
+          <Eye className="w-6 h-6" />
         </button>
       )}
     </div>
