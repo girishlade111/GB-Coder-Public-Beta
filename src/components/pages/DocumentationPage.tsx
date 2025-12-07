@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Book, Code2, Brain, Zap, FileText, Settings, Package, History, Keyboard, Search, ChevronRight, Terminal, Eye, Wrench, Star, Lightbulb, Layout, Sparkles, Upload, Download } from 'lucide-react';
+import { Book, Code2, Brain, Zap, FileText, Settings, Package, History, Keyboard, Search, ChevronRight, Terminal, Eye, Wrench, Star, Lightbulb, Layout, Sparkles, Upload } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
 
 const DocumentationPage: React.FC = () => {
@@ -77,8 +77,8 @@ const DocumentationPage: React.FC = () => {
                                         key={section.id}
                                         onClick={() => scrollToSection(section.id)}
                                         className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-2 transition-colors ${activeSection === section.id
-                                                ? 'bg-blue-500 text-white'
-                                                : isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-200'
+                                            ? 'bg-blue-500 text-white'
+                                            : isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-200'
                                             }`}
                                     >
                                         {section.icon}

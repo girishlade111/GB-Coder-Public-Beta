@@ -101,7 +101,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
 
   // AI Error Fix state
   const [fixModalOpen, setFixModalOpen] = useState(false);
-  const [selectedError, setSelectedError] = useState<ConsoleLog | null>(null);
+
   const [fixResponse, setFixResponse] = useState<ErrorFixResponse | null>(null);
   const [isFixLoading, setIsFixLoading] = useState(false);
 
@@ -869,7 +869,7 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
   const handleFixError = async (log: ConsoleLog) => {
     try {
       setIsFixLoading(true);
-      setSelectedError(log);
+
       setFixModalOpen(true);
 
       const response = await aiErrorFixService.fixError(
