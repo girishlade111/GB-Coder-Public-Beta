@@ -3,13 +3,14 @@ import {
   Terminal, Copy, Maximize2, Minimize2,
   Filter, Trash2, AlertCircle, Info,
   AlertTriangle, Bug, Zap, CheckCircle, Eye, EyeOff,
-  XCircle, Play, Sparkles
+  XCircle, Play, Sparkles, Cpu, HardDrive
 } from 'lucide-react';
 import { LogLevel } from '../types/console.types';
 import { ConsoleLog } from '../types';
 import { aiErrorFixService } from '../services/aiErrorFixService';
 import AIErrorFixModal from './ui/AIErrorFixModal';
 import { ErrorFixResponse } from '../types';
+import TerminalConsolePanel from './Console/TerminalConsolePanel';
 
 interface EnhancedConsoleProps {
   logs: ConsoleLog[];
@@ -21,7 +22,7 @@ interface EnhancedConsoleProps {
   className?: string;
 }
 
-type ConsoleMode = 'console' | 'validator' | 'preview';
+type ConsoleMode = 'console' | 'validator' | 'preview' | 'terminal';
 
 interface ValidationResult {
   line?: number;
@@ -716,7 +717,8 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
         {([
           { key: 'console', label: 'Console', icon: Terminal },
           { key: 'validator', label: 'Validator', icon: CheckCircle },
-          { key: 'preview', label: 'Preview', icon: Play }
+          { key: 'preview', label: 'Preview', icon: Play },
+          { key: 'terminal', label: 'Terminal', icon: Terminal }
         ] as const).map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -866,6 +868,13 @@ const EnhancedConsole: React.FC<EnhancedConsoleProps> = ({
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TERMINAL MODE */}
+          {activeMode === 'terminal' && (
+            <div className="h-full w-full">
+              <TerminalConsolePanel />
             </div>
           )}
         </div>

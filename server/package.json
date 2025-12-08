@@ -1,0 +1,16 @@
+{
+    "name": "gb-coder-terminal-server",
+    "version": "1.0.0",
+    "description": "Terminal backend for GB Coder",
+    "main": "index.js",
+    "type": "commonjs",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "ws": "^8.14.2",
+        "node-pty": "^1.0.0",
+        "cors": "^2.8.5"
+    }
+}
