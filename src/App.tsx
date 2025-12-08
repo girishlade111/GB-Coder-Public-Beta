@@ -1173,7 +1173,6 @@ function App() {
               // Console props
               consoleLogs={consoleLogs}
               onClearConsole={clearConsoleLogs}
-              onCommand={handleCommand}
               onApplyErrorFix={handleApplyErrorFix}
               // AI Suggestions props
               aiSuggestions={aiSuggestions}

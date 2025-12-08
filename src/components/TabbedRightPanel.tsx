@@ -26,7 +26,6 @@ interface TabbedRightPanelProps {
     // Console props
     consoleLogs: ConsoleLog[];
     onClearConsole: () => void;
-    onCommand?: (command: string) => Promise<void>;
     onApplyErrorFix?: (fixedHtml: string, fixedCss: string, fixedJavascript: string) => void;
 
     // AI Suggestions props
@@ -49,7 +48,6 @@ const TabbedRightPanel: React.FC<TabbedRightPanelProps> = ({
     // Console props
     consoleLogs,
     onClearConsole,
-    onCommand,
     onApplyErrorFix,
     // AI Suggestions props
     aiSuggestions,
@@ -118,7 +116,6 @@ const TabbedRightPanel: React.FC<TabbedRightPanelProps> = ({
                                 html={html}
                                 css={css}
                                 javascript={javascript}
-                                onCommand={onCommand}
                                 onApplyErrorFix={onApplyErrorFix}
                                 className="flex-1"
                             />
