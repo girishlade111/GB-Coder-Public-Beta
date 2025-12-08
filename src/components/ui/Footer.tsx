@@ -11,7 +11,8 @@ const Footer: React.FC<FooterProps> = ({ focusMode = false, onToggleFocusMode })
   const { isDark } = useTheme();
 
   const handleNavigation = (view: string) => {
-    window.dispatchEvent(new CustomEvent('navigate-to-page', { detail: { view } }));
+    // Dispatch specific events that App.tsx listens for
+    window.dispatchEvent(new CustomEvent(`navigate-to-${view}`));
   };
 
   // Hide footer when Focus Mode is enabled
@@ -34,6 +35,12 @@ const Footer: React.FC<FooterProps> = ({ focusMode = false, onToggleFocusMode })
               className={`hover:underline transition-colors ${isDark ? 'hover:text-bright-white' : 'hover:text-gray-900'}`}
             >
               About
+            </button>
+            <button
+              onClick={() => handleNavigation('documentation')}
+              className={`hover:underline transition-colors ${isDark ? 'hover:text-bright-white' : 'hover:text-gray-900'}`}
+            >
+              Documentation
             </button>
             <button
               onClick={() => handleNavigation('contact')}
