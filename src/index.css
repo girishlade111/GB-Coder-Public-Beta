@@ -19,6 +19,8 @@
     /* Border Colors */
     --vscode-border: #2d2d30;
     --vscode-border-subtle: #1e1e1e;
+    --vscode-border-light: rgba(255, 255, 255, 0.1);
+    /* Slightly white border */
 
     /* Text Colors */
     --vscode-text-primary: #d4d4d4;
@@ -87,20 +89,20 @@ body {
         background-color: rgba(30, 30, 30, 0.2) !important;
     }
 
-    /* Border colors */
+    /* Border colors - Updated to slightly white */
     .border-gray-800,
     .border-gray-700 {
-        border-color: #2d2d30 !important;
-        /* vscode-border */
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        /* Slightly white */
     }
 
     .border-gray-600 {
-        border-color: #3e3e42 !important;
-        /* Lighter border for inputs */
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        /* Slightly brighter white */
     }
 
     .border-gray-500 {
-        border-color: #454545 !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
     }
 
     /* Text colors - dark theme */
@@ -134,11 +136,28 @@ body {
 
     /* Ring colors (focus states) */
     .focus\:ring-gray-700:focus {
-        --tw-ring-color: #2d2d30 !important;
+        --tw-ring-color: rgba(255, 255, 255, 0.1) !important;
     }
 
     /* Divide colors (for dividers) */
     .divide-gray-700> :not([hidden])~ :not([hidden]) {
-        border-color: #2d2d30 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
     }
+}
+
+/* Global border styling for sections, buttons, and cards */
+section,
+button,
+[role="button"],
+.card,
+[class*="card"],
+[class*="panel"],
+[class*="modal"],
+[class*="sidebar"] {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ensure visible borders on common containers */
+div[class*="border"] {
+    border-color: rgba(255, 255, 255, 0.1) !important;
 }
