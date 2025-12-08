@@ -42,3 +42,103 @@ body {
     background-color: var(--vscode-bg-editor);
     color: var(--vscode-text-primary);
 }
+
+/* Remap Tailwind gray utilities to VS Code theme colors */
+@layer utilities {
+
+    /* Background colors - darkest to lightest */
+    .bg-gray-950 {
+        background-color: #1e1e1e !important;
+        /* vscode-editor */
+    }
+
+    .bg-gray-900 {
+        background-color: #1e1e1e !important;
+        /* vscode-editor/panel */
+    }
+
+    .bg-gray-800 {
+        background-color: #252526 !important;
+        /* vscode-sidebar */
+    }
+
+    .bg-gray-700 {
+        background-color: #333333 !important;
+        /* vscode-activitybar */
+    }
+
+    /* Hover state backgrounds */
+    .hover\:bg-gray-800:hover {
+        background-color: #2d2d30 !important;
+        /* vscode-border (slightly lighter) */
+    }
+
+    .hover\:bg-gray-700:hover {
+        background-color: #2d2d30 !important;
+        /* vscode-border */
+    }
+
+    /* Semi-transparent backgrounds */
+    .bg-gray-800\/50 {
+        background-color: rgba(37, 37, 38, 0.5) !important;
+    }
+
+    .bg-gray-900\/20 {
+        background-color: rgba(30, 30, 30, 0.2) !important;
+    }
+
+    /* Border colors */
+    .border-gray-800,
+    .border-gray-700 {
+        border-color: #2d2d30 !important;
+        /* vscode-border */
+    }
+
+    .border-gray-600 {
+        border-color: #3e3e42 !important;
+        /* Lighter border for inputs */
+    }
+
+    .border-gray-500 {
+        border-color: #454545 !important;
+    }
+
+    /* Text colors - dark theme */
+    .text-gray-500 {
+        color: #858585 !important;
+    }
+
+    .text-gray-400 {
+        color: #969696 !important;
+        /* vscode-text-dim */
+    }
+
+    .text-gray-300 {
+        color: #d4d4d4 !important;
+        /* vscode-text */
+    }
+
+    .text-gray-200 {
+        color: #e8e8e8 !important;
+        /* Brighter text */
+    }
+
+    /* Hover text colors */
+    .hover\:text-gray-200:hover {
+        color: #e8e8e8 !important;
+    }
+
+    .hover\:text-gray-300:hover {
+        color: #d4d4d4 !important;
+    }
+
+    /* Ring colors (focus states) */
+    .focus\:ring-gray-700:focus {
+        --tw-ring-color: #2d2d30 !important;
+    }
+
+    /* Divide colors (for dividers) */
+    .divide-gray-700> :not([hidden])~ :not([hidden]) {
+        border-color: #2d2d30 !important;
+    }
+}
