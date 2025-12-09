@@ -25,6 +25,7 @@ import {
 import { EditorLanguage } from '../types';
 import ThemeToggle from './ui/ThemeToggle';
 import { useTheme } from '../hooks/useTheme';
+import ProfileButton from './ProfileButton';
 
 interface NavigationBarProps {
   onAutoSaveToggle: () => void;
@@ -237,29 +238,32 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
               </div>
             </div>
 
-            {/* Right side - Menu Button & Custom Actions */}
-            <div className="flex items-center gap-1 sm:gap-2 lg:gap-4 min-w-0 flex-shrink-0">
-              {/* Custom Actions (Login, Save Status, etc.) */}
+            {/* Right side - Profile Button, Settings, Menu */}
+            <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 min-w-0 flex-shrink-0">
+              {/* Custom Actions */}
               {customActions}
+
+              {/* Profile Button - Sign In / User Profile */}
+              <ProfileButton />
 
               {/* Settings Button */}
               <button
                 onClick={onSettingsToggle}
-                className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${isDark
+                className={`p-2 sm:p-2.5 rounded-lg transition-all duration-200 hover:scale-105 ${isDark
                   ? 'text-bright-white hover:bg-dark-gray'
                   : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 title="Settings"
                 aria-label="Settings"
               >
-                <Settings className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
               {/* Hamburger Menu */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className={`p-2 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105 ${isDropdownOpen
+                  className={`p-2 sm:p-2.5 rounded-lg transition-all duration-200 hover:scale-105 ${isDropdownOpen
                     ? (isDark ? 'bg-dark-gray text-white' : 'bg-gray-100 text-black')
                     : (isDark
                       ? 'text-bright-white hover:bg-dark-gray'
@@ -270,17 +274,17 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                   aria-expanded={isDropdownOpen}
                   aria-haspopup="true"
                 >
-                  <Menu className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+                  <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
 
                 {/* Dropdown Content */}
                 {isDropdownOpen && (
-                  <div className={`absolute right-0 mt-2 w-80 sm:w-96 rounded-xl shadow-lg border py-2 z-50 animate-in slide-in-from-top-2 duration-200 ${isDark
+                  <div className={`absolute right-0 mt-2 w-72 sm:w-80 rounded-xl shadow-lg border z-50 animate-in slide-in-from-top-2 duration-200 overflow-hidden ${isDark
                     ? 'bg-dark-gray border-gray-700'
                     : 'bg-white border-gray-200'
                     }`}>
-                    {/* Menu Content - All Features Consolidated */}
-                    <div className="py-2">
+                    {/* Menu Content */}
+                    <div className="py-2 max-h-[calc(100vh-100px)] overflow-y-auto">
                       {/* AI Features */}
                       <div className="px-4 pb-3">
                         <h4 className={`text-xs font-semibold uppercase tracking-wide mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'

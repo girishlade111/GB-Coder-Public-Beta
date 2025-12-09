@@ -20,6 +20,12 @@ const ExternalLibraryManager = lazy(() => import('./components/ExternalLibraryMa
 const CodeHistoryPage = lazy(() => import('./components/history/CodeHistoryPage'));
 const AboutPage = lazy(() => import('./components/pages/AboutPage'));
 const DocumentationPage = lazy(() => import('./components/pages/DocumentationPage'));
+const PrivacyPolicyPage = lazy(() => import('./components/pages/PrivacyPolicyPage'));
+const TermsOfServicePage = lazy(() => import('./components/pages/TermsOfServicePage'));
+const CookiePolicyPage = lazy(() => import('./components/pages/CookiePolicyPage'));
+const DisclaimerPage = lazy(() => import('./components/pages/DisclaimerPage'));
+const ContactPage = lazy(() => import('./components/pages/ContactPage'));
+const AuthPage = lazy(() => import('./components/pages/AuthPage'));
 const ProjectBar = lazy(() => import('./components/ProjectBar'));
 const ExtensionsMarketplace = lazy(() => import('./components/ExtensionsMarketplace'));
 const SettingsModal = lazy(() => import('./components/SettingsModal'));
@@ -51,7 +57,7 @@ import { formattingService } from './services/formattingService';
 import { SelectionOperationType } from './services/selectionOperationsService';
 
 
-type AppView = 'editor' | 'history' | 'about' | 'documentation';
+type AppView = 'editor' | 'history' | 'about' | 'documentation' | 'privacy' | 'terms' | 'cookies' | 'disclaimer' | 'contact' | 'auth';
 
 const defaultHTML = `<div class="container">
 </div>`;
@@ -221,15 +227,57 @@ function App() {
       setShowKeyboardShortcuts(true);
     };
 
+    const handleNavigateToPrivacy = () => {
+      console.log('[DEBUG] Navigation event: navigate-to-privacy');
+      setCurrentView('privacy');
+    };
+
+    const handleNavigateToTerms = () => {
+      console.log('[DEBUG] Navigation event: navigate-to-terms');
+      setCurrentView('terms');
+    };
+
+    const handleNavigateToCookies = () => {
+      console.log('[DEBUG] Navigation event: navigate-to-cookies');
+      setCurrentView('cookies');
+    };
+
+    const handleNavigateToDisclaimer = () => {
+      console.log('[DEBUG] Navigation event: navigate-to-disclaimer');
+      setCurrentView('disclaimer');
+    };
+
+    const handleNavigateToContact = () => {
+      console.log('[DEBUG] Navigation event: navigate-to-contact');
+      setCurrentView('contact');
+    };
+
+    const handleNavigateToAuth = () => {
+      console.log('[DEBUG] Navigation event: navigate-to-auth');
+      setCurrentView('auth');
+    };
+
     window.addEventListener('navigate-to-about', handleNavigateToAbout);
     window.addEventListener('navigate-to-documentation', handleNavigateToDocumentation);
     window.addEventListener('open-keyboard-shortcuts', handleOpenKeyboardShortcuts);
+    window.addEventListener('navigate-to-privacy', handleNavigateToPrivacy);
+    window.addEventListener('navigate-to-terms', handleNavigateToTerms);
+    window.addEventListener('navigate-to-cookies', handleNavigateToCookies);
+    window.addEventListener('navigate-to-disclaimer', handleNavigateToDisclaimer);
+    window.addEventListener('navigate-to-contact', handleNavigateToContact);
+    window.addEventListener('navigate-to-auth', handleNavigateToAuth);
     console.log('[DEBUG] Navigation event listeners added');
 
     return () => {
       window.removeEventListener('navigate-to-about', handleNavigateToAbout);
       window.removeEventListener('navigate-to-documentation', handleNavigateToDocumentation);
       window.removeEventListener('open-keyboard-shortcuts', handleOpenKeyboardShortcuts);
+      window.removeEventListener('navigate-to-privacy', handleNavigateToPrivacy);
+      window.removeEventListener('navigate-to-terms', handleNavigateToTerms);
+      window.removeEventListener('navigate-to-cookies', handleNavigateToCookies);
+      window.removeEventListener('navigate-to-disclaimer', handleNavigateToDisclaimer);
+      window.removeEventListener('navigate-to-contact', handleNavigateToContact);
+      window.removeEventListener('navigate-to-auth', handleNavigateToAuth);
       console.log('[DEBUG] Navigation event listeners removed');
     };
   }, []);
@@ -1046,6 +1094,240 @@ function App() {
           </Suspense>
         )}
       </div>
+    );
+  }
+
+  // Render Privacy Policy page
+  if (currentView === 'privacy') {
+    return (
+      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'}`}>
+        <NavigationBar
+          onAutoSaveToggle={() => setAutoSaveEnabled(!autoSaveEnabled)}
+          onSnippetsToggle={() => setShowSnippets(!showSnippets)}
+          onRun={() => handleCommand('run')}
+          onReset={resetCode}
+          onImport={fileUpload.uploadFiles}
+          onExport={() => downloadAsZip(html, css, javascript)}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
+          onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+          onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
+          onExtensionsToggle={handleExtensionsToggle}
+          onSettingsToggle={handleSettingsToggle}
+          canUndo={codeHistory.canUndo}
+          canRedo={codeHistory.canRedo}
+          autoSaveEnabled={autoSaveEnabled}
+          aiAssistantOpen={showGeminiAssistant}
+          aiSuggestionsOpen={showAISuggestions}
+          customActions={
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCurrentView('editor')}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                Back to Editor
+              </button>
+            </div>
+          }
+        />
+        <div className="flex-1">
+          <Suspense fallback={<div className="p-8 text-center">Loading Privacy Policy...</div>}>
+            <PrivacyPolicyPage />
+          </Suspense>
+        </div>
+        <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
+      </div>
+    );
+  }
+
+  // Render Terms of Service page
+  if (currentView === 'terms') {
+    return (
+      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'}`}>
+        <NavigationBar
+          onAutoSaveToggle={() => setAutoSaveEnabled(!autoSaveEnabled)}
+          onSnippetsToggle={() => setShowSnippets(!showSnippets)}
+          onRun={() => handleCommand('run')}
+          onReset={resetCode}
+          onImport={fileUpload.uploadFiles}
+          onExport={() => downloadAsZip(html, css, javascript)}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
+          onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+          onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
+          onExtensionsToggle={handleExtensionsToggle}
+          onSettingsToggle={handleSettingsToggle}
+          canUndo={codeHistory.canUndo}
+          canRedo={codeHistory.canRedo}
+          autoSaveEnabled={autoSaveEnabled}
+          aiAssistantOpen={showGeminiAssistant}
+          aiSuggestionsOpen={showAISuggestions}
+          customActions={
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCurrentView('editor')}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                Back to Editor
+              </button>
+            </div>
+          }
+        />
+        <div className="flex-1">
+          <Suspense fallback={<div className="p-8 text-center">Loading Terms of Service...</div>}>
+            <TermsOfServicePage />
+          </Suspense>
+        </div>
+        <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
+      </div>
+    );
+  }
+
+  // Render Cookie Policy page
+  if (currentView === 'cookies') {
+    return (
+      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'}`}>
+        <NavigationBar
+          onAutoSaveToggle={() => setAutoSaveEnabled(!autoSaveEnabled)}
+          onSnippetsToggle={() => setShowSnippets(!showSnippets)}
+          onRun={() => handleCommand('run')}
+          onReset={resetCode}
+          onImport={fileUpload.uploadFiles}
+          onExport={() => downloadAsZip(html, css, javascript)}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
+          onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+          onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
+          onExtensionsToggle={handleExtensionsToggle}
+          onSettingsToggle={handleSettingsToggle}
+          canUndo={codeHistory.canUndo}
+          canRedo={codeHistory.canRedo}
+          autoSaveEnabled={autoSaveEnabled}
+          aiAssistantOpen={showGeminiAssistant}
+          aiSuggestionsOpen={showAISuggestions}
+          customActions={
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCurrentView('editor')}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                Back to Editor
+              </button>
+            </div>
+          }
+        />
+        <div className="flex-1">
+          <Suspense fallback={<div className="p-8 text-center">Loading Cookie Policy...</div>}>
+            <CookiePolicyPage />
+          </Suspense>
+        </div>
+        <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
+      </div>
+    );
+  }
+
+  // Render Disclaimer page
+  if (currentView === 'disclaimer') {
+    return (
+      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'}`}>
+        <NavigationBar
+          onAutoSaveToggle={() => setAutoSaveEnabled(!autoSaveEnabled)}
+          onSnippetsToggle={() => setShowSnippets(!showSnippets)}
+          onRun={() => handleCommand('run')}
+          onReset={resetCode}
+          onImport={fileUpload.uploadFiles}
+          onExport={() => downloadAsZip(html, css, javascript)}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
+          onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+          onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
+          onExtensionsToggle={handleExtensionsToggle}
+          onSettingsToggle={handleSettingsToggle}
+          canUndo={codeHistory.canUndo}
+          canRedo={codeHistory.canRedo}
+          autoSaveEnabled={autoSaveEnabled}
+          aiAssistantOpen={showGeminiAssistant}
+          aiSuggestionsOpen={showAISuggestions}
+          customActions={
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCurrentView('editor')}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                Back to Editor
+              </button>
+            </div>
+          }
+        />
+        <div className="flex-1">
+          <Suspense fallback={<div className="p-8 text-center">Loading Disclaimer...</div>}>
+            <DisclaimerPage />
+          </Suspense>
+        </div>
+        <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
+      </div>
+    );
+  }
+
+  // Render Contact page
+  if (currentView === 'contact') {
+    return (
+      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-matte-black' : 'bg-bright-white'}`}>
+        <NavigationBar
+          onAutoSaveToggle={() => setAutoSaveEnabled(!autoSaveEnabled)}
+          onSnippetsToggle={() => setShowSnippets(!showSnippets)}
+          onRun={() => handleCommand('run')}
+          onReset={resetCode}
+          onImport={fileUpload.uploadFiles}
+          onExport={() => downloadAsZip(html, css, javascript)}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onAIAssistantToggle={() => setShowGeminiAssistant(!showGeminiAssistant)}
+          onAISuggestionsToggle={() => setShowAISuggestions(!showAISuggestions)}
+          onExternalLibraryManagerToggle={handleExternalLibraryManagerToggle}
+          onHistoryToggle={() => setIsHistoryPanelOpen(!isHistoryPanelOpen)}
+          onExtensionsToggle={handleExtensionsToggle}
+          onSettingsToggle={handleSettingsToggle}
+          canUndo={codeHistory.canUndo}
+          canRedo={codeHistory.canRedo}
+          autoSaveEnabled={autoSaveEnabled}
+          aiAssistantOpen={showGeminiAssistant}
+          aiSuggestionsOpen={showAISuggestions}
+          customActions={
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCurrentView('editor')}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                Back to Editor
+              </button>
+            </div>
+          }
+        />
+        <div className="flex-1">
+          <Suspense fallback={<div className="p-8 text-center">Loading Contact...</div>}>
+            <ContactPage />
+          </Suspense>
+        </div>
+        <Footer focusMode={focusMode} onToggleFocusMode={toggleFocusMode} />
+      </div>
+    );
+  }
+
+  // Render Auth page (full screen, no navbar)
+  if (currentView === 'auth') {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>}>
+        <AuthPage onClose={() => setCurrentView('editor')} />
+      </Suspense>
     );
   }
 
