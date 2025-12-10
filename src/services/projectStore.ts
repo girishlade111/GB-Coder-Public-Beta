@@ -11,10 +11,11 @@ const DEFAULT_PROJECT_NAME = 'Untitled Project';
  */
 class ProjectStore {
     /**
-     * Generate a unique project ID
+     * Generate a unique project ID (UUID format for Supabase compatibility)
      */
     private generateId(): string {
-        return `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        // Use crypto.randomUUID() for Supabase-compatible UUID format
+        return crypto.randomUUID();
     }
 
     /**

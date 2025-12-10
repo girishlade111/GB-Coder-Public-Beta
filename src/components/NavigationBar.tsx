@@ -26,6 +26,7 @@ import { EditorLanguage } from '../types';
 import ThemeToggle from './ui/ThemeToggle';
 import { useTheme } from '../hooks/useTheme';
 import ProfileButton from './ProfileButton';
+import CloudSaveButton from './CloudSaveButton';
 
 interface NavigationBarProps {
   onAutoSaveToggle: () => void;
@@ -48,6 +49,10 @@ interface NavigationBarProps {
   aiAssistantOpen: boolean;
   aiSuggestionsOpen: boolean;
   customActions?: React.ReactNode;
+  // Cloud sync data getters
+  getCurrentProject?: () => import('../services/supabaseDataSync').ProjectData | null;
+  getSnippets?: () => import('../services/supabaseDataSync').SnippetData[];
+  getSettings?: () => import('../services/supabaseDataSync').UserSettingsData;
 }
 
 interface FileUpload {
@@ -77,7 +82,14 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   autoSaveEnabled,
   aiAssistantOpen,
   aiSuggestionsOpen,
-  customActions
+  customActions,
+  // Cloud sync data getters
+  getCurrentProject,
+  getSnippets,
+  getSettings,
+  getConversations,
+  getSnapshots,
+  getProfile
 }) => {
   const { isDark } = useTheme();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -242,6 +254,13 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
             <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 min-w-0 flex-shrink-0">
               {/* Custom Actions */}
               {customActions}
+
+              {/* Cloud Save Button */}
+              <CloudSaveButton
+                getCurrentProject={getCurrentProject}
+                getSnippets={getSnippets}
+                getSettings={getSettings}
+              />
 
               {/* Profile Button - Sign In / User Profile */}
               <ProfileButton />

@@ -42,6 +42,8 @@ import { useCodeSelection } from './hooks/useCodeSelection';
 import { useSelectionOperations } from './hooks/useSelectionOperations';
 import { useProject } from './hooks/useProject';
 import { useSettings } from './hooks/useSettings';
+import { useCloudSync } from './hooks/useCloudSync';
+import { UserSettings, AIConversation, HistorySnapshot } from './services/supabaseSyncService';
 import { useFocusMode } from './hooks/useFocusMode';
 import { useProgressiveLoad } from './hooks/useProgressiveLoad';
 import SelectionToolbar from './components/SelectionToolbar';
@@ -103,6 +105,24 @@ function App() {
 
   // Focus Mode
   const { focusMode, toggleFocusMode } = useFocusMode();
+
+  // Cloud Sync
+  const cloudSync = useCloudSync({
+    getProjects: () => project.currentProject ? [project.currentProject] : [],
+    getSnippets: () => snippets,
+    getSettings: () => ({
+      editorFontFamily: settings.editorFontFamily,
+      editorFontSize: settings.editorFontSize,
+      theme: settings.theme,
+      autoRunJs: settings.autoRunJS,
+      previewDelay: settings.previewDelay,
+      aiModel: 'gemini-2.0-flash-exp',
+      aiAutoSuggest: true,
+      customSettings: {}
+    }),
+    getAIConversations: () => [],
+    getCodeHistory: () => []
+  });
 
   // Project Management
   const project = useProject(html, css, javascript, externalLibraries);
@@ -496,7 +516,7 @@ function App() {
 
   const saveSnippet = (name: string, htmlCode: string, cssCode: string, jsCode: string, description?: string, tags?: string[], category?: string, type?: SnippetType, scope?: SnippetScope) => {
     const snippet: CodeSnippet = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       name,
       description,
       html: htmlCode,
@@ -908,6 +928,22 @@ function App() {
           autoSaveEnabled={autoSaveEnabled}
           aiAssistantOpen={showGeminiAssistant}
           aiSuggestionsOpen={showAISuggestions}
+          getCurrentProject={() => project.currentProject ? {
+            id: project.currentProject.id,
+            name: project.currentProject.name,
+            html: html,
+            css: css,
+            javascript: javascript,
+            externalLibraries: externalLibraries
+          } : null}
+          getSnippets={() => snippets}
+          getSettings={() => ({
+            editorFontFamily: settings.editorFontFamily,
+            editorFontSize: settings.editorFontSize,
+            theme: settings.theme,
+            autoRunJs: settings.autoRunJS,
+            previewDelay: settings.previewDelay
+          })}
           customActions={
             <div className="flex items-center gap-4">
               <button
@@ -979,6 +1015,22 @@ function App() {
           autoSaveEnabled={autoSaveEnabled}
           aiAssistantOpen={showGeminiAssistant}
           aiSuggestionsOpen={showAISuggestions}
+          getCurrentProject={() => project.currentProject ? {
+            id: project.currentProject.id,
+            name: project.currentProject.name,
+            html: html,
+            css: css,
+            javascript: javascript,
+            externalLibraries: externalLibraries
+          } : null}
+          getSnippets={() => snippets}
+          getSettings={() => ({
+            editorFontFamily: settings.editorFontFamily,
+            editorFontSize: settings.editorFontSize,
+            theme: settings.theme,
+            autoRunJs: settings.autoRunJS,
+            previewDelay: settings.previewDelay
+          })}
           customActions={
             <div className="flex items-center gap-4">
               <button
@@ -1051,6 +1103,22 @@ function App() {
           autoSaveEnabled={autoSaveEnabled}
           aiAssistantOpen={showGeminiAssistant}
           aiSuggestionsOpen={showAISuggestions}
+          getCurrentProject={() => project.currentProject ? {
+            id: project.currentProject.id,
+            name: project.currentProject.name,
+            html: html,
+            css: css,
+            javascript: javascript,
+            externalLibraries: externalLibraries
+          } : null}
+          getSnippets={() => snippets}
+          getSettings={() => ({
+            editorFontFamily: settings.editorFontFamily,
+            editorFontSize: settings.editorFontSize,
+            theme: settings.theme,
+            autoRunJs: settings.autoRunJS,
+            previewDelay: settings.previewDelay
+          })}
           customActions={
             <div className="flex items-center gap-4">
               <button
@@ -1121,6 +1189,22 @@ function App() {
           autoSaveEnabled={autoSaveEnabled}
           aiAssistantOpen={showGeminiAssistant}
           aiSuggestionsOpen={showAISuggestions}
+          getCurrentProject={() => project.currentProject ? {
+            id: project.currentProject.id,
+            name: project.currentProject.name,
+            html: html,
+            css: css,
+            javascript: javascript,
+            externalLibraries: externalLibraries
+          } : null}
+          getSnippets={() => snippets}
+          getSettings={() => ({
+            editorFontFamily: settings.editorFontFamily,
+            editorFontSize: settings.editorFontSize,
+            theme: settings.theme,
+            autoRunJs: settings.autoRunJS,
+            previewDelay: settings.previewDelay
+          })}
           customActions={
             <div className="flex items-center gap-4">
               <button
@@ -1166,6 +1250,22 @@ function App() {
           autoSaveEnabled={autoSaveEnabled}
           aiAssistantOpen={showGeminiAssistant}
           aiSuggestionsOpen={showAISuggestions}
+          getCurrentProject={() => project.currentProject ? {
+            id: project.currentProject.id,
+            name: project.currentProject.name,
+            html: html,
+            css: css,
+            javascript: javascript,
+            externalLibraries: externalLibraries
+          } : null}
+          getSnippets={() => snippets}
+          getSettings={() => ({
+            editorFontFamily: settings.editorFontFamily,
+            editorFontSize: settings.editorFontSize,
+            theme: settings.theme,
+            autoRunJs: settings.autoRunJS,
+            previewDelay: settings.previewDelay
+          })}
           customActions={
             <div className="flex items-center gap-4">
               <button
@@ -1211,6 +1311,22 @@ function App() {
           autoSaveEnabled={autoSaveEnabled}
           aiAssistantOpen={showGeminiAssistant}
           aiSuggestionsOpen={showAISuggestions}
+          getCurrentProject={() => project.currentProject ? {
+            id: project.currentProject.id,
+            name: project.currentProject.name,
+            html: html,
+            css: css,
+            javascript: javascript,
+            externalLibraries: externalLibraries
+          } : null}
+          getSnippets={() => snippets}
+          getSettings={() => ({
+            editorFontFamily: settings.editorFontFamily,
+            editorFontSize: settings.editorFontSize,
+            theme: settings.theme,
+            autoRunJs: settings.autoRunJS,
+            previewDelay: settings.previewDelay
+          })}
           customActions={
             <div className="flex items-center gap-4">
               <button
@@ -1256,6 +1372,22 @@ function App() {
           autoSaveEnabled={autoSaveEnabled}
           aiAssistantOpen={showGeminiAssistant}
           aiSuggestionsOpen={showAISuggestions}
+          getCurrentProject={() => project.currentProject ? {
+            id: project.currentProject.id,
+            name: project.currentProject.name,
+            html: html,
+            css: css,
+            javascript: javascript,
+            externalLibraries: externalLibraries
+          } : null}
+          getSnippets={() => snippets}
+          getSettings={() => ({
+            editorFontFamily: settings.editorFontFamily,
+            editorFontSize: settings.editorFontSize,
+            theme: settings.theme,
+            autoRunJs: settings.autoRunJS,
+            previewDelay: settings.previewDelay
+          })}
           customActions={
             <div className="flex items-center gap-4">
               <button
@@ -1301,6 +1433,22 @@ function App() {
           autoSaveEnabled={autoSaveEnabled}
           aiAssistantOpen={showGeminiAssistant}
           aiSuggestionsOpen={showAISuggestions}
+          getCurrentProject={() => project.currentProject ? {
+            id: project.currentProject.id,
+            name: project.currentProject.name,
+            html: html,
+            css: css,
+            javascript: javascript,
+            externalLibraries: externalLibraries
+          } : null}
+          getSnippets={() => snippets}
+          getSettings={() => ({
+            editorFontFamily: settings.editorFontFamily,
+            editorFontSize: settings.editorFontSize,
+            theme: settings.theme,
+            autoRunJs: settings.autoRunJS,
+            previewDelay: settings.previewDelay
+          })}
           customActions={
             <div className="flex items-center gap-4">
               <button
@@ -1356,6 +1504,22 @@ function App() {
         autoSaveEnabled={autoSaveEnabled}
         aiAssistantOpen={showGeminiAssistant}
         aiSuggestionsOpen={showAISuggestions}
+        getCurrentProject={() => project.currentProject ? {
+          id: project.currentProject.id,
+          name: project.currentProject.name,
+          html: html,
+          css: css,
+          javascript: javascript,
+          externalLibraries: externalLibraries
+        } : null}
+        getSnippets={() => snippets}
+        getSettings={() => ({
+          editorFontFamily: settings.editorFontFamily,
+          editorFontSize: settings.editorFontSize,
+          theme: settings.theme,
+          autoRunJs: settings.autoRunJS,
+          previewDelay: settings.previewDelay
+        })}
         customActions={
           <div className="flex items-center gap-4">
             <button
